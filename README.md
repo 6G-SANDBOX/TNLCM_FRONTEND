@@ -1,3 +1,5 @@
+[![Next JS](https://img.shields.io/badge/Next.js-14+-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+
 # TRIAL NETWORK LIFECYCLE MANAGER FRONTEND (TNLCM)
 
 > ⚠ TNLCM frontend is under development and is subject to continuous changes.
@@ -10,7 +12,7 @@ Download the main branch from the TNLCM repository
 
 Clone repository:
 
-        git clone https://github.com/6G-SANDBOX/TNLCM_FRONTEND.git
+    git clone https://github.com/6G-SANDBOX/TNLCM_FRONTEND.git
 
 ### Create .env using .env.template
 
