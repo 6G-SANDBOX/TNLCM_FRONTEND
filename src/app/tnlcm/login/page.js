@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { login } from '../../lib/apiHandler';
+import { loginUser } from '../../lib/apiHandler';
 import { saveAccessTokenToLocalStorage, saveRefreshTokenToLocalStorage } from '../../lib/jwtHandler';
 
 export default function LoginPage() {
@@ -13,7 +13,7 @@ export default function LoginPage() {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const tokens = await login(username, password);
+            const tokens = await loginUser(username, password);
             saveAccessTokenToLocalStorage(tokens['access_token']);
             saveRefreshTokenToLocalStorage(tokens['refresh_token']);
             router.push('/tnlcm/home');

@@ -1,6 +1,6 @@
 // Fetching
 // TODO: Check try/catch
-export async function login(username, password) {
+export async function loginUser(username, password) {
     const authString = `${username}:${password}`;
     const encodedAuth = Buffer.from(authString).toString('base64');
     const basicAuthHeader = `Basic ${encodedAuth}`;
@@ -25,7 +25,29 @@ export async function login(username, password) {
     }
 };
 
-export async function trial_networks(token) {
+export async function registerUser(username, password, email) {
+    try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/user`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, password, email })
+        });
+
+        if (!response.ok) {
+            throw new Error('Error when registering the user');
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error fetching user data:', error.message);
+        throw error;
+    }
+};
+
+export async function getTrialNetworks(token) {
     try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_networks/`, {
             method: 'GET',
@@ -46,25 +68,3 @@ export async function trial_networks(token) {
         throw error;
     }
 };
-
-export async function register(username, password, email) {
-    try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/user`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ username, password, email })
-        });
-
-        if (!response.ok) {
-            throw new Error('Error when registering the user');
-        }
-
-        const data = await response.json();
-        return data;
-    } catch (error) {
-        console.error('Error fetching user data:', error.message);
-        throw error;
-    }
-}

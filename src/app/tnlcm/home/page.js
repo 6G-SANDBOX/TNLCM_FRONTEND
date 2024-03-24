@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { trial_networks } from '../../lib/apiHandler';
+import { getTrialNetworks } from '../../lib/apiHandler';
 import { getAccessTokenFromLocalStorage, getRefreshTokenFromLocalStorage } from '../../lib/jwtHandler';
 
 export default function HomePage() {
@@ -16,8 +16,7 @@ export default function HomePage() {
     async function fetchTrialNetworks() {
         try {
             const accessToken = getAccessTokenFromLocalStorage();
-            const refreshToken = getRefreshTokenFromLocalStorage();
-            const response = await trial_networks(accessToken, refreshToken);
+            const response = await getTrialNetworks(accessToken);
             setTrialNetworks(response["tn_ids"]);
         } catch (error) {
             console.error('Error fetching trial networks:', error.message);
@@ -30,7 +29,7 @@ export default function HomePage() {
 
     return (
         <div>
-            <h1>Lista de Trial Networks</h1>
+            <h1>List of Trial Networks</h1>
             <ul>
                 {trialNetworks.map((tnId, index) => (
                     <li key={index}>{tnId}</li>
