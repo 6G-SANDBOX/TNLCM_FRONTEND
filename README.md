@@ -17,11 +17,19 @@ Clone repository:
 
 ### Create .env using .env.template
 
-Create the .env file at the same level and with the contents of the .env.template file.
+Create the .env file at the same level and with the contents of the [.env.template](./.env.template) file.
 
 ### Add the node_modules folder
 
-> ⚠ This step requires Nodej.js to be installed on the machine.
+> ⚠ This step requires Node.js to be installed on the machine.
+
+* [Windows](https://nodejs.org/en)
+* [Linux](https://github.com/nodesource/distributions/blob/master/README.md)
+
+    ```
+    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &&\
+    sudo apt-get install -y nodejs
+    ```
 
 The **node_modules/** must be created inside the TNLCM_FRONTEND project
 
