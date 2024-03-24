@@ -12,7 +12,7 @@ export async function loginUser(username, password) {
                     'Content-Type': 'application/json'
                 }
             });
-            return response
+            return response;
         } catch (error) {
             throw new Error('Failed to fetch data' + error);
         }
@@ -20,7 +20,7 @@ export async function loginUser(username, password) {
     
     const response = await fetchLoginUser();
     const data = await response.json();
-    const code_error = response.status;
+    const code_error = response['status'];
     if (!response.ok) {
         const { message } = data;
         throw new Error(message + '. \nError code: ' + code_error);
@@ -39,7 +39,7 @@ export async function registerUser(username, password, email, org) {
                 },
                 body: JSON.stringify({ username, password, email, org })
             });
-            return response
+            return response;
         } catch (error) {
             throw new Error('Failed to fetch data' + error);
         }
@@ -47,7 +47,7 @@ export async function registerUser(username, password, email, org) {
 
     const response = await fetchRegisterUser();
     const data = await response.json();
-    const code_error = response.status;
+    const code_error = response['status'];
     if (!response.ok) {
         const { message } = data;
         throw new Error(message + '. \nError code: ' + code_error);
@@ -66,7 +66,7 @@ export async function getTrialNetworks(token) {
                     'Content-Type': 'application/json'
                 }
             });
-            return response
+            return response;
         } catch (error) {
             throw new Error('Failed to fetch data' + error);
         }
@@ -74,7 +74,7 @@ export async function getTrialNetworks(token) {
 
     const response = await fetchTrialNetworks();
     const data = await response.json();
-    const code_error = response.status;
+    const code_error = response['status'];
     if (!response.ok) {
         const { message } = data;
         throw new Error(message + '. \nError code: ' + code_error);
