@@ -11,6 +11,7 @@ import styles from './Login.module.css';
 export default function LoginPage() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const handleLogin = async (e) => {
@@ -18,6 +19,9 @@ export default function LoginPage() {
         if (!username || !password) {
             alert('All fields are required');
         }
+
+        setLoading(true);
+
         try {
             const tokens = await loginUser(username, password);
             saveAccessTokenToLocalStorage(tokens['access_token']);
@@ -25,6 +29,8 @@ export default function LoginPage() {
             router.push('/tnlcm/home');
         } catch (error) {
             alert(error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -54,7 +60,9 @@ export default function LoginPage() {
                     onKeyDown={handleKeyPress}
                     className="input-login-register"
                 />
-                <Button type="submit" className="button-login-register">Log in</Button>
+                <Button type="submit" className="button-login-register" disabled={loading}>
+                    {loading ? 'Logging in...' : 'Log in'}
+                </Button>
             </form>
             <p>Don't have an account? <a href="/tnlcm/register">Register</a></p>
         </div>
