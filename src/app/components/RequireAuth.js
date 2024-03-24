@@ -11,10 +11,14 @@ export default function RequireAuth ({ children }) {
     const isMainPage = usePathname() === '/';
 
     useEffect(() => {
-        const accessToken = getAccessTokenFromLocalStorage();
-        if (!isMainPage && !isRegisterPage && !accessToken) {
-            router.push('/tnlcm/login');
-        }
+        const checkAuth = async () => {
+            const accessToken = await getAccessTokenFromLocalStorage();
+            if (!isMainPage && !isRegisterPage && !accessToken) {
+                router.push('/tnlcm/login');
+            }
+        };
+
+        checkAuth();
     }, []);
 
     return <>{children}</>;
