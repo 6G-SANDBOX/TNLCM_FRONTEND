@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { register } from '../../lib/apiHandler';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -12,8 +13,7 @@ export default function RegisterPage() {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      // TODO: Register call to backend
-      // await register(username, password, email);
+      await register(username, password, email);
       router.push('/tnlcm/login');
     } catch (error) {
       console.error('Error:', error.message);
