@@ -8,10 +8,11 @@ export default function RequireAuth ({ children }) {
     const router = useRouter();
     
     const isRegisterPage = usePathname() === '/tnlcm/register';
+    const isMainPage = usePathname() === '/';
 
     useEffect(() => {
         const accessToken = getAccessTokenFromLocalStorage();
-        if (!isRegisterPage && !accessToken) {
+        if (!isMainPage && !isRegisterPage && !accessToken) {
             router.push('/tnlcm/login');
         }
     }, []);
