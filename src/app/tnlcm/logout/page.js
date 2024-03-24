@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { clearAuthTokens } from '@/app/lib/jwtHandler';
+import { clearAuthTokens } from '../../lib/jwtHandler';
 
 export default function LogoutPage() {
     const router = useRouter();
