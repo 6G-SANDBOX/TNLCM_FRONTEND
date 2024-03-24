@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Button from '../../components/Button';
 import { getTrialNetworks } from '../../lib/apiHandler';
-import { getAccessTokenFromLocalStorage, getRefreshTokenFromLocalStorage } from '../../lib/jwtHandler';
+import { getAccessTokenFromLocalStorage } from '../../lib/jwtHandler';
 
 export default function HomePage() {
     const [trialNetworks, setTrialNetworks] = useState([]);
-    const router = useRouter()
+    const router = useRouter();
     
     const handleLogout = () => {
         router.push('/tnlcm/logout');
@@ -19,9 +20,9 @@ export default function HomePage() {
             const response = await getTrialNetworks(accessToken);
             setTrialNetworks(response["tn_ids"]);
         } catch (error) {
-            console.error('Error fetching trial networks:', error.message);
+            alert(error);
         }
-    }
+    };
 
     useEffect(() => {
         fetchTrialNetworks();
@@ -35,7 +36,7 @@ export default function HomePage() {
                     <li key={index}>{tnId}</li>
                 ))}
             </ul>
-            <button onClick={handleLogout}>Logout</button>
+            <Button onClick={handleLogout} className="button-login-register">Logout</Button>
         </div>
     );
 };
