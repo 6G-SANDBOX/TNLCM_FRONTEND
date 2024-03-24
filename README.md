@@ -1,4 +1,5 @@
-[![Next JS](https://img.shields.io/badge/Next.js-14+-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-20.11.1+-green?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/en)
+[![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 
 # TRIAL NETWORK LIFECYCLE MANAGER FRONTEND (TNLCM)
 
@@ -20,7 +21,9 @@ Create the .env file at the same level and with the contents of the .env.templat
 
 ### Add the node_modules folder
 
-The node_modules must be created inside the TNLCM_FRONTEND project
+> ⚠ This step requires Nodej.js to be installed on the machine.
+
+The **node_modules/** must be created inside the TNLCM_FRONTEND project
 
     npm install
 
