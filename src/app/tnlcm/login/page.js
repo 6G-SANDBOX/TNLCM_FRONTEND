@@ -2,8 +2,11 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Button from '../../components/Button';
+import Input from '../../components/Input';
 import { loginUser } from '../../lib/apiHandler';
 import { saveAccessTokenToLocalStorage, saveRefreshTokenToLocalStorage } from '../../lib/jwtHandler';
+import styles from './Login.module.css';
 
 export default function LoginPage() {
     const [username, setUsername] = useState('');
@@ -12,33 +15,46 @@ export default function LoginPage() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
+        if (!username || !password) {
+            alert('All fields are required');
+        }
         try {
             const tokens = await loginUser(username, password);
             saveAccessTokenToLocalStorage(tokens['access_token']);
             saveRefreshTokenToLocalStorage(tokens['refresh_token']);
             router.push('/tnlcm/home');
         } catch (error) {
-            console.error('Error:', error.message);
+            alert(error);
+        }
+    };
+
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleLogin(e);
         }
     };
 
     return (
-        <div>
-            <h1>Log in</h1>
-            <form onSubmit={handleLogin}>
-                <input
+        <div className={styles['login-container']}>
+            <form onSubmit={handleLogin} className={styles['login-form']}>
+                <h1 className={styles['login-title']}>Log in to TNLCM</h1>
+                <Input
                     type="username"
-                    placeholder="username"
+                    placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    className="input-login-register"
                 />
-                <input
+                <Input
                     type="password"
-                    placeholder="password"
+                    placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    onKeyDown={handleKeyPress}
+                    className="input-login-register"
                 />
-                <button type="submit">Log in</button>
+                <Button type="submit" className="button-login-register">Log in</Button>
             </form>
             <p>Don't have an account? <a href="/tnlcm/register">Register</a></p>
         </div>
