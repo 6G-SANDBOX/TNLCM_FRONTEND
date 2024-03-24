@@ -16,7 +16,7 @@ export default function HomePage() {
 
     async function fetchTrialNetworks() {
         try {
-            const accessToken = getAccessTokenFromLocalStorage();
+            const accessToken = await getAccessTokenFromLocalStorage();
             const response = await getTrialNetworks(accessToken);
             setTrialNetworks(response["tn_ids"]);
         } catch (error) {
