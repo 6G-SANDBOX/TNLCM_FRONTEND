@@ -13,3 +13,8 @@ export function getAccessTokenFromLocalStorage() {
 export function getRefreshTokenFromLocalStorage() {
   return localStorage.getItem("refresh_token");
 };
+
+export function clearAuthTokens() {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+};
