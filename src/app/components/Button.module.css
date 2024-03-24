@@ -1,0 +1,12 @@
+.button-login-register {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #205A80;
+    color: white;
+    cursor: pointer;
+}
+  
+.button-login-register:hover {
+    background-color: #1B4D6D;
+}
