@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '../../components/Button';
-import Input from '../../components/Input';
-import { loginUser } from '../../lib/apiHandler';
-import { saveAccessTokenToLocalStorage, saveRefreshTokenToLocalStorage } from '../../lib/jwtHandler';
+import Button from '@/app/components/Button';
+import Input from '@/app/components/Input';
+import { loginUser } from '@/app/lib/apiHandler';
+import { saveAccessTokenToLocalStorage, saveRefreshTokenToLocalStorage } from '@/app/lib/jwtHandler';
 import styles from './Login.module.css';
 
 export default function LoginPage() {

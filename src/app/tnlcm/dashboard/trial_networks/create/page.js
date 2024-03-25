@@ -3,8 +3,8 @@
 import React, { useState } from 'react';
 import Input from '@/app/components/Input';
 import Button from '@/app/components/Button';
-import { getAccessTokenFromLocalStorage } from '@/app/lib/jwtHandler';
 import { createTrialNetwork } from '@/app/lib/apiHandler';
+import { getAccessTokenFromLocalStorage } from '@/app/lib/jwtHandler';
 
 export default function CreateTrialNetworkPage() {
     const [tnId, setTnId] = useState('');

@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react';
-import { getTrialNetworks } from '../../../../lib/apiHandler';
-import { getAccessTokenFromLocalStorage } from '../../../../lib/jwtHandler';
+import { getTrialNetworks } from '@/app/lib/apiHandler';
+import { getAccessTokenFromLocalStorage } from '@/app/lib/jwtHandler';
 
 export default function ListTrialNetworksPage() {
     const [trialNetworks, setTrialNetworks] = useState([]);

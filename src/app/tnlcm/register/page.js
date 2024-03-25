@@ -2,9 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '../../components/Button';
-import Input from '../../components/Input';
-import { registerUser } from '../../lib/apiHandler';
+import Button from '@/app/components/Button';
+import Input from '@/app/components/Input';
+import { registerUser } from '@/app/lib/apiHandler';
 import styles from './Register.module.css';
 
 export default function RegisterPage() {
