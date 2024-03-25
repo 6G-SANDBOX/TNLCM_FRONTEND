@@ -1,6 +1,6 @@
 import styles from './Input.module.css';
 
-export default function({ type, placeholder, value, onChange, onKeyDown, className }) {
+export default function({ type, placeholder, value, onChange, onKeyDown, className, required }) {
   return (
     <input
       type={type}
@@ -9,6 +9,7 @@ export default function({ type, placeholder, value, onChange, onKeyDown, classNa
       onChange={onChange}
       onKeyDown={onKeyDown}
       className={`${styles[className]}`}
+      required={required}
     />
   );
 };
