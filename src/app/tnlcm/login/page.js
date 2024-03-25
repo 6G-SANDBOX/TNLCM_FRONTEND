@@ -51,6 +51,7 @@ export default function LoginPage() {
                     onChange={(e) => setUsername(e.target.value)}
                     onKeyDown={handleKeyPress}
                     className="input-login-register"
+                    required={true}
                 />
                 <Input
                     type="password"
@@ -59,6 +60,7 @@ export default function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     onKeyDown={handleKeyPress}
                     className="input-login-register"
+                    required={true}
                 />
                 <Button type="submit" className="button-login-register" disabled={loading}>
                     {loading ? 'Logging in...' : 'Log in'}

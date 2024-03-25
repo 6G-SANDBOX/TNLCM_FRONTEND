@@ -44,6 +44,7 @@ export default function RegisterPage() {
           onChange={(e) => setUsername(e.target.value)}
           onKeyDown={handleKeyPress}
           className="input-login-register"
+          required={true}
         />
         <Input
           type="password"
@@ -52,6 +53,7 @@ export default function RegisterPage() {
           onChange={(e) => setPassword(e.target.value)}
           onKeyDown={handleKeyPress}
           className="input-login-register"
+          required={true}
         />
         <Input
           type="email"
@@ -60,6 +62,7 @@ export default function RegisterPage() {
           onChange={(e) => setEmail(e.target.value)}
           onKeyDown={handleKeyPress}
           className="input-login-register"
+          required={true}
         />
         <Input
           type="org"
@@ -68,6 +71,7 @@ export default function RegisterPage() {
           onChange={(e) => setOrg(e.target.value)}
           onKeyDown={handleKeyPress}
           className="input-login-register"
+          required={true}
         />
         <Button type="submit" className="button-login-register">Register</Button>
       </form>
