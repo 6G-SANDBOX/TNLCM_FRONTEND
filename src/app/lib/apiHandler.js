@@ -81,3 +81,34 @@ export async function getTrialNetworks(token) {
     }
     return data;
 };
+
+export async function createTrialNetwork(token, tnId, file) {
+    const formData = new FormData();
+    formData.append('tn_id', tnId);
+    formData.append('descriptor', file);
+
+    const fetchCreateTrialNetwork = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_network`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: formData,
+            });
+            return response;
+        } catch (error) {
+            throw new Error('Failed to fetch data' + error);
+        }
+    };
+    
+    const response = await fetchCreateTrialNetwork();
+    console.log(response)
+    const data = await response.json();
+    const code_error = response['status'];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + '. \nError code: ' + code_error);
+    }
+    return data;
+};
