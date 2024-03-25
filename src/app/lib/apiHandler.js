@@ -112,3 +112,67 @@ export async function createTrialNetwork(token, tnId, file) {
     }
     return data;
 };
+
+export async function getComponents6GLibrary(branch, commitId) {
+
+    const fetchComponents6GLibrary = async () => {
+        let url = '';
+        if (branch !== '') {
+            url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6glibrary/components/?branch=${branch}`;
+        } else {
+            url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6glibrary/components/?commit_id=${commitId}`;
+        }
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        } catch (error) {
+            throw new Error('Failed to fetch data' + error);
+        }
+    };
+
+    const response = await fetchComponents6GLibrary();
+    const data = await response.json();
+    const code_error = response['status'];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + '. \nError code: ' + code_error);
+    }
+    return data['components'];
+};
+
+export async function getPublicPartComponents6GLibrary(branch, commitId) {
+
+    const fetchPublicPartComponents6GLibrary = async () => {
+        let url = '';
+        if (branch !== '') {
+            url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6glibrary/components/public?branch=${branch}`;
+        } else {
+            url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6glibrary/components/public?commit_id=${commitId}`;
+        }
+        try {
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        } catch (error) {
+            throw new Error('Failed to fetch data' + error);
+        }
+    };
+
+    const response = await fetchPublicPartComponents6GLibrary();
+    const data = await response.json();
+    const code_error = response['status'];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + '. \nError code: ' + code_error);
+    }
+    return data['public_part_components'];
+};
