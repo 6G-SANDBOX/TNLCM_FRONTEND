@@ -26,7 +26,7 @@ export default function LoginPage() {
             const tokens = await loginUser(username, password);
             saveAccessTokenToLocalStorage(tokens['access_token']);
             saveRefreshTokenToLocalStorage(tokens['refresh_token']);
-            router.push('/tnlcm/home');
+            router.push('/tnlcm/dashboard');
         } catch (error) {
             alert(error);
         } finally {
