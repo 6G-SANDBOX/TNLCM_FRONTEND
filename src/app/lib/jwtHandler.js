@@ -10,7 +10,7 @@ export function saveRefreshTokenToLocalStorage(token) {
 
 function isTokenExpired(token) {
   const decoded = jwtDecode(token);
-  if (decoded.exp < Date.now() / 1000) {
+  if (decoded['exp'] < Date.now() / 1000) {
     return true;
   }
   return false;
@@ -19,8 +19,8 @@ function isTokenExpired(token) {
 export async function getAccessTokenFromLocalStorage() {
   let accessToken = localStorage.getItem('access_token');
   if (accessToken && isTokenExpired(accessToken)) {
-    data = await setAccessUsingRefreshToken();
-    accessToken = data['access_token'];
+    const data = await setAccessTokenUsingRefreshToken();
+    localStorage.setItem('access_token', data['access_token']);
   }
   return accessToken;
 };
@@ -29,13 +29,13 @@ export function getRefreshTokenFromLocalStorage() {
   return localStorage.getItem('refresh_token');
 };
 
-async function setAccessUsingRefreshToken() {
+async function setAccessTokenUsingRefreshToken() {
 
   const fetchRefreshToken = async () => {
     try {
       const refreshToken = getRefreshTokenFromLocalStorage();
       const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/user/refresh`, {
-        method: 'GET',
+        method: 'POST',
         headers: {
           'Authorization': `Bearer ${refreshToken}`,
           'Content-Type': 'application/json'
