@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Input from '@/app/components/Input';
 import Button from '@/app/components/Button';
 import { getComponents6GLibrary } from '@/app/lib/apiHandler';
-import CreateEntity from '@/app/components/CreateComponent';
+import CreateEntity from '@/app/components/CreateEntity';
 
 export default function CreateTrialNetworkPage() {
     const [tnId, setTnId] = useState('');
