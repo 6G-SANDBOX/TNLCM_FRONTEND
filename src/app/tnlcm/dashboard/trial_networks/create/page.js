@@ -3,59 +3,101 @@
 import React, { useState } from 'react';
 import Input from '@/app/components/Input';
 import Button from '@/app/components/Button';
-import { createTrialNetwork } from '@/app/lib/apiHandler';
-import { getAccessTokenFromLocalStorage } from '@/app/lib/jwtHandler';
+import { getComponents6GLibrary } from '@/app/lib/apiHandler';
+import CreateEntity from '@/app/components/CreateComponent';
 
 export default function CreateTrialNetworkPage() {
     const [tnId, setTnId] = useState('');
-    const [file, setFile] = useState(null);
+    const [selectedOption, setSelectedOption] = useState('branch');
+    const [commitId, setCommitId] = useState('');
+    const [branch, setBranch] = useState('');
+    const [components, setComponents] = useState({});
+    const [expandedComponents, setExpandedComponents] = useState(new Set());
 
     const handleTnIdChange = (event) => {
         setTnId(event.target.value);
     };
 
-    const handleFileChange = (event) => {
-        setFile(event.target.files[0]);
+    const handleOptionChange = (event) => {
+        setSelectedOption(event.target.value);
     };
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        try {
-            const accessToken = await getAccessTokenFromLocalStorage();
-            createTrialNetwork(accessToken, tnId, file)
-            setTnId('');
-            setFile(null);
-        } catch (error) {
-            alert(error);
-        }
+    const handleBranch = (event) => {
+        setBranch(event.target.value);
+    };
+
+    const handleCommitId = (event) => {
+        setCommitId(event.target.value);
+    };
+
+    const handleExtract6GLibraryComponents = async () => {
+        const comp = await getComponents6GLibrary(branch, commitId);
+        setComponents(comp);
     };
 
     return (
         <div>
             <h1>Create Trial Network</h1>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <a>Trial Network Identifier:</a>
+            <div>
+                <a>Trial Network Identifier:</a>
+                <Input
+                    type="text"
+                    id="tnId"
+                    placeholder="Enter trial network identifier"
+                    value={tnId}
+                    onChange={handleTnIdChange}
+                    className="input-login-register"
+                    required={true}
+                />
+                <a>6G-Library</a>
+                <br />
+                <select value={selectedOption} onChange={handleOptionChange}>
+                    <option value="branch">Branch</option>
+                    <option value="commit_id">Commit ID</option>
+                </select>
+                <br />
+                {selectedOption === 'branch' ? (
                     <Input
                         type="text"
-                        id="tnId"
-                        placeholder="Enter Trial Network Identifier"
-                        value={tnId}
-                        onChange={handleTnIdChange}
+                        id="branch"
+                        placeholder="Introduce the 6G-Library branch"
+                        value={branch}
+                        onChange={handleBranch}
                         className="input-login-register"
+                        required={true}
                     />
-                </div>
-                <div>
-                    <a>Trial Network Descriptor:</a>
+                ) : (
                     <Input
-                        type="file"
-                        id="file"
-                        onChange={handleFileChange}
+                        type="text"
+                        id="commitId"
+                        placeholder="Introduce the 6G-Library commit id"
+                        value={commitId}
+                        onChange={handleCommitId}
                         className="input-login-register"
+                        required={true}
                     />
+                )}
+                <Button
+                    type="submit"
+                    className="button-login-register"
+                    onClick={handleExtract6GLibraryComponents}
+                >
+                    Extract 6G-Library components
+                </Button>
+            </div>
+            {Object.keys(components).length > 0 && (
+                <div>
+                    <h2>6G-Library Components:</h2>
+                    <ul>
+                        {Object.entries(components).map(([componentType, componentData]) => (
+                            <li key={componentType}>
+                                {componentType}
+                            </li>
+                        ))}
+                    </ul>
+                    <CreateEntity tnId={tnId} components={components} />
                 </div>
-                <Button type="submit" className="button-login-register">Submit</Button>
-            </form>
+            )}
         </div>
     );
 };
