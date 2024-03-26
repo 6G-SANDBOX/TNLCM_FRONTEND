@@ -1,0 +1,157 @@
+'use client'
+
+import React, { useState } from 'react';
+
+import Input from "./Input";
+import Button from './Button';
+import Descriptor from './Descriptor';
+import yaml from 'js-yaml';
+import { getAccessTokenFromLocalStorage } from '../lib/jwtHandler';
+import { createTrialNetwork } from '../lib/apiHandler';
+
+export default function CreateEntity({ tnId, components }) {
+
+    const [selectedComponent, setSelectedComponent] = useState('');
+    const [entity, setEntity] = useState('');
+    const [publicPart, setPublicPart] = useState({});
+    const [dependsPart, setDependsPart] = useState([]);
+    const [descriptor, setDescriptor] = useState({'trial_network': {}});
+
+    const handleSetEntity = (event) => {
+        const entityName = event.target.value;
+        setEntity(entityName);
+    };
+
+    const handleComponentChange = (event) => {
+        const selected = event.target.value;
+        setSelectedComponent(event.target.value);
+        const selectedComponentFields = components[selected];
+        setPublicPart(selectedComponentFields['public']);
+        setDependsPart(selectedComponentFields['depends']);
+    };
+
+    const handlePublicPartChange = (event, key) => {
+        const newValue = event.target.value;
+    
+        const startsWithBracket = newValue.startsWith('[');
+        const endsWithBracket = newValue.endsWith(']');
+
+        if (startsWithBracket && endsWithBracket) {
+            try {
+                const parsedValue = JSON.parse(newValue);
+                setPublicPart(prevState => ({
+                    ...prevState,
+                    [key]: parsedValue
+                }));
+            } catch (error) {
+                setPublicPart(prevState => ({
+                    ...prevState,
+                    [key]: newValue
+                }));
+            }
+        } else {
+            setPublicPart(prevState => ({
+                ...prevState,
+                [key]: newValue
+            }));
+        }
+    };    
+    
+    const handleDependsPartChange = (event, index) => {
+        const newValue = event.target.value;
+        setDependsPart(prevState => {
+            const newState = [...prevState];
+            newState[index] = newValue;
+            return newState;
+        });
+    };    
+
+    const handleAddToDescriptor = (componentType) => {
+        const newEntity = {
+            type: componentType,
+            depends_on: [...dependsPart],
+            public: { ...publicPart }
+        };
+    
+        if (!descriptor['trial_network'].hasOwnProperty(entity)) {
+            const newDescriptor = { ...descriptor };
+            newDescriptor['trial_network'] = {
+                ...newDescriptor['trial_network'],
+                [entity]: newEntity
+            };
+            setDescriptor(newDescriptor);
+        } else {
+            alert('Entity exists');
+        }
+    };
+
+    const handleRemoveFromDescriptor = (entityName) => {
+        const newDescriptor = { ...descriptor };
+        delete newDescriptor['trial_network'][entityName];
+        setDescriptor(newDescriptor);
+    };
+
+    const handleCreateTrialNetwork = async () => {
+        const descriptorYaml = yaml.dump(descriptor);
+        const token = await getAccessTokenFromLocalStorage();
+        await createTrialNetwork(token, tnId, descriptorYaml);
+
+    };
+
+    return (
+        <div>
+            <h2>Create component:</h2>
+            <h3>Name of entity:</h3>
+            <Input 
+                type="text"
+                placeholder={'Name of entity'}
+                onChange={(event) => handleSetEntity(event)}
+                className="input-login-register"
+            />
+            <h3>Type of component</h3>
+            <select value={selectedComponent} onChange={handleComponentChange}>
+                <option value="">Select a type</option>
+                {Object.keys(components).map((type, index) => (
+                    <option key={index} value={type}>{type}</option>
+                ))}
+            </select>
+            <h3>Part of components</h3>
+            {selectedComponent && (
+                <div>
+                    <h4>Public</h4>
+                    {Object.entries(publicPart).map(([key, value], index) => (
+                        <div key={key + index}>
+                            <h5>{key}</h5>
+                            <Input
+                                type="text"
+                                placeholder={value ? value : `Enter ${key}`}
+                                onChange={(event) => handlePublicPartChange(event, key)}
+                                className="input-login-register"
+                            />
+                        </div>
+                    ))}
+                    <h4>Depends</h4>
+                    {dependsPart.map((value, index) => (
+                        <div key={index}>
+                            <Input
+                                type="text"
+                                placeholder={`List ${value}`}
+                                onChange={(event) => handleDependsPartChange(event, index)}
+                                className="input-login-register"
+                            />
+                        </div>
+                    ))}
+                    <Button className="button-login-register" onClick={() => handleAddToDescriptor(selectedComponent)}>Add to descriptor</Button>
+                </div>
+            )}
+    
+            {Object.keys(descriptor['trial_network']).length > 0 && (
+                <div>
+                    <Descriptor yamlData={yaml.dump(descriptor)} handleRemoveFromDescriptor={handleRemoveFromDescriptor} />
+                    <br />
+                    <Button className="button-login-register" onClick={() => handleCreateTrialNetwork()}>Create Trial Network</Button>
+                </div>
+            )}
+        </div>
+    );    
+};
