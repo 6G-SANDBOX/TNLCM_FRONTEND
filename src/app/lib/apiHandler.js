@@ -1,3 +1,4 @@
+/* --------------- Users --------------- */
 export async function loginUser(username, password) {
     const authString = `${username}:${password}`;
     const encodedAuth = Buffer.from(authString).toString('base64');
@@ -55,6 +56,8 @@ export async function registerUser(username, password, email, org) {
     return data;
 };
 
+/* --------------- Trial Networks --------------- */
+
 export async function getTrialNetworks(token) {
 
     const fetchTrialNetworks = async () => {
@@ -82,10 +85,11 @@ export async function getTrialNetworks(token) {
     return data;
 };
 
-export async function createTrialNetwork(token, tnId, file) {
+export async function createTrialNetwork(token, tnId, yamlData) {
+    const blob = new Blob([yamlData], { type: 'text/yaml' });
     const formData = new FormData();
     formData.append('tn_id', tnId);
-    formData.append('descriptor', file);
+    formData.append('descriptor', blob, 'descriptor.yaml');
 
     const fetchCreateTrialNetwork = async () => {
         try {
@@ -103,7 +107,33 @@ export async function createTrialNetwork(token, tnId, file) {
     };
     
     const response = await fetchCreateTrialNetwork();
-    console.log(response)
+    const data = await response.json();
+    const code_error = response['status'];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + '. \nError code: ' + code_error);
+    }
+    return data['tn_id'];
+};
+
+export async function getDescriptorTrialNetwork(token, tnId) {
+
+    const fetchDescriptorTrialNetwork = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_network/${tnId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        } catch (error) {
+            throw new Error('Failed to fetch data' + error);
+        }
+    };
+
+    const response = await fetchDescriptorTrialNetwork();
     const data = await response.json();
     const code_error = response['status'];
     if (!response.ok) {
@@ -112,6 +142,8 @@ export async function createTrialNetwork(token, tnId, file) {
     }
     return data;
 };
+
+/* --------------- 6G-Library --------------- */
 
 export async function getComponents6GLibrary(branch, commitId) {
 
@@ -142,37 +174,5 @@ export async function getComponents6GLibrary(branch, commitId) {
         const { message } = data;
         throw new Error(message + '. \nError code: ' + code_error);
     }
-    return data['components'];
-};
-
-export async function getPublicPartComponents6GLibrary(branch, commitId) {
-
-    const fetchPublicPartComponents6GLibrary = async () => {
-        let url = '';
-        if (branch !== '') {
-            url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6glibrary/components/public?branch=${branch}`;
-        } else {
-            url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6glibrary/components/public?commit_id=${commitId}`;
-        }
-        try {
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            return response;
-        } catch (error) {
-            throw new Error('Failed to fetch data' + error);
-        }
-    };
-
-    const response = await fetchPublicPartComponents6GLibrary();
-    const data = await response.json();
-    const code_error = response['status'];
-    if (!response.ok) {
-        const { message } = data;
-        throw new Error(message + '. \nError code: ' + code_error);
-    }
-    return data['public_part_components'];
+    return data["components"];
 };
