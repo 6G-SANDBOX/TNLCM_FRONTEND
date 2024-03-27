@@ -12,7 +12,6 @@ export default function CreateTrialNetworkPage() {
     const [commitId, setCommitId] = useState('');
     const [branch, setBranch] = useState('');
     const [components, setComponents] = useState({});
-    const [expandedComponents, setExpandedComponents] = useState(new Set());
 
     const handleTnIdChange = (event) => {
         setTnId(event.target.value);
@@ -95,7 +94,7 @@ export default function CreateTrialNetworkPage() {
                             </li>
                         ))}
                     </ul>
-                    <CreateEntity tnId={tnId} components={components} />
+                    <CreateEntity tnId={tnId} components={components} selectedOption={selectedOption} branch={branch} commitId={commitId} />
                 </div>
             )}
         </div>
