@@ -143,6 +143,41 @@ export async function getDescriptorTrialNetwork(token, tnId) {
     return data;
 };
 
+export async function deployTrialNetwork(token, tnId, selectedOption, branch, commitId) {
+    let bodyData = {};
+
+    if (selectedOption === 'branch') {
+        bodyData = { 'branch': branch };
+    } else {
+        bodyData = { 'commit_id': commitId };
+    }
+
+    const fetchDeployTrialNetwork = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_network/${tnId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bodyData)
+            });
+            return response;
+        } catch (error) {
+            throw new Error('Failed to fetch data' + error);
+        }
+    };
+
+    const response = await fetchDeployTrialNetwork();
+    const data = await response.json();
+    const code_error = response['status'];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + '. \nError code: ' + code_error);
+    }
+    return data;
+};
+
 /* --------------- 6G-Library --------------- */
 
 export async function getComponents6GLibrary(branch, commitId) {
