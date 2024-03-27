@@ -7,14 +7,17 @@ import Button from './Button';
 import Descriptor from './Descriptor';
 import yaml from 'js-yaml';
 import { getAccessTokenFromLocalStorage } from '../lib/jwtHandler';
-import { createTrialNetwork } from '../lib/apiHandler';
+import { createTrialNetwork, deployTrialNetwork } from '../lib/apiHandler';
 
-export default function CreateEntity({ tnId, components }) {
+export default function CreateEntity({ tnId, components, selectedOption, branch, commitId }) {
 
     const [selectedComponent, setSelectedComponent] = useState('');
     const [entity, setEntity] = useState('');
     const [publicPart, setPublicPart] = useState({});
     const [dependsPart, setDependsPart] = useState([]);
+    const [trialNetworkCreated, setTrialNetworkCreated] = useState(false);
+    const [isDeploying, setIsDeploying] = useState(false);
+    const [deployTrialNetworkCreated, setDeployTrialNetworkCreated] = useState(false);
     const [descriptor, setDescriptor] = useState({'trial_network': {}});
 
     const handleSetEntity = (event) => {
@@ -92,11 +95,27 @@ export default function CreateEntity({ tnId, components }) {
     };
 
     const handleCreateTrialNetwork = async () => {
-        const descriptorYaml = yaml.dump(descriptor);
-        const token = await getAccessTokenFromLocalStorage();
-        await createTrialNetwork(token, tnId, descriptorYaml);
-
+        try {
+            const descriptorYaml = yaml.dump(descriptor);
+            const token = await getAccessTokenFromLocalStorage();
+            await createTrialNetwork(token, tnId, descriptorYaml);
+            setTrialNetworkCreated(true);
+        } catch (error) {
+            alert(error);
+        }
     };
+
+    const handleDeployTrialNetwork = async () => {
+        try {
+            setIsDeploying(true);
+            const token = await getAccessTokenFromLocalStorage();
+            await deployTrialNetwork(token, tnId, selectedOption, branch, commitId);
+            setIsDeploying(false);
+            setDeployTrialNetworkCreated(true);
+        } catch (error) {
+            alert(error);
+        }
+    }
 
     return (
         <div>
@@ -150,6 +169,19 @@ export default function CreateEntity({ tnId, components }) {
                     <Descriptor yamlData={yaml.dump(descriptor)} handleRemoveFromDescriptor={handleRemoveFromDescriptor} />
                     <br />
                     <Button className="button-login-register" onClick={() => handleCreateTrialNetwork()}>Create Trial Network</Button>
+                    {trialNetworkCreated && (
+                        <div>
+                            <h5>Trial network created</h5>
+                            <Button type="submit" className="button-login-register" disabled={isDeploying} onClick={handleDeployTrialNetwork}>
+                                {isDeploying ? 'Deploying...' : 'Deploy Trial Network'}
+                            </Button>
+                        </div>
+                    )}
+                    {deployTrialNetworkCreated && (
+                        <div>
+                            <h5>Trial network successfully deployed</h5>
+                        </div>
+                    )}
                 </div>
             )}
         </div>
