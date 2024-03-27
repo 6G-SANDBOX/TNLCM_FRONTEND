@@ -12,7 +12,7 @@ export default function Descriptor ({ yamlData, handleRemoveFromDescriptor }) {
     return (
         <div>
             <div className={styles.descriptor}>
-                <h3>Descriptor:</h3>
+                <h3>Descriptor</h3>
                 <pre>{yamlData}</pre>
             </div>
             <div>
