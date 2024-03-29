@@ -19,7 +19,8 @@ export default function NavLink() {
         { name: "Dashboard", href: "/tnlcm/dashboard" },
         { name: "Trial Networks", subMenu: [
             { name: "Create Trial Network", href: "/tnlcm/dashboard/trial_networks/create" },
-            { name: "List Trial Networks", href: "/tnlcm/dashboard/trial_networks/list" }
+            { name: "List Trial Networks", href: "/tnlcm/dashboard/trial_networks/list" },
+            { name: "Report Trial Networks", href: "/tnlcm/dashboard/trial_networks/report" }
         ]},
         { name: "Settings", href: "/tnlcm/dashboard/settings" }
     ];
