@@ -178,6 +178,33 @@ export async function deployTrialNetwork(token, tnId, selectedOption, branch, co
     return data;
 };
 
+export async function getReportTrialNetwork(token, tnId) {
+
+    const fetchReportTrialNetwork = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_network/report/${tnId}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response;
+        } catch (error) {
+            throw new Error('Failed to fetch data' + error);
+        }
+    };
+
+    const response = await fetchReportTrialNetwork();
+    const data = await response.json();
+    const code_error = response['status'];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + '. \nError code: ' + code_error);
+    }
+    return data["tn_report"];
+};
+
 /* --------------- 6G-Library --------------- */
 
 export async function getComponents6GLibrary(branch, commitId) {
