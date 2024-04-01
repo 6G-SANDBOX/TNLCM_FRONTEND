@@ -119,7 +119,7 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
 
     return (
         <div>
-            <h2>Create component:</h2>
+            <h2>Add component:</h2>
             <h3>Name of entity:</h3>
             <Input 
                 type="text"
@@ -134,10 +134,9 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
                     <option key={index} value={type}>{type}</option>
                 ))}
             </select>
-            <h3>Part of components</h3>
+            <h3>Parameters of components</h3>
             {selectedComponent && (
                 <div>
-                    <h4>Public</h4>
                     {Object.entries(publicPart).map(([key, value], index) => (
                         <div key={key + index}>
                             <h5>{key}</h5>
@@ -149,7 +148,6 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
                             />
                         </div>
                     ))}
-                    <h4>Depends</h4>
                     {dependsPart.map((value, index) => (
                         <div key={index}>
                             <Input
