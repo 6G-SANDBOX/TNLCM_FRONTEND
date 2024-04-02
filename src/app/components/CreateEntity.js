@@ -11,6 +11,21 @@ import { createTrialNetwork, deployTrialNetwork } from '../lib/apiHandler';
 
 export default function CreateEntity({ tnId, components, selectedOption, branch, commitId }) {
 
+    const initDescriptor = {
+        "mandatory_tn_vxlan": {
+            "type": "tn_vxlan",
+            "depends_on": [],
+            "public": {
+                "one_vxlan_name": "mandatory_tn_vxlan"
+            }
+        },
+        "mandatory_tn_bastion": {
+            "type": "tn_bastion",
+            "depends_on": ["mandatory_tn_vxlan"],
+            "public": {}
+        }
+    };
+
     const [selectedComponent, setSelectedComponent] = useState('');
     const [entity, setEntity] = useState('');
     const [publicPart, setPublicPart] = useState({});
@@ -18,7 +33,7 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
     const [trialNetworkCreated, setTrialNetworkCreated] = useState(false);
     const [isDeploying, setIsDeploying] = useState(false);
     const [deployTrialNetworkCreated, setDeployTrialNetworkCreated] = useState(false);
-    const [descriptor, setDescriptor] = useState({'trial_network': {}});
+    const [descriptor, setDescriptor] = useState({'trial_network': initDescriptor});
 
     const handleSetEntity = (event) => {
         const entityName = event.target.value;
@@ -161,27 +176,24 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
                     <Button className="button-login-register" onClick={() => handleAddToDescriptor(selectedComponent)}>Add to descriptor</Button>
                 </div>
             )}
-    
-            {Object.keys(descriptor['trial_network']).length > 0 && (
-                <div>
-                    <Descriptor yamlData={yaml.dump(descriptor)} handleRemoveFromDescriptor={handleRemoveFromDescriptor} />
-                    <br />
-                    <Button className="button-login-register" onClick={() => handleCreateTrialNetwork()}>Create Trial Network</Button>
-                    {trialNetworkCreated && (
-                        <div>
-                            <h5>Trial network created</h5>
-                            <Button type="submit" className="button-login-register" disabled={isDeploying} onClick={handleDeployTrialNetwork}>
-                                {isDeploying ? 'Deploying...' : 'Deploy Trial Network'}
-                            </Button>
-                        </div>
-                    )}
-                    {deployTrialNetworkCreated && (
-                        <div>
-                            <h5>Trial network successfully deployed</h5>
-                        </div>
-                    )}
-                </div>
-            )}
+            <div>
+                <Descriptor yamlData={yaml.dump(descriptor)} handleRemoveFromDescriptor={handleRemoveFromDescriptor} />
+                <br />
+                <Button className="button-login-register" onClick={() => handleCreateTrialNetwork()}>Create Trial Network</Button>
+                {trialNetworkCreated && (
+                    <div>
+                        <h5>Trial network created</h5>
+                        <Button type="submit" className="button-login-register" disabled={isDeploying} onClick={handleDeployTrialNetwork}>
+                            {isDeploying ? 'Deploying...' : 'Deploy Trial Network'}
+                        </Button>
+                    </div>
+                )}
+                {deployTrialNetworkCreated && (
+                    <div>
+                        <h5>Trial network successfully deployed</h5>
+                    </div>
+                )}
+            </div>
         </div>
     );    
 };
