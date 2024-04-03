@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { getAccessTokenFromLocalStorage } from "../../lib/jwtHandler";
+import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
 
 export default function RequireAuth({ children }) {
     const router = useRouter();

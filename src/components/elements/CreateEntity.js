@@ -1,13 +1,12 @@
-'use client'
+"use client"
 
-import React, { useState } from 'react';
-
+import { useState } from "react";
+import yaml from "js-yaml";
 import Input from "./Input";
-import Button from './Button';
-import Descriptor from './Descriptor';
-import yaml from 'js-yaml';
-import { getAccessTokenFromLocalStorage } from '../../lib/jwtHandler';
-import { createTrialNetwork, deployTrialNetwork } from '../../lib/apiHandler';
+import Button from "./Button";
+import Descriptor from "./Descriptor";
+import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
+import { createTrialNetwork, deployTrialNetwork } from "@/lib/apiHandler";
 
 export default function CreateEntity({ tnId, components, selectedOption, branch, commitId }) {
 
@@ -26,14 +25,14 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
         }
     };
 
-    const [selectedComponent, setSelectedComponent] = useState('');
-    const [entity, setEntity] = useState('');
+    const [selectedComponent, setSelectedComponent] = useState("");
+    const [entity, setEntity] = useState("");
     const [publicPart, setPublicPart] = useState({});
     const [dependsPart, setDependsPart] = useState([]);
     const [trialNetworkCreated, setTrialNetworkCreated] = useState(false);
     const [isDeploying, setIsDeploying] = useState(false);
     const [deployTrialNetworkCreated, setDeployTrialNetworkCreated] = useState(false);
-    const [descriptor, setDescriptor] = useState({'trial_network': initDescriptor});
+    const [descriptor, setDescriptor] = useState({"trial_network": initDescriptor});
 
     const handleSetEntity = (event) => {
         const entityName = event.target.value;
@@ -44,15 +43,15 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
         const selected = event.target.value;
         setSelectedComponent(event.target.value);
         const selectedComponentFields = components[selected];
-        setPublicPart(selectedComponentFields['public']);
-        setDependsPart(selectedComponentFields['depends']);
+        setPublicPart(selectedComponentFields["public"]);
+        setDependsPart(selectedComponentFields["depends"]);
     };
 
     const handlePublicPartChange = (event, key) => {
         const newValue = event.target.value;
     
-        const startsWithBracket = newValue.startsWith('[');
-        const endsWithBracket = newValue.endsWith(']');
+        const startsWithBracket = newValue.startsWith("[");
+        const endsWithBracket = newValue.endsWith("]");
 
         if (startsWithBracket && endsWithBracket) {
             try {
@@ -91,21 +90,21 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
             public: { ...publicPart }
         };
     
-        if (!descriptor['trial_network'].hasOwnProperty(entity)) {
+        if (!descriptor["trial_network"].hasOwnProperty(entity)) {
             const newDescriptor = { ...descriptor };
-            newDescriptor['trial_network'] = {
-                ...newDescriptor['trial_network'],
+            newDescriptor["trial_network"] = {
+                ...newDescriptor["trial_network"],
                 [entity]: newEntity
             };
             setDescriptor(newDescriptor);
         } else {
-            alert('Entity exists');
+            alert("Entity exists");
         }
     };
 
     const handleRemoveFromDescriptor = (entityName) => {
         const newDescriptor = { ...descriptor };
-        delete newDescriptor['trial_network'][entityName];
+        delete newDescriptor["trial_network"][entityName];
         setDescriptor(newDescriptor);
     };
 
@@ -138,7 +137,7 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
             <h3>Name of entity:</h3>
             <Input 
                 type="text"
-                placeholder={'Name of entity'}
+                placeholder={"Name of entity"}
                 onChange={(event) => handleSetEntity(event)}
                 className="input-login-register"
             />
@@ -184,7 +183,7 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
                     <div>
                         <h5>Trial network created</h5>
                         <Button type="submit" className="button-login-register" disabled={isDeploying} onClick={handleDeployTrialNetwork}>
-                            {isDeploying ? 'Deploying...' : 'Deploy Trial Network'}
+                            {isDeploying ? "Deploying..." : "Deploy Trial Network"}
                         </Button>
                     </div>
                 )}
