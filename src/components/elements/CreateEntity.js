@@ -6,8 +6,8 @@ import Input from "./Input";
 import Button from './Button';
 import Descriptor from './Descriptor';
 import yaml from 'js-yaml';
-import { getAccessTokenFromLocalStorage } from '../lib/jwtHandler';
-import { createTrialNetwork, deployTrialNetwork } from '../lib/apiHandler';
+import { getAccessTokenFromLocalStorage } from '../../lib/jwtHandler';
+import { createTrialNetwork, deployTrialNetwork } from '../../lib/apiHandler';
 
 export default function CreateEntity({ tnId, components, selectedOption, branch, commitId }) {
 

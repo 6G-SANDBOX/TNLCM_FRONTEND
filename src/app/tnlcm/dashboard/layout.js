@@ -1,5 +1,5 @@
-import NavLink from "../../components/NavLink";
-import styles from './Dashboard.module.css';
+import NavLink from "@/components/elements/NavLink";
+import styles from "./Dashboard.module.css";
 
 export default function Layout ({ children }) {
     return (

@@ -1,19 +1,15 @@
-'use client'
+"use client"
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { clearAuthTokens } from "../lib/jwtHandler";
-import styles from './NavLink.module.css';
+import { usePathname } from "next/navigation";
+import useLogout from "@/hooks/useLogout";
+import styles from "@/components/modules/NavLink.module.css";
 
 export default function NavLink() {
-    const router = useRouter();
 
-    const handleLogout = () => {
-        clearAuthTokens();
-        router.push('/tnlcm/login');
-    };
+    const handleLogout = useLogout();
 
     const navLinks = [
         { name: "Dashboard", href: "/tnlcm/dashboard" },
@@ -45,7 +41,7 @@ export default function NavLink() {
                 <div key={link.name} onClick={link.onClick}>
                     {link.subMenu ? (
                         <div>
-                            <p className={`${styles.navLink} ${activeSubMenu === index ? styles.active : ''}`} onClick={() => handleSubMenuToggle(index)}>
+                            <p className={`${styles.navLink} ${activeSubMenu === index ? styles.active : ""}`} onClick={() => handleSubMenuToggle(index)}>
                                 {link.name} {activeSubMenu === index ? <span className={styles.arrowUp}>▲</span> : <span className={styles.arrowDown}>▼</span>}
                             </p>
                             {activeSubMenu === index && (
@@ -60,7 +56,7 @@ export default function NavLink() {
                         </div>
                     ) : (
                         <Link href={link.href}>
-                            <p className={`${styles.navLink} ${pathname === link.href ? styles.active : ''}`} onClick={() => handleLinkClick(index, link.subMenu)}>{link.name}</p>
+                            <p className={`${styles.navLink} ${pathname === link.href ? styles.active : ""}`} onClick={() => handleLinkClick(index, link.subMenu)}>{link.name}</p>
                         </Link>
                     )}
                 </div>

@@ -1,49 +1,35 @@
-'use client'
+"use client"
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Button from '@/app/components/Button';
-import Input from '@/app/components/Input';
-import { loginUser } from '@/app/lib/apiHandler';
-import { saveAccessTokenToLocalStorage, saveRefreshTokenToLocalStorage } from '@/app/lib/jwtHandler';
-import styles from './Login.module.css';
+import { useState } from "react";
+import Link from "next/link";
+import Button from "@/components/elements/Button";
+import Input from "@/components/elements/Input";
+import useLogin from "@/hooks/useLogin";
+import styles from "./Login.module.css";
 
 export default function LoginPage() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [loading, setLoading] = useState(false);
-    const router = useRouter();
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const { handleLogin, loading } = useLogin();
 
-    const handleLogin = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!username || !password) {
-            alert('All fields are required');
+            alert("Username and password are required");
         }
-
-        setLoading(true);
-
-        try {
-            const tokens = await loginUser(username, password);
-            saveAccessTokenToLocalStorage(tokens['access_token']);
-            saveRefreshTokenToLocalStorage(tokens['refresh_token']);
-            router.push('/tnlcm/dashboard');
-        } catch (error) {
-            alert(error);
-        } finally {
-            setLoading(false);
-        }
+        await handleLogin(username, password);
     };
 
-    const handleKeyPress = (e) => {
-        if (e.key === 'Enter') {
-            handleLogin(e);
+    const handleKeyPress = async (e) => {
+        if (e.key === "Enter") {
+            await handleLogin(username, password);
         }
     };
 
     return (
-        <div className={styles['login-container']}>
-            <form onSubmit={handleLogin} className={styles['login-form']}>
-                <h1 className={styles['login-title']}>Log in to TNLCM</h1>
+        <div className={styles["login-container"]}>
+            <form onSubmit={handleSubmit} className={styles["login-form"]}>
+                <h1 className={styles["login-title"]}>Log in to TNLCM</h1>
                 <Input
                     type="username"
                     placeholder="Username"
@@ -63,10 +49,10 @@ export default function LoginPage() {
                     required={true}
                 />
                 <Button type="submit" className="button-login-register" disabled={loading}>
-                    {loading ? 'Logging in...' : 'Log in'}
+                    {loading ? "Logging in..." : "Log in"}
                 </Button>
             </form>
-            <p>Don't have an account? <a href="/tnlcm/register">Register</a></p>
+            <p>Don't have an account? <Link href="/tnlcm/register">Register</Link></p>
         </div>
     );
 };

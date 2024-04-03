@@ -1,4 +1,4 @@
-import styles from './Input.module.css';
+import styles from "../modules/Input.module.css";
 
 export default function({ type, placeholder, value, onChange, onKeyDown, className, required }) {
   return (

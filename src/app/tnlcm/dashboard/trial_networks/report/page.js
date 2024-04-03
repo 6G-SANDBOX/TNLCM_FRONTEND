@@ -1,17 +1,17 @@
-'use client'
+"use client"
 
-import { useState } from 'react';
-import { remark } from 'remark';
-import html from 'remark-html';
-import Input from '@/app/components/Input';
-import Button from '@/app/components/Button';
-import { getAccessTokenFromLocalStorage } from '@/app/lib/jwtHandler';
-import { getReportTrialNetwork } from '@/app/lib/apiHandler';
+import { useState } from "react";
+import { remark } from "remark";
+import html from "remark-html";
+import Input from "@/components/elements/Input";
+import Button from "@/components/elements/Button";
+import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
+import { getReportTrialNetwork } from "@/lib/apiHandler";
 
 export default function ReportPage() {
 
-    const [tnId, setTnId] = useState('');
-    const [tnReport, setTnReport] = useState('');
+    const [tnId, setTnId] = useState("");
+    const [tnReport, setTnReport] = useState("");
 
     const handleTnIdChange = (event) => {
         setTnId(event.target.value);

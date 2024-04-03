@@ -1,6 +1,6 @@
-import yaml from 'js-yaml';
-import { FaTrash } from 'react-icons/fa';
-import styles from './Descriptor.module.css';
+import yaml from "js-yaml";
+import { FaTrash } from "react-icons/fa";
+import styles from "@/components/modules/Descriptor.module.css";
 
 export default function Descriptor ({ yamlData, handleRemoveFromDescriptor }) {
     const descriptor = yaml.load(yamlData);

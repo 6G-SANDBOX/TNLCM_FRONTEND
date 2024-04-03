@@ -1,16 +1,16 @@
-'use client'
+"use client"
 
-import React, { useState } from 'react';
-import Input from '@/app/components/Input';
-import Button from '@/app/components/Button';
-import { getComponents6GLibrary } from '@/app/lib/apiHandler';
-import CreateEntity from '@/app/components/CreateEntity';
+import React, { useState } from "react";
+import Input from "@/components/elements/Input";
+import Button from "@/components/elements/Button";
+import { getComponents6GLibrary } from "@/lib/apiHandler";
+import CreateEntity from "@/components/elements/CreateEntity";
 
 export default function CreateTrialNetworkPage() {
-    const [tnId, setTnId] = useState('');
-    const [selectedOption, setSelectedOption] = useState('branch');
-    const [commitId, setCommitId] = useState('');
-    const [branch, setBranch] = useState('');
+    const [tnId, setTnId] = useState("");
+    const [selectedOption, setSelectedOption] = useState("branch");
+    const [commitId, setCommitId] = useState("");
+    const [branch, setBranch] = useState("");
     const [components, setComponents] = useState({});
 
     const handleTnIdChange = (event) => {
@@ -55,7 +55,7 @@ export default function CreateTrialNetworkPage() {
                     <option value="commit_id">Commit ID</option>
                 </select>
                 <br />
-                {selectedOption === 'branch' ? (
+                {selectedOption === "branch" ? (
                     <Input
                         type="text"
                         id="branch"

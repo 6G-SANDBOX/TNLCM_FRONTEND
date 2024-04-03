@@ -2,11 +2,11 @@
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
-    background-color: #205A80;
+    background-color: #5e5316;
     color: white;
     cursor: pointer;
 }
   
 .button-login-register:hover {
-    background-color: #1B4D6D;
+    background-color: #5e5316;
 }
