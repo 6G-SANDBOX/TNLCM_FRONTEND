@@ -1,0 +1,19 @@
+.tableContainer {
+    overflow-x: auto;
+}
+  
+.customTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+  
+.customTable th,
+.customTable td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+  
+.customTable th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}  

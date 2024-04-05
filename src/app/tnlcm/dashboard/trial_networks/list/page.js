@@ -1,18 +1,19 @@
 "use client"
 
 import { useState, useEffect } from "react";
-import { getTrialNetworks } from "@/lib/apiHandler";
+import { getStatusTrialNetworks } from "@/lib/apiHandler";
 import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
+import CustomTable from "@/components/elements/CustomTable";
 
 export default function ListTrialNetworksPage() {
     const [trialNetworks, setTrialNetworks] = useState([]);
     const [loading, setLoading] = useState(true);
     
-    async function fetchTrialNetworks() {
+    const fetchTrialNetworks = async () => {
         try {
             const accessToken = await getAccessTokenFromLocalStorage();
-            const response = await getTrialNetworks(accessToken);
-            setTrialNetworks(response["tn_ids"]);
+            const response = await getStatusTrialNetworks(accessToken);
+            setTrialNetworks(response);
         } catch (error) {
             alert(error);
         } finally {
@@ -30,11 +31,12 @@ export default function ListTrialNetworksPage() {
             {loading ? (
                 <p>Loading...</p>
             ) : (
-                <ul>
-                    {trialNetworks.map((tnId, index) => (
-                        <li key={index}>{tnId}</li>
-                    ))}
-                </ul>
+                trialNetworks.length > 0 && (
+                    <CustomTable 
+                        columns={["tn_id", "tn_status"]}
+                        data={trialNetworks}
+                    />
+                )
             )}
         </div>
     );
