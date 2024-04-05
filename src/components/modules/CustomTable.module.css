@@ -1,5 +1,7 @@
 .tableContainer {
     overflow-x: auto;
+    justify-content: center;
+    text-align: center;
 }
   
 .customTable {

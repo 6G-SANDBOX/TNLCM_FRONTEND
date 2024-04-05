@@ -4,24 +4,24 @@ import styles from "@/components/modules/CustomTable.module.css";
 export default function CustomTable({ columns, data }) {
     return (
         <div className={styles.tableContainer}>
-            <table className={styles.customTable}>
+        <table className={styles.customTable}>
             <thead>
-                <tr>
+            <tr>
                 {columns.map((column, index) => (
-                    <th key={index}>{column}</th>
+                <th key={index}>{column}</th>
                 ))}
-                </tr>
+            </tr>
             </thead>
             <tbody>
-                {data.map((row, rowIndex) => (
+            {data.map((row, rowIndex) => (
                 <tr key={rowIndex}>
-                    {columns.map((column, colIndex) => (
+                {columns.map((column, colIndex) => (
                     <td key={colIndex}>{row[column]}</td>
-                    ))}
-                </tr>
                 ))}
+                </tr>
+            ))}
             </tbody>
-            </table>
+        </table>
         </div>
     );
 };
