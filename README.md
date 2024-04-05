@@ -1,9 +1,16 @@
-# TRIAL NETWORK LIFECYCLE MANAGER FRONTEND (TNLCM)
+# TRIAL NETWORK LIFECYCLE MANAGER FRONTEND (TNLCM) <!-- omit in toc -->
 
 [![Node.js](https://img.shields.io/badge/Node.js-20.11.1+-green?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/en)
 [![Next.js](https://img.shields.io/badge/Next.js-14+-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 
 > ⚠ TNLCM frontend is under development and is subject to continuous changes.
+
+## Table of contents <!-- omit in toc -->
+- [Deploy TNLCM frontend](#deploy-tnlcm-frontend)
+  - [Download or clone repository](#download-or-clone-repository)
+  - [Create .env using .env.template](#create-env-using-envtemplate)
+  - [Add the node\_modules folder](#add-the-node_modules-folder)
+  - [Start TNLCM frontend](#start-tnlcm-frontend)
 
 ## Deploy TNLCM frontend
 
