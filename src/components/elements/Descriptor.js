@@ -21,7 +21,9 @@ export default function Descriptor ({ yamlData, handleRemoveFromDescriptor }) {
                     {Object.keys(descriptor.trial_network).map((entityName, index) => (
                         <li key={index}>
                             <span>{entityName}</span>
-                            <FaTrash onClick={() => handleRemoveClick(entityName)} />
+                            {entityName !== "mandatory_tn_vxlan" && entityName !== "mandatory_tn_bastion" && (
+                                <FaTrash onClick={() => handleRemoveClick(entityName)} />
+                            )}
                         </li>
                     ))}
                 </ul>

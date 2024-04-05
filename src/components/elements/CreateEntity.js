@@ -133,7 +133,7 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
 
     return (
         <div>
-            <h2>Add component:</h2>
+            <h2>Add component</h2>
             <h3>Name of entity:</h3>
             <Input 
                 type="text"
@@ -162,6 +162,7 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
                             />
                         </div>
                     ))}
+                    <h5>depends on</h5>
                     {dependsPart.map((value, index) => (
                         <div key={index}>
                             <Input
