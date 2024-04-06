@@ -14,9 +14,9 @@ export default function NavLink() {
     const navLinks = [
         { name: "Dashboard", href: "/tnlcm/dashboard" },
         { name: "Trial Networks", subMenu: [
-            { name: "Create Trial Network", href: "/tnlcm/dashboard/trial_networks/create" },
-            { name: "List Trial Networks", href: "/tnlcm/dashboard/trial_networks/list" },
-            { name: "Report Trial Networks", href: "/tnlcm/dashboard/trial_networks/report" }
+            { name: "Create trial network", href: "/tnlcm/dashboard/trial_networks/create" },
+            { name: "List trial networks", href: "/tnlcm/dashboard/trial_networks/list" },
+            { name: "Report trial networks", href: "/tnlcm/dashboard/trial_networks/report" }
         ]},
         { name: "Settings", href: "/tnlcm/dashboard/settings" }
     ];
@@ -33,22 +33,22 @@ export default function NavLink() {
     };
 
     return (
-        <nav className={styles.nav}>
-            <div className={styles.logoContainer}>
-                <Image className={styles.logo} src="/TNLCM.png" alt="TNLCM Logo" width={80} height={80} priority />
+        <nav className={styles["navLink-container"]}>
+            <div className={styles["logo-container"]}>
+                <Image src="/TNLCM.png" alt="TNLCM Logo" width={80} height={80} priority />
             </div>
             {navLinks.map((link, index) => (
                 <div key={link.name} onClick={link.onClick}>
                     {link.subMenu ? (
                         <div>
-                            <p className={`${styles.navLink} ${activeSubMenu === index ? styles.active : ""}`} onClick={() => handleSubMenuToggle(index)}>
-                                {link.name} {activeSubMenu === index ? <span className={styles.arrowUp}>▲</span> : <span className={styles.arrowDown}>▼</span>}
+                            <p className={`${styles["navLink"]} ${activeSubMenu === index ? styles["active"] : ""}`} onClick={() => handleSubMenuToggle(index)}>
+                                {link.name} {activeSubMenu === index ? <span>▲</span> : <span>▼</span>}
                             </p>
                             {activeSubMenu === index && (
-                                <div className={styles.subMenu}>
+                                <div>
                                     {link.subMenu.map((subLink) => (
                                         <Link key={subLink.name} href={subLink.href}>
-                                            <p className={`${styles.subNavLink} ${styles.navLink}`}>{subLink.name}</p>
+                                            <p className={`${styles["navLink"]}`}>{subLink.name}</p>
                                         </Link>
                                     ))}
                                 </div>
@@ -56,13 +56,13 @@ export default function NavLink() {
                         </div>
                     ) : (
                         <Link href={link.href}>
-                            <p className={`${styles.navLink} ${pathname === link.href ? styles.active : ""}`} onClick={() => handleLinkClick(index, link.subMenu)}>{link.name}</p>
+                            <p className={`${styles["navLink"]} ${pathname === link.href ? styles["active"] : ""}`} onClick={() => handleLinkClick(index, link.subMenu)}>{link.name}</p>
                         </Link>
                     )}
                 </div>
             ))}
-            <div className={styles.logoutContainer}>
-                <p className={`${styles.navLink} ${styles.logout}`} onClick={handleLogout}>Logout</p>
+            <div className={styles["logout-container"]}>
+                <p className={`${styles["navLink"]} ${styles["logout"]}`} onClick={handleLogout}>Logout</p>
             </div>
         </nav>
     );
