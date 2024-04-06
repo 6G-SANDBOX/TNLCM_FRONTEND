@@ -114,7 +114,7 @@ export async function createTrialNetwork(token, tnId, yamlData) {
         const { message } = data;
         throw new Error(message + ". \nError code: " + code_error);
     }
-    return data['tn_id'];
+    return data["tn_id"];
 };
 
 export async function getDescriptorTrialNetwork(token, tnId) {
@@ -235,14 +235,16 @@ export async function getStatusTrialNetworks(token) {
 
 /* --------------- 6G-Library --------------- */
 
-export async function getComponents6GLibrary(branch, commitId) {
+export async function getExtractInfoComponents6GLibrary(branch, commitId) {
 
-    const fetchComponents6GLibrary = async () => {
+    const fetchExtractInfoComponents6GLibrary = async () => {
         let url = "";
         if (branch !== "") {
-            url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6glibrary/components/?branch=${branch}`;
+            url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6glibrary/components/all?branch=${branch}`;
+        } else if (commitId !== "") {
+            url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6glibrary/components/all?commit_id=${commitId}`;
         } else {
-            url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6glibrary/components/?commit_id=${commitId}`;
+            url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6glibrary/components/all`
         }
         try {
             const response = await fetch(url, {
@@ -257,7 +259,7 @@ export async function getComponents6GLibrary(branch, commitId) {
         }
     };
 
-    const response = await fetchComponents6GLibrary();
+    const response = await fetchExtractInfoComponents6GLibrary();
     const data = await response.json();
     const code_error = response["status"];
     if (!response.ok) {
