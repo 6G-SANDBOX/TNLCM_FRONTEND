@@ -1,38 +1,17 @@
 "use client"
 
-import { useState } from "react";
-import { remark } from "remark";
-import html from "remark-html";
 import Input from "@/components/elements/Input";
 import Button from "@/components/elements/Button";
-import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
-import { getReportTrialNetwork } from "@/lib/apiHandler";
+import useReport from "@/hooks/useReport";
 
 export default function ReportPage() {
-
-    const [tnId, setTnId] = useState("");
-    const [tnReport, setTnReport] = useState("");
-
-    const handleTnIdChange = (event) => {
-        setTnId(event.target.value);
-    };
-
-    const handleReportTrialNetwork = async () => {
-        try {
-            const token = await getAccessTokenFromLocalStorage();
-            const tnReportMarkdown = await getReportTrialNetwork(token, tnId);
-            const htmlContent = await convertMarkdownToHtml(tnReportMarkdown);
-            setTnReport(htmlContent)
-        } catch (error) {
-            alert(e);
-        }
-    };
-
-    const convertMarkdownToHtml = async (markdown) => {
-        const processedContent = await remark().use(html).process(markdown);
-        const contentHtml = processedContent.toString();
-        return contentHtml;
-    };
+    const {
+        tnId,
+        setTnId,
+        tnReport,
+        handleTnIdChange,
+        handleReportTrialNetwork
+    } = useReport();
 
     return (
         <div>
@@ -48,13 +27,13 @@ export default function ReportPage() {
                 required={true}
             />
             <Button 
-                type="submit"
+                type="button"
                 className="button-login-register"
                 onClick={handleReportTrialNetwork}
             >
                 Report
-            </Button>
+        </Button>
             <div dangerouslySetInnerHTML={{ __html: tnReport }} />
         </div>
-    )
-}
+    );
+};
