@@ -10,10 +10,7 @@ export function saveRefreshTokenToLocalStorage(token) {
 
 function isTokenExpired(token) {
   const decoded = jwtDecode(token);
-  if (decoded["exp"] < Date.now() / 1000) {
-    return true;
-  }
-  return false;
+  return decoded["exp"] < Date.now() / 1000;
 }
 
 export async function getAccessTokenFromLocalStorage() {
