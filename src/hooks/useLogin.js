@@ -4,10 +4,12 @@ import { loginUser } from "@/lib/apiHandler";
 import { saveAccessTokenToLocalStorage, saveRefreshTokenToLocalStorage } from "@/lib/jwtHandler";
 
 export default function useLogin() {
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    const handleLogin = async (username, password) => {
+    const handleLogin = async () => {
         setLoading(true);
         try {
             const tokens = await loginUser(username, password);
@@ -20,5 +22,20 @@ export default function useLogin() {
             setLoading(false);
         }
     };
-    return { handleLogin, loading };
+
+    const handleKeyPress = (e) => {
+        if (e.key === "Enter") {
+            handleLogin();
+        }
+    };
+    
+    return {
+        username,
+        setUsername,
+        password,
+        setPassword,
+        loading,
+        handleLogin,
+        handleKeyPress
+    };
 };
