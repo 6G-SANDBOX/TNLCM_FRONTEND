@@ -11,7 +11,7 @@ export default function Descriptor ({ yamlData, handleRemoveFromDescriptor }) {
 
     return (
         <div>
-            <div className={styles.descriptor}>
+            <div className={styles["descriptor-container"]}>
                 <h3>Descriptor</h3>
                 <pre>{yamlData}</pre>
             </div>

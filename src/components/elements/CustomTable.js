@@ -3,8 +3,8 @@ import styles from "@/components/modules/CustomTable.module.css";
 
 export default function CustomTable({ columns, data }) {
     return (
-        <div className={styles.tableContainer}>
-        <table className={styles.customTable}>
+        <div className={styles["table-container"]}>
+        <table className={styles["custom-table"]}>
             <thead>
             <tr>
                 {columns.map((column, index) => (
