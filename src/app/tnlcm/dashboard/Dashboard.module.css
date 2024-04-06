@@ -1,13 +1,13 @@
-.container {
+.dashboard-container {
     display: flex;
 }
 
-.navLinkContainer {
+.navlink-container {
     flex: 0 0 auto;
     width: 200px;
 }
 
-.childrenContainer {
+.children-container {
     flex: 1;
     padding-left: 20px;
 }

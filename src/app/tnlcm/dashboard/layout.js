@@ -3,11 +3,11 @@ import styles from "./Dashboard.module.css";
 
 export default function Layout ({ children }) {
     return (
-        <div className={styles.container}>
-            <div className={styles.navLinkContainer}>
+        <div className={styles["dashboard-container"]}>
+            <div className={styles["navlink-container"]}>
                 <NavLink />
             </div>
-            <div className={styles.childrenContainer}>
+            <div className={styles["children-container"]}>
                 {children}
             </div>
         </div>
