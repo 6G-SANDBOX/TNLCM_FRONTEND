@@ -6,11 +6,20 @@
 > ⚠ TNLCM frontend is under development and is subject to continuous changes.
 
 ## Table of contents <!-- omit in toc -->
+- [Distribution of branches](#distribution-of-branches)
 - [Deploy TNLCM frontend](#deploy-tnlcm-frontend)
   - [Download or clone repository](#download-or-clone-repository)
   - [Create .env using .env.template](#create-env-using-envtemplate)
   - [Add the node\_modules folder](#add-the-node_modules-folder)
   - [Start TNLCM frontend](#start-tnlcm-frontend)
+
+## Distribution of branches
+
+The **main** branch will be updated every time there is a plenary meeting. Releases will be created from this branch.
+
+The **staging** branch will be updated every time there is a plenary meeting or a demo.
+
+The **dev** branch will be used for development. This branch will feed the staging and main branches.
 
 ## Deploy TNLCM frontend
 
