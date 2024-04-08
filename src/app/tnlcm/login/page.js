@@ -1,12 +1,12 @@
 "use client"
 
+import { useEffect } from "react";
 import Link from "next/link";
 import Button from "@/components/elements/Button";
 import Input from "@/components/elements/Input";
 import useLogin from "@/hooks/useLogin";
-import styles from "./Login.module.css";
-import { useEffect } from "react";
 import { clearAuthTokens } from "@/lib/jwtHandler";
+import styles from "./Login.module.css";
 
 export default function LoginPage() {
     const {
@@ -19,7 +19,7 @@ export default function LoginPage() {
         handleKeyPress
     } = useLogin();
 
-    const fetchClearTokens = async () => {
+    const fetchClearTokens = () => {
         try {
             clearAuthTokens()
         } catch (error) {
@@ -57,7 +57,8 @@ export default function LoginPage() {
                     {loading ? "Logging in..." : "Log in"}
                 </Button>
             </form>
-            <p>Don't have an account? <Link href="/tnlcm/register">Register</Link></p>
+            <p>Don't have an account? <Link href="/tnlcm/register/verification">Register</Link></p>
+            <p>Forgot your password? <Link href="/tnlcm/change-password">Change password</Link></p>
         </div>
     );
 };
