@@ -13,6 +13,8 @@ export default function RegisterPage() {
     setPassword,
     email,
     setEmail,
+    verificationToken,
+    setVerificationToken,
     org,
     setOrg,
     handleRegister,
@@ -51,10 +53,19 @@ export default function RegisterPage() {
           required={true}
         />
         <Input
-          type="org"
+          type="text"
           placeholder="Organization"
           value={org}
           onChange={(e) => setOrg(e.target.value)}
+          onKeyDown={handleKeyPress}
+          className="input-login-register"
+          required={true}
+        />
+        <Input
+          type="text"
+          placeholder="Code"
+          value={verificationToken}
+          onChange={(e) => setVerificationToken(e.target.value)}
           onKeyDown={handleKeyPress}
           className="input-login-register"
           required={true}
