@@ -232,6 +232,33 @@ export async function getStatusTrialNetworks(token) {
     return data["trial_networks_status"];
 };
 
+export async function getTrialNetworksTemplates(token) {
+
+    const fetchTrialNetworksTemplates = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_networks/templates/`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+            return response;
+        } catch (error) {
+            throw new Error("Failed to fetch data" + error);
+        }
+    };
+
+    const response = await fetchTrialNetworksTemplates();
+    const data = await response.json();
+    const code_error = response["status"];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + ". \nError code: " + code_error);
+    }
+    return data["trial_networks_templates"];
+};
+
 /* --------------- 6G-Library --------------- */
 
 export async function getExtractInfoComponents6GLibrary(branch, commitId) {
