@@ -8,7 +8,7 @@ import Descriptor from "./Descriptor";
 import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
 import { createTrialNetwork, deployTrialNetwork } from "@/lib/apiHandler";
 
-export default function CreateEntity({ tnId, components, selectedOption, branch, commitId }) {
+export default function CreateEntity({ components, selectedOption, branch, commitId }) {
 
     const initDescriptor = {
         "mandatory_tn_vxlan": {
@@ -25,6 +25,7 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
         }
     };
 
+    const [tnId, setTnId] = useState("");
     const [selectedComponent, setSelectedComponent] = useState("");
     const [entity, setEntity] = useState("");
     const [publicPart, setPublicPart] = useState({});
@@ -112,7 +113,8 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
         try {
             const descriptorYaml = yaml.dump(descriptor);
             const token = await getAccessTokenFromLocalStorage();
-            await createTrialNetwork(token, tnId, descriptorYaml);
+            const id = await createTrialNetwork(token, descriptorYaml);
+            setTnId(id);
             setTrialNetworkCreated(true);
         } catch (error) {
             alert(error);
@@ -182,7 +184,7 @@ export default function CreateEntity({ tnId, components, selectedOption, branch,
                 <Button className="button-login-register" onClick={() => handleCreateTrialNetwork()}>Create Trial Network</Button>
                 {trialNetworkCreated && (
                     <div>
-                        <h5>Trial network created</h5>
+                        <h5>Trial network created with identifier: {tnId}</h5>
                         <Button type="submit" className="button-login-register" disabled={isDeploying} onClick={handleDeployTrialNetwork}>
                             {isDeploying ? "Deploying..." : "Deploy Trial Network"}
                         </Button>

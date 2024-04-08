@@ -86,10 +86,9 @@ export async function getTrialNetworks(token) {
     return data;
 };
 
-export async function createTrialNetwork(token, tnId, yamlData) {
+export async function createTrialNetwork(token, yamlData) {
     const blob = new Blob([yamlData], { type: "text/yaml" });
     const formData = new FormData();
-    formData.append("tn_id", tnId);
     formData.append("descriptor", blob, "descriptor.yaml");
 
     const fetchCreateTrialNetwork = async () => {
@@ -141,7 +140,7 @@ export async function getDescriptorTrialNetwork(token, tnId) {
         const { message } = data;
         throw new Error(message + ". \nError code: " + code_error);
     }
-    return data;
+    return data["tn_descriptor"];
 };
 
 export async function deployTrialNetwork(token, tnId, selectedOption, branch, commitId) {
@@ -230,7 +229,7 @@ export async function getStatusTrialNetworks(token) {
         const { message } = data;
         throw new Error(message + ". \nError code: " + code_error);
     }
-    return data;
+    return data["trial_networks_status"];
 };
 
 /* --------------- 6G-Library --------------- */
