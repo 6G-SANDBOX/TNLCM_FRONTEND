@@ -5,6 +5,8 @@ import Button from "@/components/elements/Button";
 import Input from "@/components/elements/Input";
 import useLogin from "@/hooks/useLogin";
 import styles from "./Login.module.css";
+import { useEffect } from "react";
+import { clearAuthTokens } from "@/lib/jwtHandler";
 
 export default function LoginPage() {
     const {
@@ -16,6 +18,18 @@ export default function LoginPage() {
         handleLogin,
         handleKeyPress
     } = useLogin();
+
+    const fetchClearTokens = async () => {
+        try {
+            clearAuthTokens()
+        } catch (error) {
+            alert(error);
+        }
+    };
+
+    useEffect(() => {
+        fetchClearTokens();
+    }, [])
 
     return (
         <div className={styles["login-container"]}>
