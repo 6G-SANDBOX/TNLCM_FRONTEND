@@ -10,7 +10,9 @@ export default function VerificationRegisterPage() {
     email,
     setEmail,
     handleVerificationRegister,
-    handleKeyPress
+    handleResetVerificationRegister,
+    handleKeyVerificationRegisterPress,
+    handleKeyResetVerificationRegisterPress,
   } = useVerificationRegister();
 
   return (
@@ -23,7 +25,7 @@ export default function VerificationRegisterPage() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={handleKeyPress}
+          onKeyDown={handleKeyVerificationRegisterPress}
           className="input-login-register"
           required={true}
         />
