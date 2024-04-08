@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { verificationRegister } from "@/lib/apiHandler";
+import { verificationRegister, resetVerificationRegister } from "@/lib/apiHandler";
 
 export default function useVerificationRegister() {
     const [email, setEmail] = useState("");
@@ -16,9 +16,25 @@ export default function useVerificationRegister() {
         }
     };
 
-    const handleKeyPress = async (e) => {
+    const handleResetVerificationRegister = async (e) => {
+        e.preventDefault();
+        try {
+            await resetVerificationRegister(email);
+            router.push("/tnlcm/change-password");
+        } catch (error) {
+            alert(error);
+        }
+    }
+
+    const handleKeyVerificationRegisterPress = async (e) => {
         if (e.key === "Enter") {
             await handleVerificationRegister(e);
+        }
+    };
+
+    const handleKeyResetVerificationRegisterPress = async (e) => {
+        if (e.key === "Enter") {
+            await handleResetVerificationRegister(e);
         }
     };
 
@@ -26,6 +42,8 @@ export default function useVerificationRegister() {
         email,
         setEmail,
         handleVerificationRegister,
-        handleKeyPress
+        handleResetVerificationRegister,
+        handleKeyVerificationRegisterPress,
+        handleKeyResetVerificationRegisterPress,
     };
 };
