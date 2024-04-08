@@ -86,6 +86,62 @@ export async function verificationRegister(email) {
     return data;
 };
 
+export async function resetVerificationRegister(email) {
+
+    const fetchResetVerificationRegister = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/request-reset-token`, {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email })
+            });
+            return response;
+        } catch (error) {
+            throw new Error("Failed to fetch data" + error);
+        }
+    };
+
+    const response = await fetchResetVerificationRegister();
+    const data = await response.json();
+    const code_error = response["status"];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + ". \nError code: " + code_error);
+    }
+    return data;
+};
+
+export async function changePassword(email, password, resetToken) {
+
+    const fetchChangePassword = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/change-password`, {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email, password, "reset_token": resetToken })
+            });
+            return response;
+        } catch (error) {
+            throw new Error("Failed to fetch data" + error);
+        }
+    };
+
+    const response = await fetchChangePassword();
+    const data = await response.json();
+    const code_error = response["status"];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + ". \nError code: " + code_error);
+    }
+    return data;
+};
+
 /* --------------- Trial Networks --------------- */
 
 export async function getTrialNetworks(token) {
