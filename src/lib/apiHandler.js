@@ -123,8 +123,9 @@ export async function getDescriptorTrialNetwork(token, tnId) {
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_network/${tnId}`, {
                 method: "GET",
                 headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 }
             });
             return response;
@@ -157,8 +158,9 @@ export async function deployTrialNetwork(token, tnId, selectedOption, branch, co
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_network/${tnId}`, {
                 method: "PUT",
                 headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 },
                 body: JSON.stringify(bodyData)
             });
@@ -185,8 +187,9 @@ export async function getReportTrialNetwork(token, tnId) {
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_network/report/${tnId}`, {
                 method: "GET",
                 headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 }
             });
             return response;
@@ -212,8 +215,9 @@ export async function getStatusTrialNetworks(token) {
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_networks/status/`, {
                 method: "GET",
                 headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 }
             });
             return response;
@@ -239,8 +243,9 @@ export async function getTrialNetworksTemplates(token) {
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_networks/templates/`, {
                 method: "GET",
                 headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 }
             });
             return response;
@@ -276,6 +281,7 @@ export async function getExtractInfoComponents6GLibrary(branch, commitId) {
             const response = await fetch(url, {
                 method: "GET",
                 headers: {
+                    "Accept": "application/json",
                     "Content-Type": "application/json"
                 }
             });

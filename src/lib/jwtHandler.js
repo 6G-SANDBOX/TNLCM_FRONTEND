@@ -34,8 +34,9 @@ async function setAccessTokenUsingRefreshToken() {
       const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/user/refresh`, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${refreshToken}`,
-          "Content-Type": "application/json"
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${refreshToken}`
         }
       });
       return response;
