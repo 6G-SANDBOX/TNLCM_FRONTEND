@@ -58,7 +58,7 @@ export default function LoginPage() {
                 </Button>
             </form>
             <p>Don't have an account? <Link href="/tnlcm/register/verification">Register</Link></p>
-            <p>Forgot your password? <Link href="/tnlcm/change-password">Change password</Link></p>
+            <p>Forgot your password? <Link href="/tnlcm/change-password/reset-verification">Change password</Link></p>
         </div>
     );
 };
