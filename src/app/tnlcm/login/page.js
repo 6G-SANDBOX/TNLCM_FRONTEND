@@ -34,7 +34,7 @@ export default function LoginPage() {
     return (
         <div className={styles["login-container"]}>
             <form onSubmit={handleLogin} className={styles["login-form"]}>
-                <h1 className={styles["login-title"]}>Log in to TNLCM</h1>
+                <h1 className={styles["login-title"]}>Log in TNLCM</h1>
                 <Input
                     type="username"
                     placeholder="Username"
