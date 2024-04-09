@@ -3,6 +3,7 @@
 import useChangePassword from "@/hooks/useChangePassword";
 import Button from "@/components/elements/Button";
 import Input from "@/components/elements/Input";
+import Loader from "@/components/elements/Loader";
 import styles from "./ChangePassword.module.css";
 
 export default function ChangePasswordPage() {
@@ -13,12 +14,14 @@ export default function ChangePasswordPage() {
         setEmail,
         resetToken,
         setResetToken,
+        loading,
         handleChangePassword,
         handleKeyPress
     } = useChangePassword();
 
     return (
         <div className={styles["register-container"]}>
+            {loading && <Loader />}
             <form onSubmit={handleChangePassword} className={styles["register-form"]}>
                 <h1 className={styles["register-title"]}>Update password</h1>
                 <Input
