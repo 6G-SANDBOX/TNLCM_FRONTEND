@@ -34,7 +34,7 @@ export async function registerUser(username, password, email, verificationToken,
 
     const fetchRegisterUser = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/new-user-verification`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/new_user_verification`, {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -62,7 +62,7 @@ export async function verificationRegister(email) {
 
     const fetchVerificationRegister = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/request-verification-token`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/request_verification_token`, {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -90,7 +90,7 @@ export async function resetVerificationRegister(email) {
 
     const fetchResetVerificationRegister = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/request-reset-token`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/request_reset_token`, {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -118,7 +118,7 @@ export async function changePassword(email, password, resetToken) {
 
     const fetchChangePassword = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/change-password`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/change_password`, {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
