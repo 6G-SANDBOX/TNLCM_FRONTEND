@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import Button from "@/components/elements/Button";
 import Input from "@/components/elements/Input";
+import Loader from "@/components/elements/Loader";
 import useLogin from "@/hooks/useLogin";
 import { clearAuthTokens } from "@/lib/jwtHandler";
 import styles from "./Login.module.css";
@@ -33,6 +34,7 @@ export default function LoginPage() {
 
     return (
         <div className={styles["login-container"]}>
+            {loading && <Loader />}
             <form onSubmit={handleLogin} className={styles["login-form"]}>
                 <h1 className={styles["login-title"]}>Log in TNLCM</h1>
                 <Input
@@ -54,11 +56,11 @@ export default function LoginPage() {
                     required={true}
                 />
                 <Button type="submit" className="button-login-register" disabled={loading}>
-                    {loading ? "Logging in..." : "Log in"}
+                    Log in
                 </Button>
             </form>
             <p>Don't have an account? <Link href="/tnlcm/register/verification">Register</Link></p>
-            <p>Forgot your password? <Link href="/tnlcm/change-password/reset-verification">Change password</Link></p>
+            <p>Forgot your password? <Link href="/tnlcm/change_password/reset_verification">Change password</Link></p>
         </div>
     );
 };

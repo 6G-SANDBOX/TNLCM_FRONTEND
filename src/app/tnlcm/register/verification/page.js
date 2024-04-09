@@ -3,12 +3,14 @@
 import useVerificationRegister from "@/hooks/useVerificationRegister";
 import Input from "@/components/elements/Input";
 import Button from "@/components/elements/Button";
+import Loader from "@/components/elements/Loader";
 import styles from "./Verification.module.css"
 
 export default function VerificationRegisterPage() {
   const {
     email,
     setEmail,
+    loading,
     handleVerificationRegister,
     handleResetVerificationRegister,
     handleKeyVerificationRegisterPress,
@@ -17,6 +19,7 @@ export default function VerificationRegisterPage() {
 
   return (
     <div className={styles["register-container"]}>
+      {loading && <Loader />}
       <form onSubmit={handleVerificationRegister} className={styles["register-form"]}>
         <h1 className={styles["register-title"]}>Verification register</h1>
         <p>Please insert an email address to which you have access to. An email will be sent to your email address with the code to be inserted at the time of registration.</p>

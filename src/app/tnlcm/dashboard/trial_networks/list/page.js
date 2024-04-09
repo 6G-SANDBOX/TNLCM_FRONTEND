@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useEffect } from "react";
+import CustomTable from "@/components/elements/CustomTable";
+import Loader from "@/components/elements/Loader";
 import { getStatusTrialNetworks } from "@/lib/apiHandler";
 import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
-import CustomTable from "@/components/elements/CustomTable";
 
 export default function ListTrialNetworksPage() {
     const [trialNetworks, setTrialNetworks] = useState([]);
@@ -29,7 +30,7 @@ export default function ListTrialNetworksPage() {
         <div>
             <h1>List of Trial Networks</h1>
             {loading ? (
-                <p>Loading...</p>
+                <Loader />
             ) : (
                 trialNetworks.length > 0 && (
                     <CustomTable 

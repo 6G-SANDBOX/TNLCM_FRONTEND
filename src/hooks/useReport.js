@@ -7,12 +7,11 @@ import { getReportTrialNetwork } from "@/lib/apiHandler";
 export default function useReport() {
     const [tnId, setTnId] = useState("");
     const [tnReport, setTnReport] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    const handleTnIdChange = (event) => {
-        setTnId(event.target.value);
-    };
-
-    const handleReportTrialNetwork = async () => {
+    const handleReportTrialNetwork = async (e) => {
+        e.preventDefault();
+        setLoading(true);
         try {
             const token = await getAccessTokenFromLocalStorage();
             const tnReportMarkdown = await getReportTrialNetwork(token, tnId);
@@ -20,6 +19,8 @@ export default function useReport() {
             setTnReport(htmlContent)
         } catch (error) {
             alert("Error al reportar la red de prueba: " + error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -33,7 +34,7 @@ export default function useReport() {
         tnId,
         setTnId,
         tnReport,
-        handleTnIdChange,
+        loading,
         handleReportTrialNetwork
     };
 };
