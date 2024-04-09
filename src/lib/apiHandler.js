@@ -30,16 +30,17 @@ export async function loginUser(username, password) {
     return data;
 };
 
-export async function registerUser(username, password, email, org) {
+export async function registerUser(username, password, email, verificationToken, org) {
 
     const fetchRegisterUser = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/user`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/new-user-verification`, {
                 method: "POST",
                 headers: {
+                    "Accept": "application/json",
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ username, password, email, org })
+                body: JSON.stringify({ username, password, email, "verification_token": verificationToken, org })
             });
             return response;
         } catch (error) {
@@ -48,6 +49,90 @@ export async function registerUser(username, password, email, org) {
     };
 
     const response = await fetchRegisterUser();
+    const data = await response.json();
+    const code_error = response["status"];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + ". \nError code: " + code_error);
+    }
+    return data;
+};
+
+export async function verificationRegister(email) {
+
+    const fetchVerificationRegister = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/request-verification-token`, {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email })
+            });
+            return response;
+        } catch (error) {
+            throw new Error("Failed to fetch data" + error);
+        }
+    };
+
+    const response = await fetchVerificationRegister();
+    const data = await response.json();
+    const code_error = response["status"];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + ". \nError code: " + code_error);
+    }
+    return data;
+};
+
+export async function resetVerificationRegister(email) {
+
+    const fetchResetVerificationRegister = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/request-reset-token`, {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email })
+            });
+            return response;
+        } catch (error) {
+            throw new Error("Failed to fetch data" + error);
+        }
+    };
+
+    const response = await fetchResetVerificationRegister();
+    const data = await response.json();
+    const code_error = response["status"];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + ". \nError code: " + code_error);
+    }
+    return data;
+};
+
+export async function changePassword(email, password, resetToken) {
+
+    const fetchChangePassword = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/change-password`, {
+                method: "POST",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ email, password, "reset_token": resetToken })
+            });
+            return response;
+        } catch (error) {
+            throw new Error("Failed to fetch data" + error);
+        }
+    };
+
+    const response = await fetchChangePassword();
     const data = await response.json();
     const code_error = response["status"];
     if (!response.ok) {
@@ -66,8 +151,9 @@ export async function getTrialNetworks(token) {
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_networks/`, {
                 method: "GET",
                 headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "application/json"
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 }
             });
             return response;

@@ -9,7 +9,7 @@ export default function useLogin() {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    const handleLogin = async () => {
+    const handleLogin = async (e) => {
         setLoading(true);
         try {
             const tokens = await loginUser(username, password);
@@ -23,9 +23,9 @@ export default function useLogin() {
         }
     };
 
-    const handleKeyPress = (e) => {
+    const handleKeyPress = async (e) => {
         if (e.key === "Enter") {
-            handleLogin();
+            await handleLogin(e);
         }
     };
     
