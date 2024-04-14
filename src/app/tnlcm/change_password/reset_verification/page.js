@@ -1,39 +1,52 @@
 "use client"
 
-import useVerificationRegister from "@/hooks/useVerificationRegister";
-import Input from "@/components/elements/Input";
-import Button from "@/components/elements/Button";
-import Loader from "@/components/elements/Loader";
-import styles from "./ResetVerification.module.css"
+import CustomForm from "@/components/elements/CustomForm";
+import useVerification from "@/hooks/useVerification";
 
 export default function ResetVerificationRegisterCodePage() {
   const {
     email,
     setEmail,
     loading,
-    handleVerificationRegister,
-    handleResetVerificationRegister,
-    handleKeyVerificationRegisterPress,
-    handleKeyResetVerificationRegisterPress,
-  } = useVerificationRegister();
+    handleResetVerification,
+    handleKeyResetVerificationPress,
+  } = useVerification();
+
+  const inputs = [
+    {
+      type: "email",
+      placeholder: "Email",
+      value: email,
+      onChange: (e) => setEmail(e.target.value),
+      onKeyDown: handleKeyResetVerificationPress,
+      className: "input-login-register-verification",
+      required: true
+    }
+  ];
+
+  const buttons = [
+    {
+      type: "submit",
+      className: "button-login-register-verification",
+      disabled: loading,
+      children: "Generate code"
+    }
+  ];
+
+  const paragraphs = [
+    <p key="1">Please insert an email address to which you have access to. An email will be sent to your email address with the code to be inserted at the time of registration.</p>
+  ];
 
   return (
-    <div className={styles["register-container"]}>
-      {loading && <Loader />}
-      <form onSubmit={handleResetVerificationRegister} className={styles["register-form"]}>
-        <h1 className={styles["register-title"]}>Reset verification code</h1>
-        <p>Please insert an email address to which you have access to. An email will be sent to your email address with the code to be inserted at the time of registration.</p>
-        <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={handleKeyResetVerificationRegisterPress}
-          className="input-login-register"
-          required={true}
-        />
-        <Button type="submit" className="button-login-register">Generate code</Button>
-      </form>
-    </div>
+    <CustomForm
+      onSubmit={handleResetVerification}
+      loading={loading}
+      containerClassName="login-register-verification-container"
+      formClassName="login-register-verification-form"
+      h1="Reset verification code"
+      paragraphs={paragraphs}
+      inputs={inputs}
+      buttons={buttons}
+    />
   );
-}
+};

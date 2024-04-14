@@ -1,9 +1,7 @@
 "use client"
 
+import CustomForm from "@/components/elements/CustomForm";
 import useRegister from "@/hooks/useRegister";
-import Button from "@/components/elements/Button";
-import Input from "@/components/elements/Input";
-import styles from "./Register.module.css";
 
 export default function RegisterPage() {
   const {
@@ -17,61 +15,77 @@ export default function RegisterPage() {
     setVerificationToken,
     org,
     setOrg,
+    loading,
     handleRegister,
     handleKeyPress
   } = useRegister();
 
+  const inputs = [
+    {
+      type: "text",
+      placeholder: "Username",
+      value: username,
+      onChange: (e) => setUsername(e.target.value),
+      onKeyDown: handleKeyPress,
+      className: "input-login-register-verification",
+      required: true
+    },
+    {
+      type: "password",
+      placeholder: "Password",
+      value: password,
+      onChange: (e) => setPassword(e.target.value),
+      onKeyDown: handleKeyPress,
+      className: "input-login-register-verification",
+      required: true
+    },
+    {
+      type: "email",
+      placeholder: "Email",
+      value: email,
+      onChange: (e) => setEmail(e.target.value),
+      onKeyDown: handleKeyPress,
+      className: "input-login-register-verification",
+      required: true
+    },
+    {
+      type: "text",
+      placeholder: "Organization",
+      value: org,
+      onChange: (e) => setOrg(e.target.value),
+      onKeyDown: handleKeyPress,
+      className: "input-login-register-verification",
+      required: true
+    },
+    {
+      type: "text",
+      placeholder: "Code",
+      value: verificationToken,
+      onChange: (e) => setVerificationToken(e.target.value),
+      onKeyDown: handleKeyPress,
+      className: "input-login-register-verification",
+      required: true
+    }
+  ];
+
+  const buttons = [
+    {
+      type: "submit",
+      className: "button-login-register-verification",
+      disabled: loading,
+      children: "Register"
+    }
+  ];
+
   return (
-    <div className={styles["register-container"]}>
-      <form onSubmit={handleRegister} className={styles["register-form"]}>
-        <h1 className={styles["register-title"]}>Register in TNLCM</h1>
-        <Input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          onKeyDown={handleKeyPress}
-          className="input-login-register"
-          required={true}
-        />
-        <Input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={handleKeyPress}
-          className="input-login-register"
-          required={true}
-        />
-        <Input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          onKeyDown={handleKeyPress}
-          className="input-login-register"
-          required={true}
-        />
-        <Input
-          type="text"
-          placeholder="Organization"
-          value={org}
-          onChange={(e) => setOrg(e.target.value)}
-          onKeyDown={handleKeyPress}
-          className="input-login-register"
-          required={true}
-        />
-        <Input
-          type="text"
-          placeholder="Code"
-          value={verificationToken}
-          onChange={(e) => setVerificationToken(e.target.value)}
-          onKeyDown={handleKeyPress}
-          className="input-login-register"
-          required={true}
-        />
-        <Button type="submit" className="button-login-register">Register</Button>
-      </form>
-    </div>
+    <CustomForm
+      onSubmit={handleRegister}
+      loading={loading}
+      containerClassName="login-register-verification-container"
+      formClassName="login-register-verification-form"
+      h1="Register in TNLCM"
+      inputs={inputs}
+      buttons={buttons}
+    />
   );
 };
