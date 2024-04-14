@@ -350,6 +350,34 @@ export async function getTrialNetworksTemplates(token) {
     return data["trial_networks_templates"];
 };
 
+export async function deleteTrialNetwork(token, tnId) {
+
+    const fetchDeleteTrialNetwork = async () => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_network/${tnId}`, {
+                method: "DELETE",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+            return response;
+        } catch (error) {
+            throw new Error("Failed to fetch data" + error);
+        }
+    };
+
+    const response = await fetchDeleteTrialNetwork();
+    const data = await response.json();
+    const code_error = response["status"];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + ". \nError code: " + code_error);
+    }
+    return data;
+};
+
 /* --------------- 6G-Library --------------- */
 
 export async function getExtractInfoComponents6GLibrary(branch, commitId) {
