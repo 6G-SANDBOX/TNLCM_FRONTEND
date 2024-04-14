@@ -1,6 +1,6 @@
-import styles from "@/components/modules/Input.module.css";
+import styles from "@/components/modules/CustomInput.module.css";
 
-export default function({ type, placeholder, value, onChange, onKeyDown, className, required }) {
+export default function CustomInput({ type, placeholder, value, onChange, onKeyDown, className, required }) {
   return (
     <input
       type={type}

@@ -2,19 +2,19 @@ import { useState } from "react";
 import { remark } from "remark";
 import html from "remark-html";
 import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
-import { getReportTrialNetwork } from "@/lib/apiHandler";
+import { getTrialNetworkReport } from "@/lib/apiHandler";
 
-export default function useReport() {
+export default function useTrialNetworkReport() {
     const [tnId, setTnId] = useState("");
     const [tnReport, setTnReport] = useState("");
     const [loading, setLoading] = useState(false);
 
-    const handleReportTrialNetwork = async (e) => {
+    const handleTrialNetworkReport = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
             const token = await getAccessTokenFromLocalStorage();
-            const tnReportMarkdown = await getReportTrialNetwork(token, tnId);
+            const tnReportMarkdown = await getTrialNetworkReport(token, tnId);
             const htmlContent = await convertMarkdownToHtml(tnReportMarkdown);
             setTnReport(htmlContent)
         } catch (error) {
@@ -23,6 +23,12 @@ export default function useReport() {
             setLoading(false);
         }
     };
+
+    const handleKeyTrialNetworkReportPress = async (e) => {
+        if (e.key === "Enter") {
+            await handleTrialNetworkReport(e);
+        }
+    }
 
     const convertMarkdownToHtml = async (markdown) => {
         const processedContent = await remark().use(html).process(markdown);
@@ -35,6 +41,7 @@ export default function useReport() {
         setTnId,
         tnReport,
         loading,
-        handleReportTrialNetwork
+        handleTrialNetworkReport,
+        handleKeyTrialNetworkReportPress
     };
 };
