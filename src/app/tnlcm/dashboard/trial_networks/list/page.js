@@ -34,7 +34,7 @@ export default function ListTrialNetworksPage() {
             ) : (
                 trialNetworks.length > 0 && (
                     <CustomTable 
-                        columns={["tn_id", "tn_status"]}
+                        columns={["tn_id", "tn_status", "tn_date_created"]}
                         data={trialNetworks}
                     />
                 )
