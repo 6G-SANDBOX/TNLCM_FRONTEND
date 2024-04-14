@@ -58,9 +58,9 @@ export async function registerUser(username, password, email, verificationToken,
     return data;
 };
 
-export async function verificationRegister(email) {
+export async function registerVerification(email) {
 
-    const fetchVerificationRegister = async () => {
+    const fetchRegisterVerification = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/request_verification_token`, {
                 method: "POST",
@@ -76,7 +76,7 @@ export async function verificationRegister(email) {
         }
     };
 
-    const response = await fetchVerificationRegister();
+    const response = await fetchRegisterVerification();
     const data = await response.json();
     const code_error = response["status"];
     if (!response.ok) {
@@ -86,9 +86,9 @@ export async function verificationRegister(email) {
     return data;
 };
 
-export async function resetVerificationRegister(email) {
+export async function resetVerification(email) {
 
-    const fetchResetVerificationRegister = async () => {
+    const fetchResetVerification = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification/request_reset_token`, {
                 method: "POST",
@@ -104,7 +104,7 @@ export async function resetVerificationRegister(email) {
         }
     };
 
-    const response = await fetchResetVerificationRegister();
+    const response = await fetchResetVerification();
     const data = await response.json();
     const code_error = response["status"];
     if (!response.ok) {
@@ -202,9 +202,9 @@ export async function createTrialNetwork(token, yamlData) {
     return data["tn_id"];
 };
 
-export async function getDescriptorTrialNetwork(token, tnId) {
+export async function getTrialNetworkDescriptor(token, tnId) {
 
-    const fetchDescriptorTrialNetwork = async () => {
+    const fetchTrialNetworkDescriptor = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_network/${tnId}`, {
                 method: "GET",
@@ -220,7 +220,7 @@ export async function getDescriptorTrialNetwork(token, tnId) {
         }
     };
 
-    const response = await fetchDescriptorTrialNetwork();
+    const response = await fetchTrialNetworkDescriptor();
     const data = await response.json();
     const code_error = response["status"];
     if (!response.ok) {
@@ -230,7 +230,7 @@ export async function getDescriptorTrialNetwork(token, tnId) {
     return data["tn_descriptor"];
 };
 
-export async function deployTrialNetwork(token, tnId, selectedOption, branch, commitId) {
+export async function TrialNetworkDeployment(token, tnId, selectedOption, branch, commitId) {
     let bodyData = {};
 
     if (selectedOption === "branch") {
@@ -239,7 +239,7 @@ export async function deployTrialNetwork(token, tnId, selectedOption, branch, co
         bodyData = { "commit_id": commitId };
     }
 
-    const fetchDeployTrialNetwork = async () => {
+    const fetchTrialNetworkDeployment = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_network/${tnId}`, {
                 method: "PUT",
@@ -256,7 +256,7 @@ export async function deployTrialNetwork(token, tnId, selectedOption, branch, co
         }
     };
 
-    const response = await fetchDeployTrialNetwork();
+    const response = await fetchTrialNetworkDeployment();
     const data = await response.json();
     const code_error = response["status"];
     if (!response.ok) {
@@ -266,9 +266,9 @@ export async function deployTrialNetwork(token, tnId, selectedOption, branch, co
     return data;
 };
 
-export async function getReportTrialNetwork(token, tnId) {
+export async function getTrialNetworkReport(token, tnId) {
 
-    const fetchReportTrialNetwork = async () => {
+    const fetchTrialNetworkReport = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_network/report/${tnId}`, {
                 method: "GET",
@@ -284,7 +284,7 @@ export async function getReportTrialNetwork(token, tnId) {
         }
     };
 
-    const response = await fetchReportTrialNetwork();
+    const response = await fetchTrialNetworkReport();
     const data = await response.json();
     const code_error = response["status"];
     if (!response.ok) {
@@ -294,9 +294,9 @@ export async function getReportTrialNetwork(token, tnId) {
     return data["tn_report"];
 };
 
-export async function getStatusTrialNetworks(token) {
+export async function getTrialNetworksStatus(token) {
 
-    const fetchStatusTrialNetworks = async () => {
+    const fetchTrialNetworksStatus = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_networks/status/`, {
                 method: "GET",
@@ -312,7 +312,7 @@ export async function getStatusTrialNetworks(token) {
         }
     };
 
-    const response = await fetchStatusTrialNetworks();
+    const response = await fetchTrialNetworksStatus();
     const data = await response.json();
     const code_error = response["status"];
     if (!response.ok) {
