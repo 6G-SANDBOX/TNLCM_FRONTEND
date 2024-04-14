@@ -21,7 +21,9 @@ export default function CreateEntity({ components, selectedOption, branch, commi
         "mandatory_tn_bastion": {
             "type": "tn_bastion",
             "depends_on": ["mandatory_tn_vxlan"],
-            "public": {}
+            "public": {
+                "one_component_networks": ["mandatory_tn_vxlan"]
+            }
         }
     };
 
