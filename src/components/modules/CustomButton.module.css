@@ -1,12 +1,12 @@
-.button-login-register {
+.button-login-register-verification {
     padding: 10px 20px;
     border: none;
     border-radius: 5px;
     background-color: #5e5316;
-    color: white;
+    color: #000000;
     cursor: pointer;
 }
   
-.button-login-register:hover {
+.button-login-register-verification:hover {
     background-color: #5e5316;
 }
