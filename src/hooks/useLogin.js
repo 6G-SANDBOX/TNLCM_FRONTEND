@@ -10,6 +10,7 @@ export default function useLogin() {
     const router = useRouter();
 
     const handleLogin = async (e) => {
+        e.preventDefault();
         setLoading(true);
         try {
             const tokens = await loginUser(username, password);
