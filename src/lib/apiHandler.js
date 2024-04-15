@@ -230,10 +230,10 @@ export async function getTrialNetworkDescriptor(token, tnId) {
     return data["tn_descriptor"];
 };
 
-export async function TrialNetworkDeployment(token, tnId, selectedOption, branch, commitId) {
+export async function trialNetworkDeployment(token, tnId, branchOrCommit, branch, commitId) {
     let bodyData = {};
 
-    if (selectedOption === "branch") {
+    if (branchOrCommit === "branch") {
         bodyData = { "branch": branch };
     } else {
         bodyData = { "commit_id": commitId };
