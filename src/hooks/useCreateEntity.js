@@ -5,6 +5,8 @@ export default function useCreateEntity(components) {
     const [componentType, setComponentType] = useState("");
     const [publicPart, setPublicPart] = useState({});
     const [dependsPart, setDependsPart] = useState([]);
+    const [publicDescriptor, setPublicDescriptor] = useState({});
+    const [dependsDescriptor, setDependsDescriptor] = useState([]);
 
     const handleComponentStructure = (value) => {
         setComponentType(value);
@@ -12,10 +14,46 @@ export default function useCreateEntity(components) {
         setDependsPart(components[value]["depends"]);
     }
 
-    const handleDependsPartChange = (value, index) => {
-        const newDependsPart = [...dependsPart];
-        newDependsPart[index] = value;
-        setDependsPart(newDependsPart);
+    const handleDependsDescriptorChange = (value, index) => {
+        setDependsDescriptor(prevState => {
+            const newDependsDescriptor = [...prevState];
+            newDependsDescriptor[index] = value;
+            return newDependsDescriptor;
+        });
+    }
+
+    const handlePublicDescriptorChange = (value, key) => {
+        setPublicDescriptor(prevState => ({
+            ...prevState,
+            [key]: value
+        }));
+    }
+
+    const handleAddEntityToDescriptor = (descriptor, setDescriptor) => {
+        return (e) => {
+            e.preventDefault();
+            if (descriptor["trial_network"][entity]) {
+                alert("An entity with the same name already exists in the descriptor.");
+            } else {
+                setDescriptor(prevDescriptor => ({
+                    ...prevDescriptor,
+                    trial_network: {
+                        ...prevDescriptor.trial_network,
+                        [entity]: {
+                            type: componentType,
+                            depends_on: dependsDescriptor,
+                            public: publicDescriptor
+                        }
+                    }
+                }));
+                setEntity("");
+                setComponentType("");
+                setPublicPart({});
+                setDependsPart([]);
+                setPublicDescriptor({});
+                setDependsDescriptor([]);
+            }
+        }
     }
 
     return {
@@ -27,7 +65,13 @@ export default function useCreateEntity(components) {
         setPublicPart,
         dependsPart,
         setDependsPart,
+        publicDescriptor,
+        setPublicDescriptor,
+        dependsDescriptor,
+        setDependsDescriptor,
         handleComponentStructure,
-        handleDependsPartChange
+        handleDependsDescriptorChange,
+        handlePublicDescriptorChange,
+        handleAddEntityToDescriptor
     }
 }
