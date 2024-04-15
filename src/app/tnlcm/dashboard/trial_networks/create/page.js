@@ -1,11 +1,16 @@
 "use client"
 
 import { useState } from "react";
+import { FaTrash } from "react-icons/fa";
 import CustomSelect from "@/components/elements/CustomSelect";
 import CustomForm from "@/components/elements/CustomForm";
+import CustomButton from "@/components/elements/CustomButton";
 import useExtractInfoComponents6GLirabry from "@/hooks/useExtractInfoComponents6GLirabry";
 import useCreateEntity from "@/hooks/useCreateEntity";
 import useCreateDescriptor from "@/hooks/useCreateDescriptor";
+import useCreateTrialNetwork from "@/hooks/useCreateTrialNetwork";
+import useDeployTrialNetwork from "@/hooks/useDeployTrialNetwork";
+import styles from "./CreateTrialNetwork.module.css";
 
 export default function CreateTrialNetworkPage() {
 
@@ -31,14 +36,36 @@ export default function CreateTrialNetworkPage() {
         setPublicPart,
         dependsPart,
         setDependsPart,
+        publicDescriptor,
+        setPublicDescriptor,
+        dependsDescriptor,
+        setDependsDescriptor,
         handleComponentStructure,
-        handleDependsPartChange
+        handleDependsDescriptorChange,
+        handlePublicDescriptorChange,
+        handleAddEntityToDescriptor
     } = useCreateEntity(components);
 
     const {
+        descriptorAsYaml,
         descriptor,
-        setDescriptor
+        setDescriptor,
+        handleDeleteEntity
     } = useCreateDescriptor();
+
+    const {
+        tnId,
+        setTnId,
+        trialNetworkCreated,
+        setTrialNetworkCreated,
+        handleCreateTrialNetwork
+    } = useCreateTrialNetwork();
+
+    const {
+        trialNetworkDeployed,
+        setTrialNetworkDeployed,
+        handleDeployTrialNetwork
+    } = useDeployTrialNetwork();
 
     const branchOrCommitOptions = [
         { label: "Branch", value: "branch" },
@@ -139,13 +166,16 @@ export default function CreateTrialNetworkPage() {
     }
 
     const renderDependsComponent = () => {
-        const inputsDependenciesComponents = dependsPart.map((dependency, index) => ({
-            type: "text",
-            placeholder: `List ${dependency}`,
-            onChange: (e) => handleDependsPartChange(e.target.value, index),
-            className: "input-login-register-verification",
-            required: true
-        }));
+        const inputsDependenciesComponents = dependsPart.flatMap((dependencies, index) =>
+            Object.entries(dependencies).map(([key, value]) => ({
+                extraContent: `${value["comments"]} - isNew: ${value["isNew"]}`,
+                type: "text",
+                placeholder: `${key}`,
+                onChange: (e) => handleDependsDescriptorChange(e.target.value, index),
+                className: "input-login-register-verification",
+                required: true
+            }))
+        );
         return (
             <div>
                 <h4>Dependencies</h4>
@@ -156,6 +186,95 @@ export default function CreateTrialNetworkPage() {
                     inputs={inputsDependenciesComponents}
                     buttons={[]}
                 />
+            </div>
+        )
+    }
+
+    const renderPublicComponent = () => {
+        const inputsPublicComponent = [];
+        Object.entries(publicPart).forEach(([key, value]) => {
+            inputsPublicComponent.push({
+                extraContent: `${key} - ${value["type"]}`,
+                type: "text",
+                placeholder: value["value"],
+                onChange: (e) => handlePublicDescriptorChange(e.target.value, key),
+                className: "input-login-register-verification",
+                required: true
+            });
+            return inputsPublicComponent;
+        })
+        const buttonsPublicComponent = [
+            {
+                type: "submit",
+                className: "button-login-register-verification",
+                children: "Add entity to descriptor",
+                onClick: handleAddEntityToDescriptor(descriptor, setDescriptor)
+            }
+        ]
+        return (
+            <div>
+                <h4>Parameters</h4>
+                <CustomForm
+                    containerClassName=""
+                    formClassName=""
+                    h1=""
+                    inputs={inputsPublicComponent}
+                    buttons={buttonsPublicComponent}
+                />
+            </div>
+        )
+    }
+
+    const renderDescriptor = () => {
+        return (
+            <div>
+                <div className={styles["descriptor-container"]}>
+                    <h3>Descriptor</h3>
+                    <pre>{descriptorAsYaml}</pre>
+                </div>
+                <h4>Delete components from the descriptor</h4>
+                <ul>
+                    {Object.keys(descriptor["trial_network"]).map((entityName, index) => (
+                        <li key={index}>
+                            <span>{entityName}</span>
+                            {entityName !== "mandatory_tn_vxlan" && entityName !== "mandatory_tn_bastion" && (
+                                <FaTrash onClick={() => handleDeleteEntity(entityName)} />
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        )
+    }
+
+    const renderCreateTrialNetwork = () => {
+        return (
+            <div>
+                <CustomButton
+                    type="submit"
+                    className="button-login-register-verification"
+                    children="Create trial network"
+                    onClick={() => handleCreateTrialNetwork(descriptorAsYaml)}
+                />
+                {trialNetworkCreated && (
+                    <h5>Trial network created with identifier: {tnId}</h5>
+                )}
+            </div>
+        )
+    }
+
+    const renderDeployTrialNetwork = () => {
+        return (
+            <div>
+                <CustomButton
+                    type="submit"
+                    className="button-login-register-verification"
+                    children="Deploy trial network"
+                    onClick={() => handleDeployTrialNetwork(tnId, branchOrCommit, branch, commitId)}
+                />
+                {trialNetworkDeployed && (
+                    <h5>Trial network successfully deployed</h5>
+                )}
             </div>
         )
     }
@@ -185,6 +304,10 @@ export default function CreateTrialNetworkPage() {
                     {renderCreateEntities()}
                     {renderTypeOfComponents()}
                     {componentType && renderDependsComponent()}
+                    {componentType && renderPublicComponent()}
+                    {renderDescriptor()}
+                    {descriptor && renderCreateTrialNetwork()}
+                    {trialNetworkCreated && renderDeployTrialNetwork()}
                 </div>
             )}
         </div>
