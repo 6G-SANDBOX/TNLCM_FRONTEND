@@ -168,7 +168,7 @@ export default function CreateTrialNetworkPage() {
     const renderDependsComponent = () => {
         const inputsDependenciesComponents = dependsPart.flatMap((dependencies, index) =>
             Object.entries(dependencies).map(([key, value]) => ({
-                extraContent: `${value["comments"]} - isNew: ${value["isNew"]}`,
+                extraContent: `${value["comments"]}`,
                 type: "text",
                 placeholder: `${key}`,
                 onChange: (e) => handleDependsDescriptorChange(e.target.value, index),
