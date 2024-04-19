@@ -169,7 +169,7 @@ export async function getTrialNetworks(token) {
         const { message } = data;
         throw new Error(message + ". \nError code: " + code_error);
     }
-    return data;
+    return data["trial_networks"];
 };
 
 export async function createTrialNetwork(token, yamlData) {
@@ -292,34 +292,6 @@ export async function getTrialNetworkReport(token, tnId) {
         throw new Error(message + ". \nError code: " + code_error);
     }
     return data["tn_report"];
-};
-
-export async function getTrialNetworksStatus(token) {
-
-    const fetchTrialNetworksStatus = async () => {
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_networks/status/`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-            return response;
-        } catch (error) {
-            throw new Error("Failed to fetch data" + error);
-        }
-    };
-
-    const response = await fetchTrialNetworksStatus();
-    const data = await response.json();
-    const code_error = response["status"];
-    if (!response.ok) {
-        const { message } = data;
-        throw new Error(message + ". \nError code: " + code_error);
-    }
-    return data["trial_networks_status"];
 };
 
 export async function getTrialNetworksTemplates(token) {
