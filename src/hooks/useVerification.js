@@ -1,17 +1,17 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { verificationRegister, resetVerificationRegister } from "@/lib/apiHandler";
+import { registerVerification, resetVerification } from "@/lib/apiHandler";
 
-export default function useVerificationRegister() {
+export default function useVerification() {
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
-    const handleVerificationRegister = async (e) => {
+    const handleRegisterVerification = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await verificationRegister(email);
+            await registerVerification(email);
             router.push("/tnlcm/register");
         } catch (error) {
             alert(error);
@@ -20,11 +20,11 @@ export default function useVerificationRegister() {
         }
     };
 
-    const handleResetVerificationRegister = async (e) => {
+    const handleResetVerification = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
-            await resetVerificationRegister(email);
+            await resetVerification(email);
             router.push("/tnlcm/change_password");
         } catch (error) {
             alert(error);
@@ -33,15 +33,15 @@ export default function useVerificationRegister() {
         }
     };
 
-    const handleKeyVerificationRegisterPress = async (e) => {
+    const handleKeyRegisterVerificationPress = async (e) => {
         if (e.key === "Enter") {
             await handleVerificationRegister(e);
         }
     };
 
-    const handleKeyResetVerificationRegisterPress = async (e) => {
+    const handleKeyResetVerificationPress = async (e) => {
         if (e.key === "Enter") {
-            await handleResetVerificationRegister(e);
+            await handleResetVerification(e);
         }
     };
 
@@ -49,9 +49,9 @@ export default function useVerificationRegister() {
         email,
         setEmail,
         loading,
-        handleVerificationRegister,
-        handleResetVerificationRegister,
-        handleKeyVerificationRegisterPress,
-        handleKeyResetVerificationRegisterPress,
+        handleRegisterVerification,
+        handleResetVerification,
+        handleKeyRegisterVerificationPress,
+        handleKeyResetVerificationPress,
     };
 };

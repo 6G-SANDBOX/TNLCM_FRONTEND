@@ -1,6 +1,6 @@
-import styles from "@/components/modules/Loader.module.css";
+import styles from "@/components/modules/CustomLoader.module.css";
 
-export default function Loader() {
+export default function CustomLoader() {
     return (
         <div className={styles["loader-container"]}>
             <div className={styles["loader"]}></div>

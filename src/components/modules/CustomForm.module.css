@@ -1,4 +1,4 @@
-.register-container {
+.login-register-verification-container {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -9,16 +9,15 @@
     align-items: center;
 }
 
-.register-form {
+.login-register-verification-form {
     background-color: #CDA02B;
-    padding: 20px;
+    padding: 50px;
     border-radius: 10px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.register-title {
-    color: #fff;
-    margin-bottom: 20px;
+.login-register-verification-container p {
+    margin: 1px;
 }

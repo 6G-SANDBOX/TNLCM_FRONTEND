@@ -2,12 +2,9 @@
 
 import { useEffect } from "react";
 import Link from "next/link";
-import Button from "@/components/elements/Button";
-import Input from "@/components/elements/Input";
-import Loader from "@/components/elements/Loader";
+import CustomForm from "@/components/elements/CustomForm";
 import useLogin from "@/hooks/useLogin";
 import { clearAuthTokens } from "@/lib/jwtHandler";
-import styles from "./Login.module.css";
 
 export default function LoginPage() {
     const {
@@ -30,37 +27,53 @@ export default function LoginPage() {
 
     useEffect(() => {
         fetchClearTokens();
-    }, [])
+    }, []);
+
+    const inputs = [
+        {
+            type: "username",
+            placeholder: "Username",
+            value: username,
+            onChange: (e) => setUsername(e.target.value),
+            onKeyDown: handleKeyPress,
+            className: "input-login-register-verification",
+            required: true
+        },
+        {
+            type: "password",
+            placeholder: "Password",
+            value: password,
+            onChange: (e) => setPassword(e.target.value),
+            onKeyDown: handleKeyPress,
+            className: "input-login-register-verification",
+            required: true
+        }
+    ];
+
+    const buttons = [
+        {
+            type: "submit",
+            className: "button-login-register-verification",
+            disabled: loading,
+            children: "Log in"
+        }
+    ];
+
+    const extraContent = [
+        <p key="1">Don't have an account? <Link href="/tnlcm/register/verification">Register</Link></p>,
+        <p key="2">Forgot your password? <Link href="/tnlcm/change_password/reset_verification">Change password</Link></p>
+    ];
 
     return (
-        <div className={styles["login-container"]}>
-            {loading && <Loader />}
-            <form onSubmit={handleLogin} className={styles["login-form"]}>
-                <h1 className={styles["login-title"]}>Log in TNLCM</h1>
-                <Input
-                    type="username"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    className="input-login-register"
-                    required={true}
-                />
-                <Input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    onKeyDown={handleKeyPress}
-                    className="input-login-register"
-                    required={true}
-                />
-                <Button type="submit" className="button-login-register" disabled={loading}>
-                    Log in
-                </Button>
-            </form>
-            <p>Don't have an account? <Link href="/tnlcm/register/verification">Register</Link></p>
-            <p>Forgot your password? <Link href="/tnlcm/change_password/reset_verification">Change password</Link></p>
-        </div>
+        <CustomForm
+            onSubmit={handleLogin}
+            loading={loading}
+            containerClassName="login-register-verification-container"
+            formClassName="login-register-verification-form"
+            h1="Log in TNLCM"
+            inputs={inputs}
+            buttons={buttons}
+            extraContent={extraContent}
+        />
     );
 };

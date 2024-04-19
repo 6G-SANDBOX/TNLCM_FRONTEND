@@ -1,6 +1,6 @@
-import styles from "@/components/modules/Button.module.css";
+import styles from "@/components/modules/CustomButton.module.css";
 
-export default function Button({ children, type, className, disabled, onClick }) {
+export default function CustomButton({ children, type, className, disabled, onClick }) {
     return (
         <button type={type} className={`${styles[className]}`} disabled={disabled} onClick={onClick}>
             {children}

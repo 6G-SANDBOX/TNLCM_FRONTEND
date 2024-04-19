@@ -1,43 +1,57 @@
 "use client"
 
-import Input from "@/components/elements/Input";
-import Button from "@/components/elements/Button";
-import Loader from "@/components/elements/Loader";
-import useReport from "@/hooks/useReport";
+import CustomForm from "@/components/elements/CustomForm";
+import Loader from "@/components/elements/CustomLoader";
+import useTrialNetworkReport from "@/hooks/useTrialNetworkReport";
 
-export default function ReportPage() {
+export default function TrialNetworksReportPage() {
     const {
         tnId,
         setTnId,
         tnReport,
         loading,
-        handleReportTrialNetwork
-    } = useReport();
+        handleTrialNetworkReport,
+        handleKeyTrialNetworkReportPress
+    } = useTrialNetworkReport();
+
+    const inputs = [
+        {
+            type: "text",
+            placeholder: "Enter trial network identifier",
+            value: tnId,
+            onChange: (e) => setTnId(e.target.value),
+            onKeyDown: handleKeyTrialNetworkReportPress,
+            className: "input-login-register-verification",
+            required: true
+        }
+    ];
+
+    const buttons = [
+        {
+            type: "submit",
+            className: "button-login-register-verification",
+            disabled: loading,
+            children: "Report",
+        }
+    ];
 
     return (
         <div>
-            <h1>Report Trial Networks</h1>
+            <h1>Report trial networks</h1>
             {loading ? (
                 <Loader />
             ) : (
                 <div>
-                    <h2>Trial Network Identifier</h2>
-                    <Input
-                        type="text"
-                        id="tnId"
-                        placeholder="Enter trial network identifier"
-                        value={tnId}
-                        onChange={(e) => setTnId(e.target.value)}
-                        className="input-login-register"
-                        required={true}
+                    <h2>Trial network identifier (tn_id)</h2>
+                    <CustomForm
+                        onSubmit={handleTrialNetworkReport}
+                        loading={loading}
+                        containerClassName=""
+                        formClassName=""
+                        h1=""
+                        inputs={inputs}
+                        buttons={buttons}
                     />
-                    <Button 
-                        type="button"
-                        className="button-login-register"
-                        onClick={handleReportTrialNetwork}
-                    >
-                        Report
-                </Button>
                     <div dangerouslySetInnerHTML={{ __html: tnReport }} />
                 </div>
             )}
