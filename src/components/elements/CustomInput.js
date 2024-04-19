@@ -1,10 +1,10 @@
 import styles from "@/components/modules/CustomInput.module.css";
 
-export default function CustomInput({ type, extraContent, placeholder, value, onChange, onKeyDown, className, required }) {
+export default function CustomInput({ type, title, placeholder, value, onChange, onKeyDown, className, required }) {
   return (
     <div>
-      {extraContent && (
-        <h5>{extraContent}</h5>
+      {title && (
+        <h5>{title}</h5>
       )}
       <input
         type={type}
