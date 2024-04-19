@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
@@ -19,13 +19,27 @@ export default function CustomNavLink() {
             name: "Trial Networks", subMenu: [
                 { name: "Templates", href: "/tnlcm/dashboard/trial_networks/templates" },
                 { name: "Create", href: "/tnlcm/dashboard/trial_networks/create" },
-                { name: "Status", href: "/tnlcm/dashboard/trial_networks/status" },
+                { name: "Information", href: "/tnlcm/dashboard/trial_networks/information" },
                 { name: "Report", href: "/tnlcm/dashboard/trial_networks/report" }
             ]
         },
         { name: "Calendar", href: "/tnlcm/dashboard/calendar" },
         { name: "Settings", href: "/tnlcm/dashboard/settings" }
     ];
+
+    useEffect(() => {
+        const isSubLink = navLinks.some((link) => link.subMenu && link.subMenu.some((subLink) => subLink.href === pathname));
+        if (isSubLink) {
+            setActiveSubMenu(true);
+            setActiveMenu(false);
+        } else {
+            const isMainLink = navLinks.some((link) => link.href === pathname);
+            if (isMainLink) {
+                setActiveMenu(true);
+                setActiveSubMenu(false);
+            }
+        }
+    }, []);
 
     const handleActiveSubMenu = () => {
         if (activeSubMenu) {
