@@ -8,7 +8,7 @@ export default function useExtractInfoComponents6GLirabry() {
     const [loading, setLoading] = useState(false);
 
     const handleExtractInfoComponents6GLibrary = async (e) => {
-        e.preventDefault();
+        // e.preventDefault();
         setLoading(true);
         try {
             const response = await getExtractInfoComponents6GLibrary(branch, commitId);
