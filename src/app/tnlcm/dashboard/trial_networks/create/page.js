@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import CustomSelect from "@/components/elements/CustomSelect";
 import CustomForm from "@/components/elements/CustomForm";
@@ -66,6 +66,11 @@ export default function CreateTrialNetworkPage() {
         setTrialNetworkDeployed,
         handleDeployTrialNetwork
     } = useDeployTrialNetwork();
+
+    useEffect (() => {
+        handleExtractInfoComponents6GLibrary();
+        setBranchOrCommit("branch");
+    })
 
     const branchOrCommitOptions = [
         { label: "Branch", value: "branch" },
@@ -168,7 +173,7 @@ export default function CreateTrialNetworkPage() {
     const renderDependsComponent = () => {
         const inputsDependenciesComponents = dependsPart.flatMap((dependencies, index) =>
             Object.entries(dependencies).map(([key, value]) => ({
-                extraContent: `${value["comments"]}`,
+                title: `${value["comments"]}`,
                 type: "text",
                 placeholder: `${key}`,
                 onChange: (e) => handleDependsDescriptorChange(e.target.value, index),
@@ -193,14 +198,16 @@ export default function CreateTrialNetworkPage() {
     const renderPublicComponent = () => {
         const inputsPublicComponent = [];
         Object.entries(publicPart).forEach(([key, value]) => {
-            inputsPublicComponent.push({
-                extraContent: `${key} - ${value["type"]}`,
-                type: "text",
-                placeholder: value["value"],
-                onChange: (e) => handlePublicDescriptorChange(e.target.value, key),
-                className: "input-login-register-verification",
-                required: true
-            });
+            if (value["user_input"]) {
+                inputsPublicComponent.push({
+                    title: `${key} - ${value["description"]}`,
+                    type: value["type"],
+                    placeholder: value["value"],
+                    onChange: (e) => handlePublicDescriptorChange(e.target.value, key),
+                    className: "input-login-register-verification",
+                    required: value["optional"]
+                });
+            }
             return inputsPublicComponent;
         })
         const buttonsPublicComponent = [
@@ -282,8 +289,8 @@ export default function CreateTrialNetworkPage() {
     return (
         <div>
             <h1>Create trial network</h1>
-            <h2>6G-Library</h2>
-            <CustomSelect
+            <h2>6G-Library components</h2>
+            {/* <CustomSelect
                 value={branchOrCommit}
                 onChange={(e) => setBranchOrCommit(e.target.value)}
                 options={branchOrCommitOptions}
@@ -297,7 +304,7 @@ export default function CreateTrialNetworkPage() {
                 h1=""
                 inputs={inputs6glibrary()}
                 buttons={buttons6glibrary}
-            />
+            /> */}
             {Object.keys(components).length > 0 && (
                 <div>
                     {renderComponents()}
