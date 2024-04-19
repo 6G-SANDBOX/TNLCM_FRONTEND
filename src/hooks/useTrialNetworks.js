@@ -1,15 +1,15 @@
 import { useState } from "react";
-import { getTrialNetworksStatus } from "@/lib/apiHandler";
+import { getTrialNetworks } from "@/lib/apiHandler";
 import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
 
-export default function useTrialNetworksStatus() {
+export default function useTrialNetworks() {
     const [trialNetworks, setTrialNetworks] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const handleTrialNetworksStatus = async (e) => {
+    const handleTrialNetworks = async (e) => {
         try {
             const accessToken = await getAccessTokenFromLocalStorage();
-            const response = await getTrialNetworksStatus(accessToken);
+            const response = await getTrialNetworks(accessToken);
             setTrialNetworks(response);
         } catch (error) {
             alert(error);
@@ -21,6 +21,6 @@ export default function useTrialNetworksStatus() {
     return {
         trialNetworks,
         loading,
-        handleTrialNetworksStatus
+        handleTrialNetworks
     }
 }
