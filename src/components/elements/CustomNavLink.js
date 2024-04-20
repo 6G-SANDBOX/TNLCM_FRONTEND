@@ -59,7 +59,7 @@ export default function CustomNavLink() {
         <nav className={styles["navlink-container"]}>
             <div className={styles["navlink-logo-container"]}>
                 <Link href="/tnlcm/dashboard">
-                    <Image src="/TNLCM.png" alt="TNLCM Logo" width={100} height={100} priority />
+                    <Image src="/TNLCM_LOGO.png" alt="TNLCM Logo" width={100} height={100} priority />
                 </Link>
             </div>
             {navLinks.map((link) => (
