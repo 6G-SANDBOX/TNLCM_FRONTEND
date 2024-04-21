@@ -24,15 +24,15 @@ TNLCM Frontend is a web application tailored for use by the platform owners and,
 <details>
 <summary>Table of Contents</summary>
 
-- [🛠️ Stack](#️-stack)
+- [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
 - [Distribution of branches](#distribution-of-branches)
-- [🚀 Getting Started](#-getting-started)
+- [:rocket: Getting Started](#rocket-getting-started)
   - [Download or clone repository](#download-or-clone-repository)
   - [Create .env using .env.template](#create-env-using-envtemplate)
   - [Add node\_modules folder](#add-node_modules-folder)
 </details>
 
-## 🛠️ Stack
+## :hammer_and_wrench: Stack
 
 - [![Node.js][nodejs-badge]][nodejs-url] - JavaScript runtime platform.
 - [![Next.js][nextjs-badge]][nextjs-url] - React framework for web applications. 
@@ -45,7 +45,7 @@ The **dev** branch will be used for development. This branch will feed the stagi
 
 The **staging** branch will be updated every time there is a plenary meeting or a demo.
 
-## 🚀 Getting Started
+## :rocket: Getting Started
 
 ### Download or clone repository
 
@@ -88,7 +88,7 @@ npm run dev
 
 Frontend will be available at http://localhost:3000
 
-<p align="right"><a href="#readme-top">Back to top🔼</a></p>
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
 [tnlcm-frontend-badge]: https://img.shields.io/badge/TNLCM_FRONTEND-v0.0.0-blue
