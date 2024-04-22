@@ -15,6 +15,7 @@ import styles from "./CreateTrialNetwork.module.css";
 export default function CreateTrialNetworkPage() {
 
     const [branchOrCommit, setBranchOrCommit] = useState("branch");
+    const [renderedOnce, setRenderedOnce] = useState(false);
 
     const {
         branch,
@@ -67,10 +68,13 @@ export default function CreateTrialNetworkPage() {
         handleDeployTrialNetwork
     } = useDeployTrialNetwork();
 
-    useEffect (() => {
-        handleExtractInfoComponents6GLibrary();
-        setBranchOrCommit("branch");
-    })
+    useEffect(() => {
+        if (!renderedOnce) {
+            handleExtractInfoComponents6GLibrary();
+            setBranchOrCommit("branch");
+            setRenderedOnce(true);
+        }
+    }, [renderedOnce, handleExtractInfoComponents6GLibrary]);
 
     const branchOrCommitOptions = [
         { label: "Branch", value: "branch" },
@@ -181,18 +185,20 @@ export default function CreateTrialNetworkPage() {
                 required: true
             }))
         );
-        return (
-            <div>
-                <h4>Dependencies</h4>
-                <CustomForm
-                    containerClassName=""
-                    formClassName=""
-                    h1=""
-                    inputs={inputsDependenciesComponents}
-                    buttons={[]}
-                />
-            </div>
-        )
+        if (inputsDependenciesComponents.length > 0) {
+            return (
+                <div>
+                    <h4>Dependencies</h4>
+                    <CustomForm
+                        containerClassName=""
+                        formClassName=""
+                        h1=""
+                        inputs={inputsDependenciesComponents}
+                        buttons={[]}
+                    />
+                </div>
+            )
+        }
     }
 
     const renderPublicComponent = () => {
@@ -218,18 +224,20 @@ export default function CreateTrialNetworkPage() {
                 onClick: handleAddEntityToDescriptor(descriptor, setDescriptor)
             }
         ]
-        return (
-            <div>
-                <h4>Parameters</h4>
-                <CustomForm
-                    containerClassName=""
-                    formClassName=""
-                    h1=""
-                    inputs={inputsPublicComponent}
-                    buttons={buttonsPublicComponent}
-                />
-            </div>
-        )
+        if (inputsPublicComponent.length > 0) {
+            return (
+                <div>
+                    <h4>Parameters</h4>
+                    <CustomForm
+                        containerClassName=""
+                        formClassName=""
+                        h1=""
+                        inputs={inputsPublicComponent}
+                        buttons={buttonsPublicComponent}
+                    />
+                </div>
+            )
+        }
     }
 
     const renderDescriptor = () => {
