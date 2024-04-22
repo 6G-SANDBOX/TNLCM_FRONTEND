@@ -63,9 +63,6 @@ Create the .env file at the same level and with the contents of the [.env.templa
 
 ### Add node_modules folder
 
-> [!WARNING] 
-> This step requires Node.js to be installed on the machine.
-
 * [Windows](https://nodejs.org/en)
 * [Linux](https://github.com/nodesource/distributions/blob/master/README.md)
 
@@ -92,10 +89,10 @@ Frontend will be available at http://localhost:3000
 
 <!-- Urls, Shields and Badges -->
 [tnlcm-frontend-badge]: https://img.shields.io/badge/TNLCM_FRONTEND-v0.0.0-blue
-[tnlcm-frontend-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/releases/tag/v0.1.0
+[tnlcm-frontend-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/releases/tag/v0.0.0
 [nodejs-badge]: https://img.shields.io/badge/Node.js-20.11.1+-green?style=for-the-badge&logo=node.js&logoColor=white
 [nodejs-url]: https://nodejs.org/en
-[nextjs-badge]: https://img.shields.io/badge/Next.js-14+-black?style=for-the-badge&logo=next.js&logoColor=white
+[nextjs-badge]: https://img.shields.io/badge/Next.js-14.1.4+-black?style=for-the-badge&logo=next.js&logoColor=white
 [nextjs-url]: https://nextjs.org/
 [contributors-shield]: https://img.shields.io/github/contributors/6G-SANDBOX/TNLCM_FRONTEND.svg?style=for-the-badge
 [contributors-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/graphs/contributors
