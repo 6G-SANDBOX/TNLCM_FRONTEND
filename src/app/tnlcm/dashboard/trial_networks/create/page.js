@@ -297,7 +297,7 @@ export default function CreateTrialNetworkPage() {
     return (
         <div>
             <h1>Create trial network</h1>
-            <h2>6G-Library components</h2>
+            <h2>6G-Library components from {branch} {branchOrCommit}</h2>
             {/* <CustomSelect
                 value={branchOrCommit}
                 onChange={(e) => setBranchOrCommit(e.target.value)}

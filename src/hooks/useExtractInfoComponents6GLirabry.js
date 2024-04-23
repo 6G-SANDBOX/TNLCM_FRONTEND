@@ -3,7 +3,7 @@ import { getExtractInfoComponents6GLibrary } from "@/lib/apiHandler";
 
 export default function useExtractInfoComponents6GLirabry() {
     const [commitId, setCommitId] = useState("");
-    const [branch, setBranch] = useState("");
+    const [branch, setBranch] = useState("main");
     const [components, setComponents] = useState({})
     const [loading, setLoading] = useState(false);
 
