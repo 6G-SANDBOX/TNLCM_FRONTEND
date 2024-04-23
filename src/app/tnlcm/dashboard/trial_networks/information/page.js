@@ -1,11 +1,13 @@
 "use client"
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import CustomTable from "@/components/elements/CustomTable";
 import Loader from "@/components/elements/CustomLoader";
 import useTrialNetworks from "@/hooks/useTrialNetworks";
 
 export default function TrialNetworksInformationPage() {
+
+    const [renderedOnce, setRenderedOnce] = useState(false);
 
     const {
         trialNetworks,
@@ -14,7 +16,10 @@ export default function TrialNetworksInformationPage() {
     } = useTrialNetworks();
 
     useEffect(() => {
-        handleTrialNetworks();
+        if (!renderedOnce) {
+            setRenderedOnce(true);
+            handleTrialNetworks();
+        }
     }, []);
 
     const trialNetworksInformation = trialNetworks.map(trialNetwork => ({
