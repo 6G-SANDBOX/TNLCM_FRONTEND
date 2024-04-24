@@ -1,4 +1,4 @@
-import React from "react";
+import yaml from "js-yaml";
 import styles from "@/components/modules/CustomTable.module.css";
 
 export default function CustomTable({ columns, data }) {
@@ -16,7 +16,13 @@ export default function CustomTable({ columns, data }) {
                     {data.map((row, rowIndex) => (
                         <tr key={rowIndex}>
                             {columns.map((column, colIndex) => (
-                                <td key={colIndex}>{row[column]}</td>
+                                <td key={colIndex}>
+                                    {column === "tn_descriptor" ? (
+                                        <pre>{yaml.dump(row[column])}</pre>
+                                    ) : (
+                                        row[column]
+                                    )}
+                                </td>
                             ))}
                         </tr>
                     ))}
