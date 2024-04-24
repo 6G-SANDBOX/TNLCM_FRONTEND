@@ -177,9 +177,9 @@ export default function CreateTrialNetworkPage() {
     const renderDependsComponent = () => {
         const inputsDependenciesComponents = dependsPart.flatMap((dependencies, index) =>
             Object.entries(dependencies).map(([key, value]) => ({
-                title: `${value["comments"]}`,
+                title: `${key} ${value["version"]}`,
                 type: "text",
-                placeholder: `${key}`,
+                placeholder: "",
                 onChange: (e) => handleDependsDescriptorChange(e.target.value, index),
                 className: "input-login-register-verification",
                 required: true
