@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { remark } from "remark";
-import html from "remark-html";
 import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
 import { getTrialNetworkReport } from "@/lib/apiHandler";
 
@@ -15,8 +13,7 @@ export default function useTrialNetworkReport() {
         try {
             const token = await getAccessTokenFromLocalStorage();
             const tnReportMarkdown = await getTrialNetworkReport(token, tnId);
-            const htmlContent = await convertMarkdownToHtml(tnReportMarkdown);
-            setTnReport(htmlContent)
+            setTnReport(tnReportMarkdown)
         } catch (error) {
             alert("Error al reportar la red de prueba: " + error.message);
         } finally {
@@ -29,12 +26,6 @@ export default function useTrialNetworkReport() {
             await handleTrialNetworkReport(e);
         }
     }
-
-    const convertMarkdownToHtml = async (markdown) => {
-        const processedContent = await remark().use(html).process(markdown);
-        const contentHtml = processedContent.toString();
-        return contentHtml;
-    };
 
     return {
         tnId,
