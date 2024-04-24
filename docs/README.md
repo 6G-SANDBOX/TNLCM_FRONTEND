@@ -25,7 +25,6 @@ TNLCM Frontend is a web application tailored for use by the platform owners and,
 <summary>Table of Contents</summary>
 
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
-- [Distribution of branches](#distribution-of-branches)
 - [:rocket: Getting Started](#rocket-getting-started)
   - [Download or clone repository](#download-or-clone-repository)
   - [Create .env using .env.template](#create-env-using-envtemplate)
@@ -36,14 +35,6 @@ TNLCM Frontend is a web application tailored for use by the platform owners and,
 
 - [![Node.js][nodejs-badge]][nodejs-url] - JavaScript runtime platform.
 - [![Next.js][nextjs-badge]][nextjs-url] - React framework for web applications. 
-
-## Distribution of branches
-
-The **main** branch will be updated every time there is a plenary meeting. Releases will be created from this branch.
-
-The **dev** branch will be used for development. This branch will feed the staging and main branches.
-
-The **staging** branch will be updated every time there is a plenary meeting or a demo.
 
 ## :rocket: Getting Started
 
@@ -63,13 +54,15 @@ Create the .env file at the same level and with the contents of the [.env.templa
 
 ### Add node_modules folder
 
+> This step requires Node.js to be installed on the machine.
+
 * [Windows](https://nodejs.org/en)
 * [Linux](https://github.com/nodesource/distributions/blob/master/README.md)
 
-    ```bash
-    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &&\
-    sudo apt-get install -y nodejs
-    ```
+  ```bash
+  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &&\
+  sudo apt-get install -y nodejs
+  ```
 
 The **node_modules/** must be created inside the TNLCM_FRONTEND project
 
@@ -77,7 +70,7 @@ The **node_modules/** must be created inside the TNLCM_FRONTEND project
 npm install
 ```
 
-To start TNLCM frontend
+To start TNLCM Frontend
 
 ```bash
 npm run dev
