@@ -15,7 +15,7 @@ export default function useTrialNetworkReport() {
             const tnReportMarkdown = await getTrialNetworkReport(token, tnId);
             setTnReport(tnReportMarkdown)
         } catch (error) {
-            alert("Error al reportar la red de prueba: " + error.message);
+            alert("Error reporting test network: " + error.message);
         } finally {
             setLoading(false);
         }
