@@ -21,7 +21,7 @@
     display: block;
     margin: 1px;
     padding: 3px;
-    border: 2px solid #808080;
+    border: 2px solid #000000;
     border-radius: 10px;
     color: #000000;
     transition: background-color 0.3s ease;
