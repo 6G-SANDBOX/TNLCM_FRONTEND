@@ -298,7 +298,7 @@ export async function getTrialNetworksTemplates(token) {
 
     const fetchTrialNetworksTemplates = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_networks/templates/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_networks/templates`, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
