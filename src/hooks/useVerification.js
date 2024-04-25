@@ -35,7 +35,7 @@ export default function useVerification() {
 
     const handleKeyRegisterVerificationPress = async (e) => {
         if (e.key === "Enter") {
-            await handleVerificationRegister(e);
+            await handleRegisterVerification(e);
         }
     };
 
