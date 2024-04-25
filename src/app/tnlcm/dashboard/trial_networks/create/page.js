@@ -175,68 +175,73 @@ export default function CreateTrialNetworkPage() {
     }
 
     const renderDependsComponent = () => {
-        const inputsDependenciesComponents = dependsPart.flatMap((dependencies, index) =>
-            Object.entries(dependencies).map(([key, value]) => ({
-                title: `${key} ${value["version"]}`,
-                type: "text",
-                placeholder: "",
-                onChange: (e) => handleDependsDescriptorChange(e.target.value, index),
-                className: "input-login-register-verification",
-                required: true
-            }))
-        );
-        if (inputsDependenciesComponents.length > 0) {
-            return (
-                <div>
-                    <h4>Dependencies</h4>
-                    <CustomForm
-                        containerClassName=""
-                        formClassName=""
-                        h1=""
-                        inputs={inputsDependenciesComponents}
-                        buttons={[]}
-                    />
-                </div>
-            )
+        if (dependsPart !== null) {
+            const inputsDependenciesComponents = dependsPart.flatMap((dependencies, index) =>
+                Object.entries(dependencies).map(([key, value]) => ({
+                    title: `${key} ${value["version"]}`,
+                    type: "text",
+                    placeholder: "",
+                    onChange: (e) => handleDependsDescriptorChange(e.target.value, index),
+                    className: "input-login-register-verification",
+                    required: true
+                }))
+            );
+
+            if (inputsDependenciesComponents.length > 0) {
+                return (
+                    <div>
+                        <h4>Dependencies</h4>
+                        <CustomForm
+                            containerClassName=""
+                            formClassName=""
+                            h1=""
+                            inputs={inputsDependenciesComponents}
+                            buttons={[]}
+                        />
+                    </div>
+                )
+            }
         }
     }
 
     const renderPublicComponent = () => {
-        const inputsPublicComponent = [];
-        Object.entries(publicPart).forEach(([key, value]) => {
-            if (value["user_input"]) {
-                inputsPublicComponent.push({
-                    title: `${key} - ${value["description"]}`,
-                    type: value["type"],
-                    placeholder: value["value"],
-                    onChange: (e) => handlePublicDescriptorChange(e.target.value, key),
-                    className: "input-login-register-verification",
-                    required: value["optional"]
-                });
+        if (publicPart !== null) {
+            const inputsPublicComponent = [];
+            Object.entries(publicPart).forEach(([key, value]) => {
+                if (value["user_input"]) {
+                    inputsPublicComponent.push({
+                        title: `${key} - ${value["description"]}`,
+                        type: value["type"],
+                        placeholder: value["value"],
+                        onChange: (e) => handlePublicDescriptorChange(e.target.value, key),
+                        className: "input-login-register-verification",
+                        required: value["optional"]
+                    });
+                }
+                return inputsPublicComponent;
+            })
+            const buttonsPublicComponent = [
+                {
+                    type: "submit",
+                    className: "button-login-register-verification",
+                    children: "Add entity to descriptor",
+                    onClick: handleAddEntityToDescriptor(descriptor, setDescriptor)
+                }
+            ]
+            if (inputsPublicComponent.length > 0) {
+                return (
+                    <div>
+                        <h4>Parameters</h4>
+                        <CustomForm
+                            containerClassName=""
+                            formClassName=""
+                            h1=""
+                            inputs={inputsPublicComponent}
+                            buttons={buttonsPublicComponent}
+                        />
+                    </div>
+                )
             }
-            return inputsPublicComponent;
-        })
-        const buttonsPublicComponent = [
-            {
-                type: "submit",
-                className: "button-login-register-verification",
-                children: "Add entity to descriptor",
-                onClick: handleAddEntityToDescriptor(descriptor, setDescriptor)
-            }
-        ]
-        if (inputsPublicComponent.length > 0) {
-            return (
-                <div>
-                    <h4>Parameters</h4>
-                    <CustomForm
-                        containerClassName=""
-                        formClassName=""
-                        h1=""
-                        inputs={inputsPublicComponent}
-                        buttons={buttonsPublicComponent}
-                    />
-                </div>
-            )
         }
     }
 
