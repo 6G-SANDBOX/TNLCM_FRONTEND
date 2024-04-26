@@ -38,13 +38,15 @@ TNLCM Frontend is a web application tailored for use by the platform owners and,
 
 ## :rocket: Getting Started
 
+TNLCM Frontend has been tested on Windows 10 and Ubuntu 22.04.3 LTS distributions.
+
 ### Download or clone repository
 
 Download the main branch from the TNLCM repository
 
 Clone repository:
 
-```bash
+```sh
 git clone https://github.com/6G-SANDBOX/TNLCM_FRONTEND.git
 ```
 
@@ -59,20 +61,20 @@ Create the .env file at the same level and with the contents of the [.env.templa
 * [Windows](https://nodejs.org/en)
 * [Linux](https://github.com/nodesource/distributions/blob/master/README.md)
 
-  ```bash
-  curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - &&\
+  ```sh
+  curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
   sudo apt-get install -y nodejs
   ```
 
 The **node_modules/** must be created inside the TNLCM_FRONTEND project
 
-```bash
+```sh
 npm install
 ```
 
 To start TNLCM Frontend
 
-```bash
+```sh
 npm run dev
 ```
 
