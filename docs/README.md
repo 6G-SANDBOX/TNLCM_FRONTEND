@@ -47,11 +47,11 @@ TNLCM frontend is a web application tailored for use by the platform owners and,
 > * TNLCM_BACKEND (Mandatory)
 
 > [!NOTE]
-> TNLCM has been tested on Windows 10 and Ubuntu 22.04.3 LTS.
+> TNLCM frontend has been tested on Windows 10 and Ubuntu 22.04.3 LTS.
 
 ### :inbox_tray: Download or clone repository
 
-Download the **main** branch from the TNLCM repository.
+Download the **main** branch from the TNLCM_FRONTEND repository.
 
 Clone repository:
 
@@ -79,7 +79,7 @@ Mandatory update the value of the variable according on the platform:
   sudo apt-get install -y nodejs
   ```
 
-The **node_modules/** must be created inside the TNLCM_FRONTEND project:
+The **node_modules** must be created inside the TNLCM_FRONTEND project:
 
 ```sh
 npm install
