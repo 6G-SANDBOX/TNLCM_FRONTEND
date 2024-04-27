@@ -16,18 +16,18 @@
   [Report error](https://github.com/6G-SANDBOX/TNLCM_FRONTEND/issues) · [Suggest something](https://github.com/6G-SANDBOX/TNLCM_FRONTEND/issues)
 </div>
 
-TNLCM Frontend is a web application tailored for use by the platform owners and, as such, will provide information and functionality for handling all the Trial Networks in the corresponding platform. To achieve this, the Frontend makes use of the APIs exposed by the TNLCM. Other Frontends, for example, a simplified one tailored for Experimenters or Trial Network owners can be developed by making use of the same APIs, either by an external developer or by the 6G-SANDBOX consortium.
+TNLCM frontend is a web application tailored for use by the platform owners and, as such, will provide information and functionality for handling all the Trial Networks in the corresponding platform. To achieve this, the frontend makes use of the APIs exposed by the TNLCM. Other frontends, for example, a simplified one tailored for Experimenters or Trial Network owners can be developed by making use of the same APIs, either by an external developer or by the 6G-SANDBOX consortium.
 
-> [!WARNING]
-> TNLCM Frontend is under development and is subject to continuous changes.
+> [!NOTE]
+> TNLCM frontend is under development and is subject to continuous changes.
 
 <details>
 <summary>Table of Contents</summary>
 
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
 - [:rocket: Getting Started](#rocket-getting-started)
-  - [Download or clone repository](#download-or-clone-repository)
-  - [Create .env using .env.template](#create-env-using-envtemplate)
+  - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
+  - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
   - [Add node\_modules folder](#add-node_modules-folder)
 </details>
 
@@ -38,11 +38,20 @@ TNLCM Frontend is a web application tailored for use by the platform owners and,
 
 ## :rocket: Getting Started
 
-TNLCM Frontend has been tested on Windows 10 and Ubuntu 22.04.3 LTS distributions.
+> [!WARNING] 
+> The following tools are required to be deployed on platforms:
+> 
+> * Jenkins (Mandatory)
+> * OpenNebula (Mandatory)
+> * MinIO (Mandatory)
+> * TNLCM_BACKEND (Mandatory)
 
-### Download or clone repository
+> [!NOTE]
+> TNLCM has been tested on Windows 10 and Ubuntu 22.04.3 LTS.
 
-Download the main branch from the TNLCM repository
+### :inbox_tray: Download or clone repository
+
+Download the **main** branch from the TNLCM repository.
 
 Clone repository:
 
@@ -50,13 +59,17 @@ Clone repository:
 git clone https://github.com/6G-SANDBOX/TNLCM_FRONTEND.git
 ```
 
-### Create .env using .env.template
+### :wrench: Configure environment variables
 
-Create the .env file at the same level and with the contents of the [.env.template](./.env.template) file.
+Create a `.env` file at the root level, using the structure and content provided in the [.env.template](../.env.template) file.
+
+Mandatory update the value of the variable according on the platform:
+- `NEXT_PUBLIC_TNLCM_BACKEND`
 
 ### Add node_modules folder
 
-> This step requires Node.js to be installed on the machine.
+> [!IMPORTANT]
+> This step requires **Node.js** to be installed on the machine.
 
 * [Windows](https://nodejs.org/en)
 * [Linux](https://github.com/nodesource/distributions/blob/master/README.md)
@@ -66,28 +79,28 @@ Create the .env file at the same level and with the contents of the [.env.templa
   sudo apt-get install -y nodejs
   ```
 
-The **node_modules/** must be created inside the TNLCM_FRONTEND project
+The **node_modules/** must be created inside the TNLCM_FRONTEND project:
 
 ```sh
 npm install
 ```
 
-To start TNLCM Frontend
+To start TNLCM frontend:
 
 ```sh
 npm run dev
 ```
 
-Frontend will be available at http://localhost:3000
+Frontend will be available at http://tnlcm-frontend-ip:3000
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
 [tnlcm-frontend-badge]: https://img.shields.io/badge/TNLCM_FRONTEND-v0.0.0-blue
 [tnlcm-frontend-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/releases/tag/v0.0.0
-[nodejs-badge]: https://img.shields.io/badge/Node.js-20.11.1+-green?style=for-the-badge&logo=node.js&logoColor=white
+[nodejs-badge]: https://img.shields.io/badge/Node.js-20.12.2-green?style=for-the-badge&logo=node.js&logoColor=white
 [nodejs-url]: https://nodejs.org/en
-[nextjs-badge]: https://img.shields.io/badge/Next.js-14.1.4+-black?style=for-the-badge&logo=next.js&logoColor=white
+[nextjs-badge]: https://img.shields.io/badge/Next.js-14.1.4-black?style=for-the-badge&logo=next.js&logoColor=white
 [nextjs-url]: https://nextjs.org/
 [contributors-shield]: https://img.shields.io/github/contributors/6G-SANDBOX/TNLCM_FRONTEND.svg?style=for-the-badge
 [contributors-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/graphs/contributors
