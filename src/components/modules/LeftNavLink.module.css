@@ -1,4 +1,4 @@
-.navlink-container {
+.leftnavlink-container {
     position: fixed;
     top: 0;
     left: 0;
@@ -10,14 +10,14 @@
     flex-direction: column;
 }
 
-.navlink-logo-container {
+.leftnavlink-logo-container {
     display: flex;
     justify-content: center;
     margin-top: 20px;
     margin-bottom: 20px;
 }
 
-.navlink {
+.leftnavlink {
     display: block;
     margin: 1px;
     padding: 3px;
@@ -29,7 +29,7 @@
     text-decoration: none;
 }
 
-.navlink:hover {
+.leftnavlink:hover {
     background-color: #b97713;
 }
 
@@ -38,11 +38,11 @@
     font-weight: bold;
 }
 
-.navlink-menu {
+.leftnavlink-menu {
     padding: 2px;
 }
 
-.navlink-submenu {
+.leftnavlink-submenu {
     text-decoration: none;
 }
 
