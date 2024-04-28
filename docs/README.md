@@ -6,6 +6,8 @@
   [![Forks][forks-shield]][forks-url]
   [![Stargazers][stars-shield]][stars-url]
   [![Issues][issues-shield]][issues-url]
+  <!-- [![MIT License][license-shield]][license-url] -->
+  <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
   <a href="https://github.com/6G-SANDBOX/TNLCM_FRONTEND"><img src="../public/TNLCM_LOGO.png" width="80" title="TNLCM_FRONTEND"></a>
 
@@ -13,7 +15,7 @@
 
   [![TNLCM_FRONTEND][tnlcm-frontend-badge]][tnlcm-frontend-url]
 
-  [Report error](https://github.com/6G-SANDBOX/TNLCM_FRONTEND/issues) · [Suggest something](https://github.com/6G-SANDBOX/TNLCM_FRONTEND/issues)
+  [Report error](https://github.com/6G-SANDBOX/TNLCM_FRONTEND/issues/new?assignees=&labels=&projects=&template=bug_report.md) · [Feature request](https://github.com/6G-SANDBOX/TNLCM_FRONTEND/issues/new?assignees=&labels=&projects=&template=feature_request.md)
 </div>
 
 TNLCM frontend is a web application tailored for use by the platform owners and, as such, will provide information and functionality for handling all the Trial Networks in the corresponding platform. To achieve this, the frontend makes use of the APIs exposed by the TNLCM. Other frontends, for example, a simplified one tailored for Experimenters or Trial Network owners can be developed by making use of the same APIs, either by an external developer or by the 6G-SANDBOX consortium.
@@ -95,6 +97,14 @@ Frontend will be available at http://tnlcm-frontend-ip:3000
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
+## :construction_worker: Development Team <!-- omit in toc -->
+
+| Photo | Name | Email | Github | Linkedin |
+| :---------: | :---------: | :----------: | :-----------------: | :-------: |
+| <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López | c.andreo@uma.es | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/carlos-andreo-lópez-66734b22a/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
+
+<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
+
 <!-- Urls, Shields and Badges -->
 [tnlcm-frontend-badge]: https://img.shields.io/badge/TNLCM_FRONTEND-v0.0.0-blue
 [tnlcm-frontend-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/releases/tag/v0.0.0
@@ -110,3 +120,7 @@ Frontend will be available at http://tnlcm-frontend-ip:3000
 [stars-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/stargazers
 [issues-shield]: https://img.shields.io/github/issues/6G-SANDBOX/TNLCM_FRONTEND.svg?style=for-the-badge
 [issues-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/issues
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://www.linkedin.com/company/itisuma/
+[license-shield]: https://
+[license-url]: https://
