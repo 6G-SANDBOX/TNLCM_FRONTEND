@@ -22,13 +22,16 @@ export default function TemplatesPage() {
     }, [renderedOnce, handleTrialNetworksTemplates]);
 
     return (
-        <ul>
-            {trialNetworksTemplates && trialNetworksTemplates.map((templates) => (
-                <li key={templates["tn_id"]}>
-                    <h2>{templates["tn_id"]}</h2>
-                    <pre>{yaml.dump(templates["tn_sorted_descriptor"])}</pre>
-                </li>
-            ))}
-        </ul>
+        <div>
+            <h1>Templates</h1>
+            <ul>
+                {trialNetworksTemplates && trialNetworksTemplates.map((templates) => (
+                    <li key={templates["tn_id"]}>
+                        <h2>{templates["tn_id"]}</h2>
+                        <pre>{yaml.dump(templates["tn_sorted_descriptor"])}</pre>
+                    </li>
+                ))}
+            </ul>
+        </div>
     );
 }
