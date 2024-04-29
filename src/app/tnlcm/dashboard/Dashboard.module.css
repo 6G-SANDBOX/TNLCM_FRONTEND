@@ -2,7 +2,7 @@
     display: flex;
 }
 
-.navlink-container {
+.leftnavlink-container {
     flex: 0 0 auto;
     width: 200px;
 }
