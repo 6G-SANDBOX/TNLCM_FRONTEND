@@ -30,7 +30,7 @@ TNLCM frontend is a web application tailored for use by the platform owners and,
 - [:rocket: Getting Started](#rocket-getting-started)
   - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
   - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
-  - [Add node\_modules folder](#add-node_modules-folder)
+  - [:file\_folder: Add node\_modules folder](#file_folder-add-node_modules-folder)
 </details>
 
 ## :hammer_and_wrench: Stack
@@ -63,12 +63,12 @@ git clone https://github.com/6G-SANDBOX/TNLCM_FRONTEND.git
 
 ### :wrench: Configure environment variables
 
-Create a `.env` file at the root level, using the structure and content provided in the [.env.template](../.env.template) file.
+Create a `.env` file at the root level, using the structure and content provided in the [`.env.template`](../.env.template) file.
 
 Mandatory update the value of the variable according on the platform:
 - `NEXT_PUBLIC_TNLCM_BACKEND`
 
-### Add node_modules folder
+### :file_folder: Add node_modules folder
 
 > [!IMPORTANT]
 > This step requires **Node.js** to be installed on the machine.
@@ -99,8 +99,8 @@ Frontend will be available at http://tnlcm-frontend-ip:3000
 
 ## :construction_worker: Development Team <!-- omit in toc -->
 
-| Photo | Name | Email | Github | Linkedin |
-| :---------: | :---------: | :----------: | :-----------------: | :-------: |
+| Photo | Name | Email | GitHub | Linkedin |
+| :---: | :--: | :---: | :----: | :------: |
 | <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López | c.andreo@uma.es | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/carlos-andreo-lópez-66734b22a/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
