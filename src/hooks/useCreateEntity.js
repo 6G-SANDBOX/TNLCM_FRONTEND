@@ -3,27 +3,27 @@ import { useState } from "react";
 export default function useCreateEntity(components) {
     const [entity, setEntity] = useState("");
     const [componentType, setComponentType] = useState("");
-    const [publicPart, setPublicPart] = useState({});
-    const [dependsPart, setDependsPart] = useState([]);
-    const [publicDescriptor, setPublicDescriptor] = useState({});
-    const [dependsDescriptor, setDependsDescriptor] = useState([]);
+    const [inputPart, setInputPart] = useState({});
+    const [needsPart, setNeedsPart] = useState([]);
+    const [inputDescriptor, setInputDescriptor] = useState({});
+    const [needsDescriptor, setNeedsDescriptor] = useState([]);
 
     const handleComponentStructure = (value) => {
         setComponentType(value);
-        setPublicPart(components[value]["public"]);
-        setDependsPart(components[value]["depends"]);
+        setInputPart(components[value]["input"]);
+        setNeedsPart(components[value]["metadata"]["needs"]);
     }
 
-    const handleDependsDescriptorChange = (value, index) => {
-        setDependsDescriptor(prevState => {
-            const newDependsDescriptor = [...prevState];
-            newDependsDescriptor[index] = value;
-            return newDependsDescriptor;
+    const handleNeedsDescriptorChange = (value, index) => {
+        setNeedsDescriptor(prevState => {
+            const newNeedsDescriptor = [...prevState];
+            newNeedsDescriptor[index] = value;
+            return newNeedsDescriptor;
         });
     }
 
-    const handlePublicDescriptorChange = (value, key) => {
-        setPublicDescriptor(prevState => ({
+    const handleInputDescriptorChange = (value, key) => {
+        setInputDescriptor(prevState => ({
             ...prevState,
             [key]: value
         }));
@@ -33,7 +33,7 @@ export default function useCreateEntity(components) {
         return (e) => {
             e.preventDefault();
             if (descriptor["trial_network"][entity]) {
-                alert("An entity with the same name already exists in the descriptor.");
+                alert("An entity with the same name already exists in the descriptor");
             } else {
                 setDescriptor(prevDescriptor => ({
                     ...prevDescriptor,
@@ -41,17 +41,17 @@ export default function useCreateEntity(components) {
                         ...prevDescriptor.trial_network,
                         [entity]: {
                             type: componentType,
-                            depends_on: dependsDescriptor,
-                            public: publicDescriptor
+                            needs: needsDescriptor,
+                            input: inputDescriptor
                         }
                     }
                 }));
                 setEntity("");
                 setComponentType("");
-                setPublicPart({});
-                setDependsPart([]);
-                setPublicDescriptor({});
-                setDependsDescriptor([]);
+                setInputPart({});
+                setNeedsPart([]);
+                setInputDescriptor({});
+                setNeedsDescriptor([]);
             }
         }
     }
@@ -61,17 +61,17 @@ export default function useCreateEntity(components) {
         setEntity,
         componentType,
         setComponentType,
-        publicPart,
-        setPublicPart,
-        dependsPart,
-        setDependsPart,
-        publicDescriptor,
-        setPublicDescriptor,
-        dependsDescriptor,
-        setDependsDescriptor,
+        inputPart,
+        setInputPart,
+        needsPart,
+        setNeedsPart,
+        inputDescriptor,
+        setInputDescriptor,
+        needsDescriptor,
+        setNeedsDescriptor,
         handleComponentStructure,
-        handleDependsDescriptorChange,
-        handlePublicDescriptorChange,
+        handleNeedsDescriptorChange,
+        handleInputDescriptorChange,
         handleAddEntityToDescriptor
     }
 }

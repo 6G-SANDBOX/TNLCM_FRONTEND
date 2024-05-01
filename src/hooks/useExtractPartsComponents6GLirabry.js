@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { getExtractInfoComponents6GLibrary } from "@/lib/apiHandler";
+import { getExtractPartsComponents6GLibrary } from "@/lib/apiHandler";
 
-export default function useExtractInfoComponents6GLirabry() {
+export default function useExtractPartsComponents6GLirabry() {
     const [commitId, setCommitId] = useState("");
-    const [branch, setBranch] = useState("main");
+    const [branch, setBranch] = useState("alt_architecture");
     const [components, setComponents] = useState({})
     const [loading, setLoading] = useState(false);
 
-    const handleExtractInfoComponents6GLibrary = async (e) => {
+    const handleExtractPartsComponents6GLibrary = async (e) => {
         // e.preventDefault();
         setLoading(true);
         try {
-            const response = await getExtractInfoComponents6GLibrary(branch, commitId);
+            const response = await getExtractPartsComponents6GLibrary(branch, commitId);
             setComponents(response);
         } catch (error) {
             alert(error);
@@ -20,9 +20,9 @@ export default function useExtractInfoComponents6GLirabry() {
         }
     };
 
-    const handleKeyExtractInfoComponents6GLibraryPress = async (e) => {
+    const handleKeyExtractPartsComponents6GLibraryPress = async (e) => {
         if (e.key === "Enter") {
-            await handleExtractInfoComponents6GLibrary(e);
+            await handleExtractPartsComponents6GLibrary(e);
         }
     }
 
@@ -33,7 +33,7 @@ export default function useExtractInfoComponents6GLirabry() {
         setCommitId,
         components,
         loading,
-        handleExtractInfoComponents6GLibrary,
-        handleKeyExtractInfoComponents6GLibraryPress
+        handleExtractPartsComponents6GLibrary,
+        handleKeyExtractPartsComponents6GLibraryPress
     }
 }
