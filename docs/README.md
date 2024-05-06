@@ -49,7 +49,7 @@ TNLCM frontend is a web application tailored for use by the platform owners and,
 > * TNLCM_BACKEND (Mandatory)
 
 > [!NOTE]
-> TNLCM frontend is being developed on Windows 10 and has been tested on Windows 10 and Linux in version 22.04.3 LTS.
+> TNLCM frontend is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu 22.04.3 LTS.
 
 ### :inbox_tray: Download or clone repository
 
@@ -74,7 +74,7 @@ Mandatory update the value of the variable according on the platform:
 > This step requires **Node.js** to be installed on the machine.
 
 * [Windows](https://nodejs.org/en)
-* [Linux](https://github.com/nodesource/distributions/blob/master/README.md)
+* [Ubuntu](https://github.com/nodesource/distributions/blob/master/README.md)
 
   ```sh
   curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
