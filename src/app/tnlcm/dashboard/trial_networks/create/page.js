@@ -5,7 +5,7 @@ import { FaTrash } from "react-icons/fa";
 import CustomSelect from "@/components/elements/CustomSelect";
 import CustomForm from "@/components/elements/CustomForm";
 import CustomButton from "@/components/elements/CustomButton";
-import useExtractInfoComponents6GLirabry from "@/hooks/useExtractInfoComponents6GLirabry";
+import useExtractPartsComponents6GLirabry from "@/hooks/useExtractPartsComponents6GLirabry";
 import useCreateEntity from "@/hooks/useCreateEntity";
 import useCreateDescriptor from "@/hooks/useCreateDescriptor";
 import useCreateTrialNetwork from "@/hooks/useCreateTrialNetwork";
@@ -24,26 +24,26 @@ export default function CreateTrialNetworkPage() {
         setCommitId,
         components,
         loading,
-        handleExtractInfoComponents6GLibrary,
-        handleKeyExtractInfoComponents6GLibraryPress
-    } = useExtractInfoComponents6GLirabry();
+        handleExtractPartsComponents6GLibrary,
+        handleKeyExtractPartsComponents6GLibraryPress
+    } = useExtractPartsComponents6GLirabry();
 
     const {
         entity,
         setEntity,
         componentType,
         setComponentType,
-        publicPart,
-        setPublicPart,
-        dependsPart,
-        setDependsPart,
-        publicDescriptor,
-        setPublicDescriptor,
-        dependsDescriptor,
-        setDependsDescriptor,
+        inputPart,
+        setInputPart,
+        needsPart,
+        setNeedsPart,
+        inputDescriptor,
+        setInputDescriptor,
+        needsDescriptor,
+        setNeedsDescriptor,
         handleComponentStructure,
-        handleDependsDescriptorChange,
-        handlePublicDescriptorChange,
+        handleNeedsDescriptorChange,
+        handleInputDescriptorChange,
         handleAddEntityToDescriptor
     } = useCreateEntity(components);
 
@@ -70,11 +70,11 @@ export default function CreateTrialNetworkPage() {
 
     useEffect(() => {
         if (!renderedOnce) {
-            handleExtractInfoComponents6GLibrary();
+            handleExtractPartsComponents6GLibrary();
             setBranchOrCommit("branch");
             setRenderedOnce(true);
         }
-    }, [renderedOnce, handleExtractInfoComponents6GLibrary]);
+    }, [renderedOnce, handleExtractPartsComponents6GLibrary]);
 
     const branchOrCommitOptions = [
         { label: "Branch", value: "branch" },
@@ -88,7 +88,7 @@ export default function CreateTrialNetworkPage() {
                 placeholder: "Introduce the 6G-Library branch",
                 value: branch,
                 onChange: (e) => setBranch(e.target.value),
-                onKeyDown: handleKeyExtractInfoComponents6GLibraryPress,
+                onKeyDown: handleKeyExtractPartsComponents6GLibraryPress,
                 className: "input-login-register-verification",
                 required: false
             }]
@@ -98,7 +98,7 @@ export default function CreateTrialNetworkPage() {
                 placeholder: "Introduce the 6G-Library commit id",
                 value: commitId,
                 onChange: (e) => setCommitId(e.target.value),
-                onKeyDown: handleKeyExtractInfoComponents6GLibraryPress,
+                onKeyDown: handleKeyExtractPartsComponents6GLibraryPress,
                 className: "input-login-register-verification",
                 required: false
             }]
@@ -113,7 +113,7 @@ export default function CreateTrialNetworkPage() {
             className: "button-login-register-verification",
             disabled: loading,
             children: "Extract 6G-Library components",
-            onClick: handleExtractInfoComponents6GLibrary
+            onClick: handleExtractPartsComponents6GLibrary
         }
     ];
 
@@ -174,20 +174,20 @@ export default function CreateTrialNetworkPage() {
         )
     }
 
-    const renderDependsComponent = () => {
-        if (dependsPart !== null) {
-            const inputsDependenciesComponents = dependsPart.flatMap((dependencies, index) =>
+    const renderNeedsPartComponent = () => {
+        if (needsPart !== null) {
+            const inputsNeedsPartComponent = needsPart.flatMap((dependencies, index) =>
                 Object.entries(dependencies).map(([key, value]) => ({
-                    title: `${key} ${value["version"]}`,
+                    title: `${key}`,
                     type: "text",
                     placeholder: "",
-                    onChange: (e) => handleDependsDescriptorChange(e.target.value, index),
+                    onChange: (e) => handleNeedsDescriptorChange(e.target.value, index),
                     className: "input-login-register-verification",
                     required: true
                 }))
             );
 
-            if (inputsDependenciesComponents.length > 0) {
+            if (inputsNeedsPartComponent.length > 0) {
                 return (
                     <div>
                         <h4>Dependencies</h4>
@@ -195,7 +195,7 @@ export default function CreateTrialNetworkPage() {
                             containerClassName=""
                             formClassName=""
                             h1=""
-                            inputs={inputsDependenciesComponents}
+                            inputs={inputsNeedsPartComponent}
                             buttons={[]}
                         />
                     </div>
@@ -204,23 +204,23 @@ export default function CreateTrialNetworkPage() {
         }
     }
 
-    const renderPublicComponent = () => {
-        if (publicPart !== null) {
-            const inputsPublicComponent = [];
-            Object.entries(publicPart).forEach(([key, value]) => {
+    const renderInputPartComponent = () => {
+        if (inputPart !== null) {
+            const inputsPartComponent = [];
+            Object.entries(inputPart).forEach(([key, value]) => {
                 if (value["user_input"]) {
-                    inputsPublicComponent.push({
+                    inputsPartComponent.push({
                         title: `${key} - ${value["description"]}`,
                         type: value["type"],
                         placeholder: value["value"],
-                        onChange: (e) => handlePublicDescriptorChange(e.target.value, key),
+                        onChange: (e) => handleInputDescriptorChange(e.target.value, key),
                         className: "input-login-register-verification",
                         required: value["optional"]
                     });
                 }
-                return inputsPublicComponent;
+                return inputsPartComponent;
             })
-            const buttonsPublicComponent = [
+            const buttonsInputComponent = [
                 {
                     type: "submit",
                     className: "button-login-register-verification",
@@ -228,7 +228,7 @@ export default function CreateTrialNetworkPage() {
                     onClick: handleAddEntityToDescriptor(descriptor, setDescriptor)
                 }
             ]
-            if (inputsPublicComponent.length > 0) {
+            if (inputsPartComponent.length > 0) {
                 return (
                     <div>
                         <h4>Parameters</h4>
@@ -236,8 +236,8 @@ export default function CreateTrialNetworkPage() {
                             containerClassName=""
                             formClassName=""
                             h1=""
-                            inputs={inputsPublicComponent}
-                            buttons={buttonsPublicComponent}
+                            inputs={inputsPartComponent}
+                            buttons={buttonsInputComponent}
                         />
                     </div>
                 )
@@ -310,7 +310,7 @@ export default function CreateTrialNetworkPage() {
             />
             <br />
             <CustomForm
-                onSubmit={handleExtractInfoComponents6GLibrary}
+                onSubmit={handleExtractPartsComponents6GLibrary}
                 loading={loading}
                 containerClassName=""
                 formClassName=""
@@ -323,8 +323,8 @@ export default function CreateTrialNetworkPage() {
                     {renderComponents()}
                     {renderCreateEntities()}
                     {renderTypeOfComponents()}
-                    {componentType && renderDependsComponent()}
-                    {componentType && renderPublicComponent()}
+                    {componentType && renderNeedsPartComponent()}
+                    {componentType && renderInputPartComponent()}
                     {renderDescriptor()}
                     {descriptor && renderCreateTrialNetwork()}
                     {trialNetworkCreated && renderDeployTrialNetwork()}

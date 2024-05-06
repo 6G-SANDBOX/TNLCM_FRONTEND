@@ -49,7 +49,7 @@ TNLCM frontend is a web application tailored for use by the platform owners and,
 > * TNLCM_BACKEND (Mandatory)
 
 > [!NOTE]
-> TNLCM frontend has been tested on Windows 10 and Ubuntu 22.04.3 LTS.
+> TNLCM frontend is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu 22.04.3 LTS.
 
 ### :inbox_tray: Download or clone repository
 
@@ -74,7 +74,7 @@ Mandatory update the value of the variable according on the platform:
 > This step requires **Node.js** to be installed on the machine.
 
 * [Windows](https://nodejs.org/en)
-* [Linux](https://github.com/nodesource/distributions/blob/master/README.md)
+* [Ubuntu](https://github.com/nodesource/distributions/blob/master/README.md)
 
   ```sh
   curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash - &&\
@@ -110,7 +110,7 @@ Frontend will be available at http://tnlcm-frontend-ip:3000
 [tnlcm-frontend-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/releases/tag/v0.0.0
 [nodejs-badge]: https://img.shields.io/badge/Node.js-20.12.2-green?style=for-the-badge&logo=node.js&logoColor=white
 [nodejs-url]: https://nodejs.org/en
-[nextjs-badge]: https://img.shields.io/badge/Next.js-14.1.4-black?style=for-the-badge&logo=next.js&logoColor=white
+[nextjs-badge]: https://img.shields.io/badge/Next.js-14.2.3-black?style=for-the-badge&logo=next.js&logoColor=white
 [nextjs-url]: https://nextjs.org/
 [contributors-shield]: https://img.shields.io/github/contributors/6G-SANDBOX/TNLCM_FRONTEND.svg?style=for-the-badge
 [contributors-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/graphs/contributors

@@ -4,7 +4,7 @@ export async function loginUser(username, password) {
     const authString = `${username}:${password}`;
     const encodedAuth = Buffer.from(authString).toString("base64");
     const basicAuthHeader = `Basic ${encodedAuth}`;
-  
+
     const fetchLoginUser = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/user/login`, {
@@ -16,10 +16,10 @@ export async function loginUser(username, password) {
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
-    
+
     const response = await fetchLoginUser();
     const data = await response.json();
     const code_error = response["status"];
@@ -44,7 +44,7 @@ export async function registerUser(username, password, email, verificationToken,
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
 
@@ -72,7 +72,7 @@ export async function registerVerification(email) {
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
 
@@ -100,7 +100,7 @@ export async function resetVerification(email) {
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
 
@@ -128,7 +128,7 @@ export async function changePassword(email, password, resetToken) {
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
 
@@ -158,7 +158,7 @@ export async function getTrialNetworks(token) {
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
 
@@ -188,10 +188,10 @@ export async function createTrialNetwork(token, yamlData) {
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
-    
+
     const response = await fetchCreateTrialNetwork();
     const data = await response.json();
     const code_error = response["status"];
@@ -216,7 +216,7 @@ export async function getTrialNetworkDescriptor(token, tnId) {
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
 
@@ -252,7 +252,7 @@ export async function trialNetworkDeployment(token, tnId, branchOrCommit, branch
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
 
@@ -280,7 +280,7 @@ export async function getTrialNetworkReport(token, tnId) {
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
 
@@ -298,7 +298,7 @@ export async function getTrialNetworksTemplates(token) {
 
     const fetchTrialNetworksTemplates = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_networks/templates`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial_networks/templates/`, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
@@ -308,7 +308,7 @@ export async function getTrialNetworksTemplates(token) {
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
 
@@ -336,7 +336,7 @@ export async function deleteTrialNetwork(token, tnId) {
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
 
@@ -352,9 +352,9 @@ export async function deleteTrialNetwork(token, tnId) {
 
 /* --------------- 6G-Library --------------- */
 
-export async function getExtractInfoComponents6GLibrary(branch, commitId) {
+export async function getExtractPartsComponents6GLibrary(branch, commitId) {
 
-    const fetchExtractInfoComponents6GLibrary = async () => {
+    const fetchExtractPartsComponents6GLibrary = async () => {
         let url = "";
         if (branch !== "") {
             url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6glibrary/components/all?branch=${branch}`;
@@ -373,11 +373,11 @@ export async function getExtractInfoComponents6GLibrary(branch, commitId) {
             });
             return response;
         } catch (error) {
-            throw new Error("Failed to fetch data" + error);
+            throw new Error("Failed to fetch data \n" + error);
         }
     };
 
-    const response = await fetchExtractInfoComponents6GLibrary();
+    const response = await fetchExtractPartsComponents6GLibrary();
     const data = await response.json();
     const code_error = response["status"];
     if (!response.ok) {
