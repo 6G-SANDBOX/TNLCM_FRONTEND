@@ -27,7 +27,7 @@ TNLCM frontend is a web application tailored for use by the platform owners and,
 <summary>Table of Contents</summary>
 
 - [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
-- [:rocket: Getting Started](#rocket-getting-started)
+- [:rocket: Getting Started Locally](#rocket-getting-started-locally)
   - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
   - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
   - [:file\_folder: Add node\_modules folder](#file_folder-add-node_modules-folder)
@@ -38,18 +38,24 @@ TNLCM frontend is a web application tailored for use by the platform owners and,
 - [![Node.js][nodejs-badge]][nodejs-url] - JavaScript runtime platform.
 - [![Next.js][nextjs-badge]][nextjs-url] - React framework for web applications. 
 
-## :rocket: Getting Started
-
-> [!WARNING] 
-> The following tools are required to be deployed on platforms:
-> 
-> * Jenkins (Mandatory)
-> * OpenNebula (Mandatory)
-> * MinIO (Mandatory)
-> * TNLCM_BACKEND (Mandatory)
-
+## :rocket: Getting Started Locally
 > [!NOTE]
-> TNLCM frontend is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu 22.04.3 LTS.
+> TNLCM frontend is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
+
+> [!TIP]
+> TNLCM frontend uses:
+> * From 6G-Library: [`alt_architecture`](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture) branch.
+> * From TNLCM: [`dev`](https://github.com/6G-SANDBOX/TNLCM/tree/dev) branch.
+
+> [!WARNING]
+> In order to run TNLCM frontend, the following tools are **required** to be deployed on the platforms:
+>
+> * OpenNebula: v6.6.3 or later
+>
+> From [OpenNebula Marketplace](https://marketplace.mobilesandbox.cloud:9443/appliance):
+> * Jenkins
+> * MinIO
+
 
 ### :inbox_tray: Download or clone repository
 
@@ -99,15 +105,15 @@ Frontend will be available at http://tnlcm-frontend-ip:3000
 
 ## :construction_worker: Development Team <!-- omit in toc -->
 
-| Photo | Name | Email | GitHub | Linkedin |
-| :---: | :--: | :---: | :----: | :------: |
+|                               Photo                                |        Name         |      Email      |                                                                        GitHub                                                                        |                                                                                      Linkedin                                                                                       |
+| :----------------------------------------------------------------: | :-----------------: | :-------------: | :--------------------------------------------------------------------------------------------------------------------------------------------------: | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 | <img src="https://github.com/CarlosAndreo.png?size=50" width=50px> | Carlos Andreo López | c.andreo@uma.es | <a href="https://github.com/CarlosAndreo"><img src="https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white"></a> | <a href="https://www.linkedin.com/in/carlos-andreo-lópez-66734b22a/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white"></a> |
 
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-frontend-badge]: https://img.shields.io/badge/TNLCM_FRONTEND-v0.0.0-blue
-[tnlcm-frontend-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/releases/tag/v0.0.0
+[tnlcm-frontend-badge]: https://img.shields.io/badge/TNLCM_FRONTEND-v0.1.0-blue
+[tnlcm-frontend-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/releases/tag/v0.1.0
 [nodejs-badge]: https://img.shields.io/badge/Node.js-20.12.2-green?style=for-the-badge&logo=node.js&logoColor=white
 [nodejs-url]: https://nodejs.org/en
 [nextjs-badge]: https://img.shields.io/badge/Next.js-14.2.3-black?style=for-the-badge&logo=next.js&logoColor=white
