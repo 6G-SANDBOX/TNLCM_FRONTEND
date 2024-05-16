@@ -43,9 +43,12 @@ TNLCM frontend is a web application tailored for use by the platform owners and,
 > TNLCM frontend is being developed on Windows 10 and has been tested on Windows 10 and Ubuntu in version 22.04.3 LTS.
 
 > [!TIP]
-> TNLCM frontend uses:
-> * From 6G-Library: [`alt_architecture`](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture) branch.
-> * From TNLCM: [`dev`](https://github.com/6G-SANDBOX/TNLCM/tree/dev) branch.
+> TNLCM frontend uses the following repository branches:
+> 
+> | Repository | Branch                                                                             |
+> | ---------- | ---------------------------------------------------------------------------------- |
+> | 6G-Library | [alt_architecture](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture) |
+> | TNLCM      | [dev](https://github.com/6G-SANDBOX/TNLCM/tree/dev)                                |
 
 > [!WARNING]
 > In order to run TNLCM frontend, the following tools are **required** to be deployed on the platforms:
