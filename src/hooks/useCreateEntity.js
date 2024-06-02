@@ -4,22 +4,11 @@ export default function useCreateEntity(components) {
     const [entity, setEntity] = useState("");
     const [componentType, setComponentType] = useState("");
     const [inputPart, setInputPart] = useState({});
-    const [needsPart, setNeedsPart] = useState([]);
     const [inputDescriptor, setInputDescriptor] = useState({});
-    const [needsDescriptor, setNeedsDescriptor] = useState([]);
 
     const handleComponentStructure = (value) => {
         setComponentType(value);
         setInputPart(components[value]["input"]);
-        setNeedsPart(components[value]["metadata"]["needs"]);
-    }
-
-    const handleNeedsDescriptorChange = (value, index) => {
-        setNeedsDescriptor(prevState => {
-            const newNeedsDescriptor = [...prevState];
-            newNeedsDescriptor[index] = value;
-            return newNeedsDescriptor;
-        });
     }
 
     const handleInputDescriptorChange = (value, key) => {
@@ -41,7 +30,6 @@ export default function useCreateEntity(components) {
                         ...prevDescriptor.trial_network,
                         [entity]: {
                             type: componentType,
-                            needs: needsDescriptor,
                             input: inputDescriptor
                         }
                     }
@@ -49,9 +37,7 @@ export default function useCreateEntity(components) {
                 setEntity("");
                 setComponentType("");
                 setInputPart({});
-                setNeedsPart([]);
                 setInputDescriptor({});
-                setNeedsDescriptor([]);
             }
         }
     }
@@ -63,14 +49,9 @@ export default function useCreateEntity(components) {
         setComponentType,
         inputPart,
         setInputPart,
-        needsPart,
-        setNeedsPart,
         inputDescriptor,
         setInputDescriptor,
-        needsDescriptor,
-        setNeedsDescriptor,
         handleComponentStructure,
-        handleNeedsDescriptorChange,
         handleInputDescriptorChange,
         handleAddEntityToDescriptor
     }
