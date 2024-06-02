@@ -56,9 +56,11 @@ TNLCM frontend is a web application tailored for use by the platform owners and,
 > * OpenNebula: v6.6.3 or later
 >
 > From [OpenNebula Marketplace](https://marketplace.mobilesandbox.cloud:9443/appliance):
+> 
 > * Jenkins
 > * MinIO
-
+> * OneKE: v1.27 or later
+> * Ueransim: v3.2.6 or later
 
 ### :inbox_tray: Download or clone repository
 
@@ -115,8 +117,8 @@ Frontend will be available at http://tnlcm-frontend-ip:3000
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-frontend-badge]: https://img.shields.io/badge/TNLCM_FRONTEND-v0.1.0-blue
-[tnlcm-frontend-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/releases/tag/v0.1.0
+[tnlcm-frontend-badge]: https://img.shields.io/badge/TNLCM_FRONTEND-v0.2.0-blue
+[tnlcm-frontend-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/releases/tag/v0.2.0
 [nodejs-badge]: https://img.shields.io/badge/Node.js-20.12.2-green?style=for-the-badge&logo=node.js&logoColor=white
 [nodejs-url]: https://nodejs.org/en
 [nextjs-badge]: https://img.shields.io/badge/Next.js-14.2.3-black?style=for-the-badge&logo=next.js&logoColor=white
