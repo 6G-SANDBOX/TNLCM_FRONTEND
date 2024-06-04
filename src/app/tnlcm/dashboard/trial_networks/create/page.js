@@ -198,22 +198,73 @@ export default function CreateTrialNetworkPage() {
         )
     }
 
+    const evaluateCondition = (condition) => {
+        if (!condition || typeof condition !== 'string') return true;
+        if (condition.includes(' and ')) {
+            const conditions = condition.split(' and ');
+            return conditions.every(part => evaluatePart(part));
+        } else if (condition.includes(' or ')) {
+            const conditions = condition.split(' or ');
+            return conditions.some(part => evaluatePart(part));
+        }
+        return evaluatePart(condition);
+    };
+    
+    const evaluatePart = (part) => {
+        const [left, operator, right] = part.split(' ');
+        if (operator === '==') {
+            return inputDescriptor[left] === right.replace(/['"]/g, '');
+        } else if (operator === '!=') {
+            return inputDescriptor[left] !== right.replace(/['"]/g, '');
+        }
+        return false;
+    };
+
+    useEffect(() => {
+        if (inputPart) {
+            const initialValues = {};
+            Object.entries(inputPart).forEach(([key, value]) => {
+                initialValues[key] = value.default_value || '';
+            });
+            setInputDescriptor(initialValues);
+        }
+    }, [inputPart]);
+
     const renderPublicComponent = () => {
         if (inputPart !== null) {
             const inputsPublicComponent = [];
+
             Object.entries(inputPart).forEach(([key, value]) => {
-                if (value["user_input"]) {
-                    inputsPublicComponent.push({
-                        title: `${key} - ${value["description"]}`,
-                        type: value["type"],
-                        placeholder: value["value"],
-                        onChange: (e) => handlePublicDescriptorChange(e.target.value, key),
-                        className: "input-login-register-verification",
-                        required: value["optional"]
-                    });
+                const shouldRender = evaluateCondition(value.required_when);
+
+                if (shouldRender) {
+                    let inputElement;
+                    if (value.choices) {
+                        inputElement = {
+                            title: `${key} - ${value.description}`,
+                            type: 'select',
+                            options: value.choices,
+                            value: inputDescriptor[key] || value.default_value,
+                            onChange: (e) => handleInputDescriptorChange(e.target.value, key),
+                            className: "input-login-register-verification",
+                            required: value.required_when
+                        };
+                    } else {
+                        inputElement = {
+                            title: `${key} - ${value.description}`,
+                            type: value.type,
+                            placeholder: value.default_value || "",
+                            value: inputDescriptor[key] || "",
+                            onChange: (e) => handleInputDescriptorChange(e.target.value, key),
+                            className: "input-login-register-verification",
+                            required: value.required_when
+                        };
+                    }
+
+                    inputsPublicComponent.push(inputElement);
                 }
-                return inputsPublicComponent;
-            })
+            });
+
             const buttonsPublicComponent = [
                 {
                     type: "submit",
@@ -221,7 +272,8 @@ export default function CreateTrialNetworkPage() {
                     children: "Add entity to descriptor",
                     onClick: handleAddEntityToDescriptor(descriptor, setDescriptor)
                 }
-            ]
+            ];
+
             if (inputsPublicComponent.length > 0) {
                 return (
                     <div>
@@ -234,10 +286,10 @@ export default function CreateTrialNetworkPage() {
                             buttons={buttonsPublicComponent}
                         />
                     </div>
-                )
+                );
             }
         }
-    }
+    };
 
     const renderDescriptor = () => {
         return (
@@ -311,5 +363,5 @@ export default function CreateTrialNetworkPage() {
                 </>
             )}
         </div>
-    );    
+    );
 };
