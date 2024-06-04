@@ -214,7 +214,7 @@ export async function createTrialNetwork(token, tnId, deploymentSite, github6GLi
 export async function trialNetworkStateMachine(token, tnId, jobName) {
 
     let url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network/${tnId}`
-    if (jobName !== "") {
+    if (jobName !== undefined) {
         url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network/${tnId}?job_name=${jobName}`
     }
     

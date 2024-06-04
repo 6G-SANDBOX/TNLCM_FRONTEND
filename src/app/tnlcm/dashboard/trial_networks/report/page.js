@@ -2,7 +2,7 @@
 
 import markdownit from "markdown-it";
 import CustomForm from "@/components/elements/CustomForm";
-import Loader from "@/components/elements/CustomLoader";
+import CustomLoader from "@/components/elements/CustomLoader";
 import useTrialNetworkReport from "@/hooks/useTrialNetworkReport";
 
 export default function TrialNetworksReportPage() {
@@ -75,7 +75,7 @@ export default function TrialNetworksReportPage() {
         <div>
             <h1>Report trial networks</h1>
             {loading ? (
-                <Loader />
+                <CustomLoader />
             ) : (
                 <div>
                     <h2>Trial network identifier (tn_id)</h2>

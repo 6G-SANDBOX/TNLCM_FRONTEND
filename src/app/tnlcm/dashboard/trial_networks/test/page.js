@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import CustomInput from "@/components/elements/CustomInput";
 import CustomButton from "@/components/elements/CustomButton";
 import CustomSelect from "@/components/elements/CustomSelect";
+import CustomLoader from "@/components/elements/CustomLoader";
 import useCreateTrialNetwork from "@/hooks/useCreateTrialNetwork";
 import useSixGLibrary from "@/hooks/useSixGLibrary";
 import useSixGSandboxSites from "@/hooks/useSixGSandboxSites";
@@ -46,6 +47,8 @@ export default function TestPage() {
     const {
         trialNetworkState,
         setTrialNetworkState,
+        loadingStateMachine,
+        setLoadingStateMachine,
         handleTrialNetworkStateMachine
     } = useTrialNetworkStateMachine();
 
@@ -58,11 +61,11 @@ export default function TestPage() {
     }, [renderedOnce, handleSixGSandboxSitesBranches]);
 
     const selectReferenceSixGLibrary = () => {
-        const defaultOption = "Select type";
+        const defaultOption = "Select branch";
         const updateSixGLibrarybranches = [defaultOption, ...sixGLibrarybranches];
         return (
             <div>
-                <h2>6G-Library reference (branch, commit or tag): </h2>
+                <h2>6G-Library branch. Main branch will be used by default: </h2>
                 <CustomSelect
                     value={githubSixGLibraryReference}
                     onChange={(e) => setGithubSixGLibraryReference(e.target.value)}
@@ -73,11 +76,11 @@ export default function TestPage() {
     };
 
     const selectReferenceSixGSandboxSites = () => {
-        const defaultOption = "Select type";
+        const defaultOption = "Select branch";
         const updateSixGSandboxSitesbranches = [defaultOption, ...sixGSandboxSitesbranches];
         return (
             <div>
-                <h2>6G-Sandbox-Sites reference (branch, commit or tag): </h2>
+                <h2>6G-Sandbox-Sites branch. Main branch will be used by default: </h2>
                 <CustomSelect
                     value={githubSixGSandboxSitesReference}
                     onChange={(e) => setGithubSixGSandboxSitesReference(e.target.value)}
@@ -88,11 +91,11 @@ export default function TestPage() {
     };
 
     const selectDeploymentSite = () => {
-        const defaultOption = "Select type";
+        const defaultOption = "Select site";
         const updateSites = [defaultOption, ...sites];
         return (
             <div>
-                <h2>Sites: </h2>
+                <h2>Site to deploy trial network: </h2>
                 <CustomSelect
                     value={deploymentSite}
                     onChange={(e) => setDeploymentSite(e.target.value)}
@@ -162,15 +165,27 @@ export default function TestPage() {
     }
 
     return (
-        <div>
-            <h1>Test page</h1>
-            <p>Page to test trial network descriptors</p>
-            {sixGLibrarybranches.length > 0 && selectReferenceSixGLibrary()}
-            {githubSixGLibraryReference !== "" && selectReferenceSixGSandboxSites()}
-            {githubSixGSandboxSitesReference !== "" && selectDeploymentSite()}
-            {deploymentSite !== "" && renderInputsTrialNetwork()}
-            {descriptor !== null && renderCreateTrialNetwork()}
-            {trialNetworkCreated && renderTrialNetworkStateMachine()}
-        </div>
+        <>
+            {loadingStateMachine ? (
+                <CustomLoader />
+            ) : (
+                <div>
+                    <h1>Test page</h1>
+                    <p>Page to test trial network descriptors</p>
+                    {sixGLibrarybranches.length > 0 && selectReferenceSixGLibrary()}
+                    {githubSixGLibraryReference !== "" && selectReferenceSixGSandboxSites()}
+                    {githubSixGSandboxSitesReference !== "" && selectDeploymentSite()}
+                    {deploymentSite !== "" && renderInputsTrialNetwork()}
+                    {descriptor !== null && renderCreateTrialNetwork()}
+                    {trialNetworkCreated && renderTrialNetworkStateMachine()}
+                    {trialNetworkState && (
+                        <>
+                            {setTnId("")}
+                            {setDescriptor(null)}
+                        </>
+                    )}
+                </div>
+            )}
+        </>
     )
 }
