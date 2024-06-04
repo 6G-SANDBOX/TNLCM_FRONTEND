@@ -134,13 +134,18 @@ export default function CreateTrialNetworkPage() {
 
     const renderPartsComponents = () => {
         return (
-            <ul>
-                {Object.keys(partsComponents).map((componentType) => (
-                    <li key={componentType}>
-                        {componentType}
-                    </li>
-                ))}
-            </ul>
+            <div>
+                <h2>
+                Components available on the {deploymentSite} site:
+                </h2>
+                <ul>
+                    {Object.keys(partsComponents).map((componentType) => (
+                        <li key={componentType}>
+                            {componentType}
+                        </li>
+                    ))}
+                </ul>
+            </div>
         );
     }
 
