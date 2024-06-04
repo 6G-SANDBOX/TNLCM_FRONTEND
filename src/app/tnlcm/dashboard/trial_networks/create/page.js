@@ -88,11 +88,8 @@ export default function CreateTrialNetworkPage() {
     }, [githubSixGLibraryReference, githubSixGSandboxSitesReference, deploymentSite]);
 
     const selectReferenceSixGLibrary = () => {
-        const defaultOption = { label: "Select type", value: "" };
-        const updateSixGLibrarybranches = [defaultOption, ...sixGLibrarybranches.map(key => ({
-            label: key,
-            value: key
-        }))];
+        const defaultOption = "Select type";
+        const updateSixGLibrarybranches = [defaultOption, ...sixGLibrarybranches];
         return (
             <div>
                 <h2>6G-Library reference (branch, commit or tag): </h2>
@@ -106,11 +103,8 @@ export default function CreateTrialNetworkPage() {
     };
 
     const selectReferenceSixGSandboxSites = () => {
-        const defaultOption = { label: "Select type", value: "" };
-        const updateSixGSandboxSitesbranches = [defaultOption, ...sixGSandboxSitesbranches.map(key => ({
-            label: key,
-            value: key
-        }))];
+        const defaultOption = "Select type";
+        const updateSixGSandboxSitesbranches = [defaultOption, ...sixGSandboxSitesbranches];
         return (
             <div>
                 <h2>6G-Sandbox-Sites reference (branch, commit or tag): </h2>
@@ -124,11 +118,8 @@ export default function CreateTrialNetworkPage() {
     };
 
     const selectDeploymentSite = () => {
-        const defaultOption = { label: "Select type", value: "" };
-        const updateSites = [defaultOption, ...sites.map(key => ({
-            label: key,
-            value: key
-        }))];
+        const defaultOption = "Select type";
+        const updateSites = [defaultOption, ...sites];
         return (
             <div>
                 <h2>Sites: </h2>
@@ -181,11 +172,8 @@ export default function CreateTrialNetworkPage() {
     }
 
     const renderTypeOfComponents = () => {
-        const defaultOption = { label: "Select type", value: "" };
-        const componentTypeOptions = [defaultOption, ...Object.keys(partsComponents).map(key => ({
-            label: key,
-            value: key
-        }))];
+        const defaultOption = "Select type";
+        const componentTypeOptions = [defaultOption, ...Object.keys(partsComponents)];
         return (
             <div>
                 <h3>Type of component:</h3>
