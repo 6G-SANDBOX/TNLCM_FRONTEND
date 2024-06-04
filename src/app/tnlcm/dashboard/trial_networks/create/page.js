@@ -160,7 +160,6 @@ export default function CreateTrialNetworkPage() {
                 required: true
             }
         ]
-
         return (
             <div>
                 <h2>Add component</h2>
@@ -226,7 +225,6 @@ export default function CreateTrialNetworkPage() {
     const renderPublicComponent = () => {
         if (inputPart !== null) {
             const inputsPublicComponent = [];
-
             Object.entries(inputPart).forEach(([key, value]) => {
                 const shouldRender = evaluateCondition(value.required_when);
 
@@ -253,7 +251,6 @@ export default function CreateTrialNetworkPage() {
                             required: value.required_when
                         };
                     }
-
                     inputsPublicComponent.push(inputElement);
                 }
             });
