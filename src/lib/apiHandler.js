@@ -420,6 +420,41 @@ export async function getSitePartsComponents(githubSixGLibraryReference, githubS
     return data["parts_components"];
 };
 
+export async function getSiteComponents(githubSixGLibraryReference, githubSixGSandboxSitesReference, site) {
+
+    let url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6G-Library/components/name?site=${site}`;
+    if (githubSixGLibraryReference !== "") {
+        url += `&github_6g_library_reference=${githubSixGLibraryReference}`;
+    }
+    if (githubSixGSandboxSitesReference !== "") {
+        url += `&github_6g_sandbox_sites_reference=${githubSixGSandboxSitesReference}`;
+    }
+
+    const fetchSitePartsComponents = async () => {
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json"
+                }
+            });
+            return response;
+        } catch (error) {
+            throw new Error("Failed to fetch data \n" + error);
+        }
+    };
+
+    const response = await fetchSitePartsComponents();
+    const data = await response.json();
+    const code_error = response["status"];
+    if (!response.ok) {
+        const { message } = data;
+        throw new Error(message + ". \nError code: " + code_error);
+    }
+    return data["components"];
+};
+
 /* ------------ 6G-Sandbox-Sites ------------ */
 
 export async function getSixGSandboxSitesBranches() {

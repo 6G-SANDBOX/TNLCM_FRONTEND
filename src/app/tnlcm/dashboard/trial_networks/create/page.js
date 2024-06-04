@@ -18,7 +18,8 @@ export default function CreateTrialNetworkPage() {
     const [githubSixGLibraryReference, setGithubSixGLibraryReference] = useState("");
     const [githubSixGSandboxSitesReference, setGithubSixGSandboxSitesReference] = useState("");
     const [deploymentSite, setDeploymentSite] = useState("");
-    const [renderedOnce, setRenderedOnce] = useState(false);
+    const [renderedOnceBranches, setRenderedOnceBranches] = useState(false);
+    const [renderedOnceOptions, setRenderedOnceOptions] = useState(false);
 
     const {
         sixGLibrarybranches,
@@ -26,7 +27,10 @@ export default function CreateTrialNetworkPage() {
         handleSixGLibraryBranches,
         partsComponents,
         setPartsComponents,
-        handlePartsComponents
+        handlePartsComponents,
+        components,
+        setComponents,
+        handleComponents
     } = useSixGLibrary();
 
     const {
@@ -43,6 +47,8 @@ export default function CreateTrialNetworkPage() {
         setEntity,
         componentType,
         setComponentType,
+        dependencies,
+        setDependencies,
         inputPart,
         setInputPart,
         metadataPart,
@@ -51,6 +57,7 @@ export default function CreateTrialNetworkPage() {
         setInputDescriptor,
         handleComponentStructure,
         handleInputDescriptorChange,
+        handleInputDependenciesDescriptorChange,
         handleAddEntityToDescriptor
     } = useCreateEntity(partsComponents);
 
@@ -76,16 +83,15 @@ export default function CreateTrialNetworkPage() {
     } = useTrialNetworkStateMachine();
 
     useEffect(() => {
-        if (!renderedOnce) {
-            handleSixGLibraryBranches();
-            handleSixGSandboxSitesBranches();
-            setRenderedOnce(true);
-        }
-    }, [renderedOnce, handleSixGSandboxSitesBranches]);
+        handleSixGLibraryBranches();
+        handleSixGSandboxSitesBranches();
+        setRenderedOnceBranches(true);
+    }, []);
 
     useEffect(() => {
         if (githubSixGLibraryReference !== "" && githubSixGSandboxSitesReference !== "" && deploymentSite !== "") {
             handlePartsComponents(githubSixGLibraryReference, githubSixGSandboxSitesReference, deploymentSite);
+            handleComponents(githubSixGLibraryReference, githubSixGSandboxSitesReference, deploymentSite);
         }
     }, [githubSixGLibraryReference, githubSixGSandboxSitesReference, deploymentSite]);
 
@@ -188,7 +194,7 @@ export default function CreateTrialNetworkPage() {
                     onChange={(e) => handleComponentStructure(e.target.value)}
                     options={componentTypeOptions}
                 />
-                {componentType && <h4>{metadataPart["long_description"]}</h4>}
+                {componentType && <h4>{metadataPart.long_description}</h4>}
             </div>
         )
     }
@@ -225,15 +231,53 @@ export default function CreateTrialNetworkPage() {
         }
     }, [inputPart]);
 
+    const isComponentType = (type) => {
+        return Object.values(components).includes(type);
+    }
+
+    const findSameTypesInDescriptor = (type) => {
+        let sameTypeEntities = [];
+        let trialNetwork = descriptor.trial_network;
+        for (let entity in trialNetwork) {
+            if (trialNetwork[entity].type === type) {
+                sameTypeEntities.push(entity);
+            }
+        }
+        return sameTypeEntities;
+    }
+
     const renderPublicComponent = () => {
         let inputsPublicComponent = [];
         if (inputPart !== null) {
             Object.entries(inputPart).forEach(([key, value]) => {
+                const isType = isComponentType(value.type);
                 const shouldRender = evaluateCondition(value.required_when);
-
                 if (shouldRender) {
                     let inputElement;
-                    if (value.choices) {
+                    if (isType) {
+                        const sameTypesName = findSameTypesInDescriptor(value.type);
+                        if (sameTypesName.length > 0) {
+                            console.log(sameTypesName)
+                            inputElement = {
+                                title: `${key} - ${value.description}`,
+                                type: 'select',
+                                options: sameTypesName,
+                                value: sameTypesName[0],
+                                onChange: (e) => handleInputDependenciesDescriptorChange(e.target.value, key),
+                                className: "input-login-register-verification",
+                            };
+                        } else {
+                            inputElement = {
+                                title: `${key} - ${value.description}`,
+                                type: value.type,
+                                placeholder: value.default_value || "",
+                                value: inputDescriptor[key] || "",
+                                onChange: (e) => handleInputDescriptorChange(e.target.value, key),
+                                className: "input-login-register-verification",
+                                required: value.required_when
+                            };
+                        }
+                    } else if (value.choices) {
                         inputElement = {
                             title: `${key} - ${value.description}`,
                             type: 'select',
@@ -268,14 +312,16 @@ export default function CreateTrialNetworkPage() {
         ];
         return (
             <div>
-                {inputsPublicComponent.length > 0 && <h3>Parameters</h3> }
-                <CustomForm
-                    containerClassName=""
-                    formClassName=""
-                    h1=""
-                    inputs={inputsPublicComponent}
-                    buttons={buttonsPublicComponent}
-                />
+                {inputsPublicComponent.length > 0 && <h3>Parameters</h3>}
+                {componentType &&
+                    <CustomForm
+                        containerClassName=""
+                        formClassName=""
+                        h1=""
+                        inputs={inputsPublicComponent}
+                        buttons={buttonsPublicComponent}
+                    />
+                }
             </div>
         );
     };
