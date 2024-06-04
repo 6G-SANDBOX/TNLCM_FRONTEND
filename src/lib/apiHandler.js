@@ -173,9 +173,13 @@ export async function getTrialNetworks(token) {
 };
 
 export async function createTrialNetwork(token, tnId, deploymentSite, github6GLibraryReference, github6GSandboxSitesReference, descriptor) {
-    const blob = new Blob([descriptor], { type: "text/yaml" });
-    const formData = new FormData();
-    formData.append("descriptor", blob, "descriptor.yaml");
+    let formData = new FormData();
+    if (typeof descriptor === "string") {
+        const blob = new Blob([descriptor], { type: "text/yaml" });
+        formData.append("descriptor", blob, "descriptor.yaml");
+    } else {
+        formData = descriptor;
+    }
 
     let url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network?deployment_site=${deploymentSite}&github_6g_library_reference=${github6GLibraryReference}&github_6g_sandbox_sites_reference=${github6GSandboxSitesReference}`
     if (tnId !== "") {

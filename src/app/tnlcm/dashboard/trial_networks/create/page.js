@@ -129,8 +129,8 @@ export default function CreateTrialNetworkPage() {
                     options={updateSites}
                 />
             </div>
-        )
-    }
+        );
+    };
 
     const renderPartsComponents = () => {
         return (

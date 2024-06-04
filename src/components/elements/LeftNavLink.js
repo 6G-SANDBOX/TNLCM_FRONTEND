@@ -17,6 +17,7 @@ export default function LeftNavLink() {
     const leftNavLinks = [
         {
             name: "Trial Networks", subMenu: [
+                { name: "Test", href: "/tnlcm/dashboard/trial_networks/test" },
                 { name: "Templates", href: "/tnlcm/dashboard/trial_networks/templates" },
                 { name: "Create", href: "/tnlcm/dashboard/trial_networks/create" },
                 { name: "Information", href: "/tnlcm/dashboard/trial_networks/information" },
