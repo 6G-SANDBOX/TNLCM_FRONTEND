@@ -45,6 +45,8 @@ export default function CreateTrialNetworkPage() {
         setComponentType,
         inputPart,
         setInputPart,
+        metadataPart,
+        setMetadataPart,
         inputDescriptor,
         setInputDescriptor,
         handleComponentStructure,
@@ -136,7 +138,7 @@ export default function CreateTrialNetworkPage() {
         return (
             <div>
                 <h2>
-                Components available on the {deploymentSite} site:
+                    Components available on the {deploymentSite} site:
                 </h2>
                 <ul>
                     {Object.keys(partsComponents).map((componentType) => (
@@ -186,6 +188,7 @@ export default function CreateTrialNetworkPage() {
                     onChange={(e) => handleComponentStructure(e.target.value)}
                     options={componentTypeOptions}
                 />
+                {componentType && <h4>{metadataPart["long_description"]}</h4>}
             </div>
         )
     }
@@ -201,7 +204,7 @@ export default function CreateTrialNetworkPage() {
         }
         return evaluatePart(condition);
     };
-    
+
     const evaluatePart = (part) => {
         const [left, operator, right] = part.split(' ');
         if (operator === '==') {
@@ -223,8 +226,8 @@ export default function CreateTrialNetworkPage() {
     }, [inputPart]);
 
     const renderPublicComponent = () => {
+        let inputsPublicComponent = [];
         if (inputPart !== null) {
-            const inputsPublicComponent = [];
             Object.entries(inputPart).forEach(([key, value]) => {
                 const shouldRender = evaluateCondition(value.required_when);
 
@@ -254,31 +257,27 @@ export default function CreateTrialNetworkPage() {
                     inputsPublicComponent.push(inputElement);
                 }
             });
-
-            const buttonsPublicComponent = [
-                {
-                    type: "submit",
-                    className: "button-login-register-verification",
-                    children: "Add entity to descriptor",
-                    onClick: handleAddEntityToDescriptor(descriptor, setDescriptor)
-                }
-            ];
-
-            if (inputsPublicComponent.length > 0) {
-                return (
-                    <div>
-                        <h4>Parameters</h4>
-                        <CustomForm
-                            containerClassName=""
-                            formClassName=""
-                            h1=""
-                            inputs={inputsPublicComponent}
-                            buttons={buttonsPublicComponent}
-                        />
-                    </div>
-                );
-            }
         }
+        const buttonsPublicComponent = [
+            {
+                type: "submit",
+                className: "button-login-register-verification",
+                children: "Add entity to descriptor",
+                onClick: handleAddEntityToDescriptor(descriptor, setDescriptor)
+            }
+        ];
+        return (
+            <div>
+                {inputsPublicComponent.length > 0 && <h3>Parameters</h3> }
+                <CustomForm
+                    containerClassName=""
+                    formClassName=""
+                    h1=""
+                    inputs={inputsPublicComponent}
+                    buttons={buttonsPublicComponent}
+                />
+            </div>
+        );
     };
 
     const renderDescriptor = () => {

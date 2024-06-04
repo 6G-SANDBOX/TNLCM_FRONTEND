@@ -1,14 +1,16 @@
 import { useState } from "react";
 
-export default function useCreateEntity(components) {
+export default function useCreateEntity(partsComponents) {
     const [entity, setEntity] = useState("");
     const [componentType, setComponentType] = useState("");
     const [inputPart, setInputPart] = useState({});
+    const [metadataPart, setMetadataPart] = useState({});
     const [inputDescriptor, setInputDescriptor] = useState({});
 
     const handleComponentStructure = (value) => {
         setComponentType(value);
-        setInputPart(components[value]["input"]);
+        setInputPart(partsComponents[value]["input"]);
+        setMetadataPart(partsComponents[value]["metadata"]);
     }
 
     const handleInputDescriptorChange = (value, key) => {
@@ -37,6 +39,7 @@ export default function useCreateEntity(components) {
                 setEntity("");
                 setComponentType("");
                 setInputPart({});
+                setMetadataPart({});
                 setInputDescriptor({});
             }
         }
@@ -49,6 +52,8 @@ export default function useCreateEntity(components) {
         setComponentType,
         inputPart,
         setInputPart,
+        metadataPart,
+        setMetadataPart,
         inputDescriptor,
         setInputDescriptor,
         handleComponentStructure,
