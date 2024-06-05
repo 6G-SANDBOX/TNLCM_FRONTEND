@@ -21,7 +21,7 @@ export default function useCreateEntity(partsComponents) {
         }));
     }
 
-    const handleInputDependenciesDescriptorChange = (value, key) => {
+    const handleInputDependencies = (value, key) => {
         setInputDescriptor(prevState => ({
             ...prevState,
             [key]: value
@@ -68,7 +68,9 @@ export default function useCreateEntity(partsComponents) {
                         trial_network: {
                             ...prevDescriptor.trial_network,
                             [entity]: {
+                                type: componentType,
                                 dependencies: dependencies,
+                                input: inputDescriptor
                             }
                         }
                     }));
@@ -98,7 +100,7 @@ export default function useCreateEntity(partsComponents) {
         setInputDescriptor,
         handleComponentStructure,
         handleInputDescriptorChange,
-        handleInputDependenciesDescriptorChange,
+        handleInputDependencies,
         handleAddEntityToDescriptor
     }
 }

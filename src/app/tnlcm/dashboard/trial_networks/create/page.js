@@ -18,8 +18,6 @@ export default function CreateTrialNetworkPage() {
     const [githubSixGLibraryReference, setGithubSixGLibraryReference] = useState("");
     const [githubSixGSandboxSitesReference, setGithubSixGSandboxSitesReference] = useState("");
     const [deploymentSite, setDeploymentSite] = useState("");
-    const [renderedOnceBranches, setRenderedOnceBranches] = useState(false);
-    const [renderedOnceOptions, setRenderedOnceOptions] = useState(false);
 
     const {
         sixGLibrarybranches,
@@ -57,7 +55,7 @@ export default function CreateTrialNetworkPage() {
         setInputDescriptor,
         handleComponentStructure,
         handleInputDescriptorChange,
-        handleInputDependenciesDescriptorChange,
+        handleInputDependencies,
         handleAddEntityToDescriptor
     } = useCreateEntity(partsComponents);
 
@@ -85,11 +83,10 @@ export default function CreateTrialNetworkPage() {
     useEffect(() => {
         handleSixGLibraryBranches();
         handleSixGSandboxSitesBranches();
-        setRenderedOnceBranches(true);
     }, []);
 
     useEffect(() => {
-        if (githubSixGLibraryReference !== "" && githubSixGSandboxSitesReference !== "" && deploymentSite !== "") {
+        if (deploymentSite !== "") {
             handlePartsComponents(githubSixGLibraryReference, githubSixGSandboxSitesReference, deploymentSite);
             handleComponents(githubSixGLibraryReference, githubSixGSandboxSitesReference, deploymentSite);
         }
@@ -100,7 +97,7 @@ export default function CreateTrialNetworkPage() {
         const updateSixGLibrarybranches = [defaultOption, ...sixGLibrarybranches];
         return (
             <div>
-                <h2>6G-Library reference (branch, commit or tag): </h2>
+                <h2>6G-Library reference (branch, commit or tag). Optional, by default use main branch: </h2>
                 <CustomSelect
                     value={githubSixGLibraryReference}
                     onChange={(e) => setGithubSixGLibraryReference(e.target.value)}
@@ -115,7 +112,7 @@ export default function CreateTrialNetworkPage() {
         const updateSixGSandboxSitesbranches = [defaultOption, ...sixGSandboxSitesbranches];
         return (
             <div>
-                <h2>6G-Sandbox-Sites reference (branch, commit or tag): </h2>
+                <h2>6G-Sandbox-Sites reference (branch, commit or tag). Optional, by default use main branch: </h2>
                 <CustomSelect
                     value={githubSixGSandboxSitesReference}
                     onChange={(e) => setGithubSixGSandboxSitesReference(e.target.value)}
@@ -130,7 +127,7 @@ export default function CreateTrialNetworkPage() {
         const updateSites = [defaultOption, ...sites];
         return (
             <div>
-                <h2>Sites: </h2>
+                <h2>Sites. Mandatory: </h2>
                 <CustomSelect
                     value={deploymentSite}
                     onChange={(e) => setDeploymentSite(e.target.value)}
@@ -253,39 +250,23 @@ export default function CreateTrialNetworkPage() {
                 const isType = isComponentType(value.type);
                 const shouldRender = evaluateCondition(value.required_when);
                 if (shouldRender) {
-                    let inputElement;
+                    let inputElement = {};
                     if (isType) {
                         const sameTypesName = findSameTypesInDescriptor(value.type);
-                        if (sameTypesName.length > 0) {
-                            console.log(sameTypesName)
-                            inputElement = {
-                                title: `${key} - ${value.description}`,
-                                type: 'select',
-                                options: sameTypesName,
-                                value: sameTypesName[0],
-                                onChange: (e) => handleInputDependenciesDescriptorChange(e.target.value, key),
-                                className: "input-login-register-verification",
-                            };
-                        } else {
-                            inputElement = {
-                                title: `${key} - ${value.description}`,
-                                type: value.type,
-                                placeholder: value.default_value || "",
-                                value: inputDescriptor[key] || "",
-                                onChange: (e) => handleInputDescriptorChange(e.target.value, key),
-                                className: "input-login-register-verification",
-                                required: value.required_when
-                            };
-                        }
+                        inputElement = {
+                            title: `${key} - ${value.description}`,
+                            type: "select",
+                            options: sameTypesName,
+                            value: inputDescriptor[key],
+                            onChange: (e) => handleInputDependencies(e.target.value, key),
+                        };
                     } else if (value.choices) {
                         inputElement = {
                             title: `${key} - ${value.description}`,
-                            type: 'select',
+                            type: "select",
                             options: value.choices,
                             value: inputDescriptor[key] || value.default_value,
                             onChange: (e) => handleInputDescriptorChange(e.target.value, key),
-                            className: "input-login-register-verification",
-                            required: value.required_when
                         };
                     } else {
                         inputElement = {
@@ -383,12 +364,16 @@ export default function CreateTrialNetworkPage() {
     return (
         <div>
             <h1>Create trial network</h1>
-            {sixGLibrarybranches.length > 0 && selectReferenceSixGLibrary()}
-            {githubSixGLibraryReference !== "" && selectReferenceSixGSandboxSites()}
-            {githubSixGSandboxSitesReference !== "" && selectDeploymentSite()}
-            {deploymentSite !== "" && renderPartsComponents()}
-            {Object.keys(partsComponents).length > 0 && (
+            {sixGLibrarybranches.length > 0 && (
                 <>
+                    {selectReferenceSixGLibrary()}
+                    {selectReferenceSixGSandboxSites()}
+                    {selectDeploymentSite()}
+                </>
+            )}
+            {components.length > 0 && (
+                <>
+                    {renderPartsComponents()}
                     {renderCreateEntities()}
                     {renderTypeOfComponents()}
                     {renderPublicComponent()}
