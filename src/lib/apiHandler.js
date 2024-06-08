@@ -387,34 +387,6 @@ export async function getSitePartsComponents(site, githubSixGLibraryReferenceTyp
 
 /* ------------ 6G-Sandbox-Sites ------------ */
 
-export async function getSixGSandboxSitesBranches(token) {
-
-    const fetchSixGSandboxSitesBranches = async () => {
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6G-Sandbox-Sites/branches/`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                }
-            });
-            return response;
-        } catch (error) {
-            throw new Error("Failed to fetch data \n" + error);
-        }
-    };
-
-    const response = await fetchSixGSandboxSitesBranches();
-    const data = await response.json();
-    const code_error = response["status"];
-    if (!response.ok) {
-        const { message } = data;
-        throw new Error(message + ". \nError code: " + code_error);
-    }
-    return data["branches"];
-};
-
 export async function getSites(token, referenceType, referenceValue) {
 
     const fetchSites = async () => {
