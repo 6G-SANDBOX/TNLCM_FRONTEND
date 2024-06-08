@@ -5,7 +5,7 @@ import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
 export default function useSixGSandboxSites() {
     const [githubSixGSandboxSitesReferenceType, setGithubSixGSandboxSitesReferenceType] = useState("");
     const [githubSixGSandboxSitesReferenceValue, setGithubSixGSandboxSitesReferenceValue] = useState("");
-    const [deploymentSite, setDeploymentSite] = useState([]);
+    const [deploymentSite, setDeploymentSite] = useState("");
     const [sites, setSites] = useState([]);
 
     const handleSites = async (e) => {

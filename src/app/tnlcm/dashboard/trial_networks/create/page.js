@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import CustomSelect from "@/components/elements/CustomSelect";
+import CustomInput from "@/components/elements/CustomInput";
 import CustomForm from "@/components/elements/CustomForm";
 import CustomButton from "@/components/elements/CustomButton";
 import useSixGLibrary from "@/hooks/useSixGLibrary";
@@ -10,31 +11,30 @@ import useSixGSandboxSites from "@/hooks/useSixGSandboxSites";
 import useCreateEntity from "@/hooks/useCreateEntity";
 import useCreateDescriptor from "@/hooks/useCreateDescriptor";
 import useCreateTrialNetwork from "@/hooks/useCreateTrialNetwork";
-import styles from "./CreateTrialNetwork.module.css";
 import useTrialNetworkStateMachine from "@/hooks/useTrialNetworkStateMachine";
+import styles from "./CreateTrialNetwork.module.css";
 
 export default function CreateTrialNetworkPage() {
 
-    const [githubSixGLibraryReference, setGithubSixGLibraryReference] = useState("");
-    const [githubSixGSandboxSitesReference, setGithubSixGSandboxSitesReference] = useState("");
-    const [deploymentSite, setDeploymentSite] = useState("");
+    const gitOptions = ["branch", "commit", "tag"];
 
     const {
-        sixGLibrarybranches,
-        setSixGLibrarybranches,
-        handleSixGLibraryBranches,
+        githubSixGLibraryReferenceType,
+        setGithubSixGLibraryReferenceType,
+        githubSixGLibraryReferenceValue,
+        setGithubSixGLibraryReferenceValue,
         partsComponents,
         setPartsComponents,
-        handlePartsComponents,
-        components,
-        setComponents,
-        handleComponents
+        handlePartsComponents
     } = useSixGLibrary();
 
     const {
-        sixGSandboxSitesbranches,
-        setSixGSandboxSitesbranches,
-        handleSixGSandboxSitesBranches,
+        githubSixGSandboxSitesReferenceType,
+        setGithubSixGSandboxSitesReferenceType,
+        githubSixGSandboxSitesReferenceValue,
+        setGithubSixGSandboxSitesReferenceValue,
+        deploymentSite,
+        setDeploymentSite,
         sites,
         setSites,
         handleSites
@@ -81,57 +81,73 @@ export default function CreateTrialNetworkPage() {
     } = useTrialNetworkStateMachine();
 
     useEffect(() => {
-        handleSixGLibraryBranches();
-        handleSixGSandboxSitesBranches();
+        setGithubSixGLibraryReferenceType(gitOptions[0]);
+        setGithubSixGSandboxSitesReferenceType(gitOptions[0]);
     }, []);
 
     useEffect(() => {
-        if (deploymentSite !== "") {
-            handlePartsComponents(githubSixGLibraryReference, githubSixGSandboxSitesReference, deploymentSite);
-            handleComponents(githubSixGLibraryReference, githubSixGSandboxSitesReference, deploymentSite);
+        if (sites.length > 0) {
+            setDeploymentSite(sites[0]);
         }
-    }, [githubSixGLibraryReference, githubSixGSandboxSitesReference, deploymentSite]);
+    }, [sites]);
 
-    const selectReferenceSixGLibrary = () => {
-        const defaultOption = "Select type";
-        const updateSixGLibrarybranches = [defaultOption, ...sixGLibrarybranches];
+    useEffect(() => {
+        if (deploymentSite !== "") {
+            handlePartsComponents(deploymentSite, githubSixGLibraryReferenceType, githubSixGLibraryReferenceValue, githubSixGSandboxSitesReferenceType, githubSixGSandboxSitesReferenceValue);
+        }
+    }, [deploymentSite]);
+
+    const renderSixGLibraryReferenceType = () => {
         return (
             <div>
-                <h2>6G-Library reference (branch, commit or tag). Optional, by default use main branch: </h2>
-                <CustomSelect
-                    value={githubSixGLibraryReference}
-                    onChange={(e) => setGithubSixGLibraryReference(e.target.value)}
-                    options={updateSixGLibrarybranches}
+                <h2>6G-Library. Select reference type: </h2>
+                <CustomSelect options={gitOptions} value={githubSixGLibraryReferenceType} onChange={(e) => setGithubSixGLibraryReferenceType(e.target.value)} />
+                <CustomInput
+                    type="text"
+                    title="Enter reference value: "
+                    onChange={(e) => setGithubSixGLibraryReferenceValue(e.target.value)}
+                    className="input-login-register-verification"
+                    required={true}
                 />
             </div>
-        );
-    };
+        )
+    }
 
-    const selectReferenceSixGSandboxSites = () => {
-        const defaultOption = "Select type";
-        const updateSixGSandboxSitesbranches = [defaultOption, ...sixGSandboxSitesbranches];
+    const renderSixGSandboxSitesReferenceType = () => {
         return (
             <div>
-                <h2>6G-Sandbox-Sites reference (branch, commit or tag). Optional, by default use main branch: </h2>
-                <CustomSelect
-                    value={githubSixGSandboxSitesReference}
-                    onChange={(e) => setGithubSixGSandboxSitesReference(e.target.value)}
-                    options={updateSixGSandboxSitesbranches}
+                <h2>6G-Sandbox-Sites. Select reference type:</h2>
+                <CustomSelect options={gitOptions} value={githubSixGSandboxSitesReferenceType} onChange={(e) => setGithubSixGSandboxSitesReferenceType(e.target.value)} />
+                <CustomInput
+                    type="text"
+                    title="Enter reference value: "
+                    onChange={(e) => setGithubSixGSandboxSitesReferenceValue(e.target.value)}
+                    className="input-login-register-verification"
+                    required={true}
                 />
             </div>
-        );
-    };
+        )
+    }
 
-    const selectDeploymentSite = () => {
-        const defaultOption = "Select type";
-        const updateSites = [defaultOption, ...sites];
+    const setGitConfiguration = () => {
+        return (
+            <CustomButton
+                type="submit"
+                className="button-login-register-verification"
+                children="Set git configuration"
+                onClick={(e) => handleSites(e)}
+            />
+        )
+    }
+
+    const renderDeploymentSite = () => {
         return (
             <div>
-                <h2>Sites. Mandatory: </h2>
+                <h2>Site to deploy trial network: </h2>
                 <CustomSelect
                     value={deploymentSite}
                     onChange={(e) => setDeploymentSite(e.target.value)}
-                    options={updateSites}
+                    options={sites}
                 />
             </div>
         );
@@ -229,7 +245,7 @@ export default function CreateTrialNetworkPage() {
     }, [inputPart]);
 
     const isComponentType = (type) => {
-        return Object.values(components).includes(type);
+        return Object.values(partsComponents).includes(type);
     }
 
     const findSameTypesInDescriptor = (type) => {
@@ -364,22 +380,23 @@ export default function CreateTrialNetworkPage() {
     return (
         <div>
             <h1>Create trial network</h1>
-            {sixGLibrarybranches.length > 0 && (
+            {renderSixGLibraryReferenceType()}
+            {renderSixGSandboxSitesReferenceType()}
+            {setGitConfiguration()}
+            {sites.length > 0 && (
                 <>
-                    {selectReferenceSixGLibrary()}
-                    {selectReferenceSixGSandboxSites()}
-                    {selectDeploymentSite()}
-                </>
-            )}
-            {components.length > 0 && (
-                <>
+                    {renderDeploymentSite()}
                     {renderPartsComponents()}
-                    {renderCreateEntities()}
-                    {renderTypeOfComponents()}
-                    {renderPublicComponent()}
-                    {renderDescriptor()}
-                    {renderCreateTrialNetwork()}
-                    {renderTrialNetworkStateMachine()}
+                    {Object.keys(partsComponents).length > 0 && (
+                        <>
+                            {renderCreateEntities()}
+                            {renderTypeOfComponents()}
+                            {renderPublicComponent()}
+                            {renderDescriptor()}
+                            {renderCreateTrialNetwork()}
+                            {renderTrialNetworkStateMachine()}
+                        </>
+                    )}
                 </>
             )}
         </div>

@@ -22,10 +22,7 @@ export default function TestPage() {
         setGithubSixGLibraryReferenceValue,
         partsComponents,
         setPartsComponents,
-        handlePartsComponents,
-        components,
-        setComponents,
-        handleComponents
+        handlePartsComponents
     } = useSixGLibrary();
 
     const {
@@ -88,7 +85,7 @@ export default function TestPage() {
                     onChange={(e) => setGithubSixGSandboxSitesReferenceValue(e.target.value)}
                     className="input-login-register-verification"
                     required={true}
-                /> 
+                />
             </div>
         )
     }

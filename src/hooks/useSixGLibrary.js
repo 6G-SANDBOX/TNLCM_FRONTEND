@@ -1,25 +1,15 @@
-import { getSitePartsComponents, getSiteComponents } from "@/lib/apiHandler";
+import { getSitePartsComponents } from "@/lib/apiHandler";
 import { useState } from "react";
 
 export default function useSixGLibrary() {
     const [githubSixGLibraryReferenceType, setGithubSixGLibraryReferenceType] = useState("");
     const [githubSixGLibraryReferenceValue, setGithubSixGLibraryReferenceValue] = useState("");
-    const [components, setComponents] = useState([]);
     const [partsComponents, setPartsComponents] = useState({});
 
-    const handlePartsComponents = async (githubSixGLibraryReference, githubSixGSandboxSitesReference, site) => {
+    const handlePartsComponents = async (site, githubSixGLibraryReferenceType, githubSixGLibraryReferenceValue, githubSixGSandboxSitesReferenceType, githubSixGSandboxSitesReferenceValue) => {
         try {
-            const response = await getSitePartsComponents(githubSixGLibraryReference, githubSixGSandboxSitesReference, site);
+            const response = await getSitePartsComponents(site, githubSixGLibraryReferenceType, githubSixGLibraryReferenceValue, githubSixGSandboxSitesReferenceType, githubSixGSandboxSitesReferenceValue);
             setPartsComponents(response);
-        } catch (error) {
-            alert(error);
-        }
-    }
-
-    const handleComponents = async (githubSixGLibraryReference, githubSixGSandboxSitesReference, site) => {
-        try {
-            const response = await getSiteComponents(githubSixGLibraryReference, githubSixGSandboxSitesReference, site);
-            setComponents(response);
         } catch (error) {
             alert(error);
         }
@@ -32,9 +22,6 @@ export default function useSixGLibrary() {
         setGithubSixGLibraryReferenceValue,
         partsComponents,
         setPartsComponents,
-        handlePartsComponents,
-        components,
-        setComponents,
-        handleComponents
+        handlePartsComponents
     }
 }

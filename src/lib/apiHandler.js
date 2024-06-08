@@ -358,46 +358,11 @@ export async function deleteTrialNetwork(token, tnId) {
 
 /* --------------- 6G-Library --------------- */
 
-export async function getSixGLibraryBranches() {
-
-    const fetchSixGLibraryBranches = async () => {
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6G-Library/branches/`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                }
-            });
-            return response;
-        } catch (error) {
-            throw new Error("Failed to fetch data \n" + error);
-        }
-    };
-
-    const response = await fetchSixGLibraryBranches();
-    const data = await response.json();
-    const code_error = response["status"];
-    if (!response.ok) {
-        const { message } = data;
-        throw new Error(message + ". \nError code: " + code_error);
-    }
-    return data["branches"];
-};
-
-export async function getSitePartsComponents(githubSixGLibraryReference, githubSixGSandboxSitesReference, site) {
-
-    let url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6G-Library/components/all?site=${site}`;
-    if (githubSixGLibraryReference !== "") {
-        url += `&github_6g_library_reference=${githubSixGLibraryReference}`;
-    }
-    if (githubSixGSandboxSitesReference !== "") {
-        url += `&github_6g_sandbox_sites_reference=${githubSixGSandboxSitesReference}`;
-    }
+export async function getSitePartsComponents(site, githubSixGLibraryReferenceType, githubSixGLibraryReferenceValue, githubSixGSandboxSitesReferenceType, githubSixGSandboxSitesReferenceValue) {
 
     const fetchSitePartsComponents = async () => {
         try {
-            const response = await fetch(url, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6G-Library/components/all?site=${site}&github_6g_library_reference_type=${githubSixGLibraryReferenceType}&github_6g_library_reference_value=${githubSixGLibraryReferenceValue}&github_6g_sandbox_sites_reference_type=${githubSixGSandboxSitesReferenceType}&github_6g_sandbox_sites_reference_value=${githubSixGSandboxSitesReferenceValue}`, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
@@ -418,41 +383,6 @@ export async function getSitePartsComponents(githubSixGLibraryReference, githubS
         throw new Error(message + ". \nError code: " + code_error);
     }
     return data["parts_components"];
-};
-
-export async function getSiteComponents(githubSixGLibraryReference, githubSixGSandboxSitesReference, site) {
-
-    let url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6G-Library/components/name?site=${site}`;
-    if (githubSixGLibraryReference !== "") {
-        url += `&github_6g_library_reference=${githubSixGLibraryReference}`;
-    }
-    if (githubSixGSandboxSitesReference !== "") {
-        url += `&github_6g_sandbox_sites_reference=${githubSixGSandboxSitesReference}`;
-    }
-
-    const fetchSitePartsComponents = async () => {
-        try {
-            const response = await fetch(url, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json"
-                }
-            });
-            return response;
-        } catch (error) {
-            throw new Error("Failed to fetch data \n" + error);
-        }
-    };
-
-    const response = await fetchSitePartsComponents();
-    const data = await response.json();
-    const code_error = response["status"];
-    if (!response.ok) {
-        const { message } = data;
-        throw new Error(message + ". \nError code: " + code_error);
-    }
-    return data["components"];
 };
 
 /* ------------ 6G-Sandbox-Sites ------------ */
