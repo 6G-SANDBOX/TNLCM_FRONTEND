@@ -1,19 +1,11 @@
-import { getSitePartsComponents, getSixGLibraryBranches, getSiteComponents } from "@/lib/apiHandler";
+import { getSitePartsComponents, getSiteComponents } from "@/lib/apiHandler";
 import { useState } from "react";
 
 export default function useSixGLibrary() {
-    const [sixGLibrarybranches, setSixGLibrarybranches] = useState([]);
+    const [githubSixGLibraryReferenceType, setGithubSixGLibraryReferenceType] = useState("");
+    const [githubSixGLibraryReferenceValue, setGithubSixGLibraryReferenceValue] = useState("");
     const [components, setComponents] = useState([]);
     const [partsComponents, setPartsComponents] = useState({});
-
-    const handleSixGLibraryBranches = async (e) => {
-        try {
-            const response = await getSixGLibraryBranches();
-            setSixGLibrarybranches(response);
-        } catch (error) {
-            alert(error);
-        }
-    }
 
     const handlePartsComponents = async (githubSixGLibraryReference, githubSixGSandboxSitesReference, site) => {
         try {
@@ -34,9 +26,10 @@ export default function useSixGLibrary() {
     }
 
     return {
-        sixGLibrarybranches,
-        setSixGLibrarybranches,
-        handleSixGLibraryBranches,
+        githubSixGLibraryReferenceType,
+        setGithubSixGLibraryReferenceType,
+        githubSixGLibraryReferenceValue,
+        setGithubSixGLibraryReferenceValue,
         partsComponents,
         setPartsComponents,
         handlePartsComponents,

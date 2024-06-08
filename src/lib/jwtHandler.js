@@ -22,7 +22,7 @@ export async function getAccessTokenFromLocalStorage() {
   return accessToken;
 };
 
-export async function getRefreshTokenFromLocalStorage() {
+export function getRefreshTokenFromLocalStorage() {
   return localStorage.getItem("refresh_token");
 };
 
@@ -30,7 +30,7 @@ async function setAccessTokenUsingRefreshToken() {
 
   const fetchRefreshToken = async () => {
     try {
-      const refreshToken = await getRefreshTokenFromLocalStorage();
+      const refreshToken = getRefreshTokenFromLocalStorage();
       const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/user/refresh`, {
         method: "POST",
         headers: {

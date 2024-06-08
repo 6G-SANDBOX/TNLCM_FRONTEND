@@ -172,7 +172,7 @@ export async function getTrialNetworks(token) {
     return data["trial_networks"];
 };
 
-export async function createTrialNetwork(token, tnId, deploymentSite, github6GLibraryReference, github6GSandboxSitesReference, descriptor) {
+export async function createTrialNetwork(token, tnId, deploymentSite, githubSixGLibraryReferenceType, githubSixGLibraryReferenceValue, githubSixGSandboxSitesReferenceType, githubSixGSandboxSitesReferenceValue, descriptor) {
     let formData = new FormData();
     if (typeof descriptor === "string") {
         const blob = new Blob([descriptor], { type: "text/yaml" });
@@ -181,9 +181,9 @@ export async function createTrialNetwork(token, tnId, deploymentSite, github6GLi
         formData = descriptor;
     }
 
-    let url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network?deployment_site=${deploymentSite}&github_6g_library_reference=${github6GLibraryReference}&github_6g_sandbox_sites_reference=${github6GSandboxSitesReference}`
+    let url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network?deployment_site=${deploymentSite}&github_6g_library_reference_type=${githubSixGLibraryReferenceType}&github_6g_library_reference_value=${githubSixGLibraryReferenceValue}&github_6g_sandbox_sites_reference_type=${githubSixGSandboxSitesReferenceType}&github_6g_sandbox_sites_reference_value=${githubSixGSandboxSitesReferenceValue}`
     if (tnId !== "") {
-        url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network?tn_id=${tnId}&deployment_site=${deploymentSite}&github_6g_library_reference=${github6GLibraryReference}&github_6g_sandbox_sites_reference=${github6GSandboxSitesReference}`
+        url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network?tn_id=${tnId}&deployment_site=${deploymentSite}&github_6g_library_reference_type=${githubSixGLibraryReferenceType}&github_6g_library_reference_value=${githubSixGLibraryReferenceValue}&github_6g_sandbox_sites_reference_type=${githubSixGSandboxSitesReferenceType}&github_6g_sandbox_sites_reference_value=${githubSixGSandboxSitesReferenceValue}`
     }
 
     const fetchCreateTrialNetwork = async () => {
@@ -457,7 +457,7 @@ export async function getSiteComponents(githubSixGLibraryReference, githubSixGSa
 
 /* ------------ 6G-Sandbox-Sites ------------ */
 
-export async function getSixGSandboxSitesBranches() {
+export async function getSixGSandboxSitesBranches(token) {
 
     const fetchSixGSandboxSitesBranches = async () => {
         try {
@@ -465,7 +465,8 @@ export async function getSixGSandboxSitesBranches() {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 }
             });
             return response;
@@ -484,15 +485,16 @@ export async function getSixGSandboxSitesBranches() {
     return data["branches"];
 };
 
-export async function getSites(reference) {
+export async function getSites(token, referenceType, referenceValue) {
 
     const fetchSites = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6G-Sandbox-Sites/sites?reference=${reference}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6G-Sandbox-Sites/sites?reference_type=${referenceType}&reference_value=${referenceValue}`, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
                 }
             });
             return response;

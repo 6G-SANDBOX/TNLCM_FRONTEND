@@ -1,23 +1,18 @@
-import { getSites, getSixGSandboxSitesBranches } from "@/lib/apiHandler";
 import { useState } from "react";
+import { getSites } from "@/lib/apiHandler";
+import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
 
 export default function useSixGSandboxSites() {
-    const [sixGSandboxSitesbranches, setSixGSandboxSitesbranches] = useState([]);
+    const [githubSixGSandboxSitesReferenceType, setGithubSixGSandboxSitesReferenceType] = useState("");
+    const [githubSixGSandboxSitesReferenceValue, setGithubSixGSandboxSitesReferenceValue] = useState("");
+    const [deploymentSite, setDeploymentSite] = useState([]);
     const [sites, setSites] = useState([]);
 
-    const handleSixGSandboxSitesBranches = async (e) => {
-        try {
-            const response = await getSixGSandboxSitesBranches();
-            setSixGSandboxSitesbranches(response);
-            handleSites();
-        } catch (error) {
-            alert(error);
-        }
-    }
-
     const handleSites = async (e) => {
+        e.preventDefault();
         try {
-            const response = await getSites(sixGSandboxSitesbranches);
+            const token = await getAccessTokenFromLocalStorage();
+            const response = await getSites(token, githubSixGSandboxSitesReferenceType, githubSixGSandboxSitesReferenceValue);
             setSites(response);
         } catch (error) {
             alert(error);
@@ -25,9 +20,12 @@ export default function useSixGSandboxSites() {
     }
 
     return {
-        sixGSandboxSitesbranches,
-        setSixGSandboxSitesbranches,
-        handleSixGSandboxSitesBranches,
+        githubSixGSandboxSitesReferenceType,
+        setGithubSixGSandboxSitesReferenceType,
+        githubSixGSandboxSitesReferenceValue,
+        setGithubSixGSandboxSitesReferenceValue,
+        deploymentSite,
+        setDeploymentSite,
         sites,
         setSites,
         handleSites

@@ -6,10 +6,10 @@ export default function useCreateTrialNetwork() {
     const [tnId, setTnId] = useState("");
     const [trialNetworkCreated, setTrialNetworkCreated] = useState(false);
     
-    const handleCreateTrialNetwork = async (tnId, deploymentSite, githubSixGLibraryReference, githubSixGSandboxSitesReference, descriptor) => {
+    const handleCreateTrialNetwork = async (tnId, deploymentSite, githubSixGLibraryReferenceType, githubSixGLibraryReferenceValue, githubSixGSandboxSitesReferenceType, githubSixGSandboxSitesReferenceValue, descriptor) => {
         try {
             const token = await getAccessTokenFromLocalStorage();
-            const id = await createTrialNetwork(token, tnId, deploymentSite, githubSixGLibraryReference, githubSixGSandboxSitesReference, descriptor);
+            const id = await createTrialNetwork(token, tnId, deploymentSite, githubSixGLibraryReferenceType, githubSixGLibraryReferenceValue, githubSixGSandboxSitesReferenceType, githubSixGSandboxSitesReferenceValue, descriptor);
             setTnId(id);
             setTrialNetworkCreated(true);
         } catch (error) {

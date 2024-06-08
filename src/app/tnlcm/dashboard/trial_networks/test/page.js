@@ -12,25 +12,29 @@ import useTrialNetworkStateMachine from "@/hooks/useTrialNetworkStateMachine";
 
 export default function TestPage() {
 
-    const [githubSixGLibraryReference, setGithubSixGLibraryReference] = useState("");
-    const [githubSixGSandboxSitesReference, setGithubSixGSandboxSitesReference] = useState("");
-    const [deploymentSite, setDeploymentSite] = useState("");
+    const gitOptions = ["branch", "commit", "tag"];
     const [descriptor, setDescriptor] = useState(null);
-    const [renderedOnce, setRenderedOnce] = useState(false);
 
     const {
-        sixGLibrarybranches,
-        setSixGLibrarybranches,
-        handleSixGLibraryBranches,
+        githubSixGLibraryReferenceType,
+        setGithubSixGLibraryReferenceType,
+        githubSixGLibraryReferenceValue,
+        setGithubSixGLibraryReferenceValue,
         partsComponents,
         setPartsComponents,
-        handlePartsComponents
+        handlePartsComponents,
+        components,
+        setComponents,
+        handleComponents
     } = useSixGLibrary();
 
     const {
-        sixGSandboxSitesbranches,
-        setSixGSandboxSitesbranches,
-        handleSixGSandboxSitesBranches,
+        githubSixGSandboxSitesReferenceType,
+        setGithubSixGSandboxSitesReferenceType,
+        githubSixGSandboxSitesReferenceValue,
+        setGithubSixGSandboxSitesReferenceValue,
+        deploymentSite,
+        setDeploymentSite,
         sites,
         setSites,
         handleSites
@@ -53,53 +57,65 @@ export default function TestPage() {
     } = useTrialNetworkStateMachine();
 
     useEffect(() => {
-        if (!renderedOnce) {
-            handleSixGLibraryBranches();
-            handleSixGSandboxSitesBranches();
-            setRenderedOnce(true);
-        }
-    }, [renderedOnce, handleSixGSandboxSitesBranches]);
+        setGithubSixGLibraryReferenceType(gitOptions[0]);
+        setGithubSixGSandboxSitesReferenceType(gitOptions[0]);
+    }, []);
 
-    const selectReferenceSixGLibrary = () => {
-        const defaultOption = "Select branch";
-        const updateSixGLibrarybranches = [defaultOption, ...sixGLibrarybranches];
+    const renderSixGLibraryReferenceType = () => {
         return (
             <div>
-                <h2>6G-Library branch. Main branch will be used by default: </h2>
-                <CustomSelect
-                    value={githubSixGLibraryReference}
-                    onChange={(e) => setGithubSixGLibraryReference(e.target.value)}
-                    options={updateSixGLibrarybranches}
+                <h2>6G-Library. Select reference type: </h2>
+                <CustomSelect options={gitOptions} value={githubSixGLibraryReferenceType} onChange={(e) => setGithubSixGLibraryReferenceType(e.target.value)} />
+                <CustomInput
+                    type="text"
+                    title="Enter reference value: "
+                    onChange={(e) => setGithubSixGLibraryReferenceValue(e.target.value)}
+                    className="input-login-register-verification"
+                    required={true}
                 />
             </div>
-        );
-    };
+        )
+    }
 
-    const selectReferenceSixGSandboxSites = () => {
-        const defaultOption = "Select branch";
-        const updateSixGSandboxSitesbranches = [defaultOption, ...sixGSandboxSitesbranches];
+    const renderSixGSandboxSitesReferenceType = () => {
         return (
             <div>
-                <h2>6G-Sandbox-Sites branch. Main branch will be used by default: </h2>
-                <CustomSelect
-                    value={githubSixGSandboxSitesReference}
-                    onChange={(e) => setGithubSixGSandboxSitesReference(e.target.value)}
-                    options={updateSixGSandboxSitesbranches}
-                />
+                <h2>6G-Sandbox-Sites. Select reference type:</h2>
+                <CustomSelect options={gitOptions} value={githubSixGSandboxSitesReferenceType} onChange={(e) => setGithubSixGSandboxSitesReferenceType(e.target.value)} />
+                <CustomInput
+                    type="text"
+                    title="Enter reference value: "
+                    onChange={(e) => setGithubSixGSandboxSitesReferenceValue(e.target.value)}
+                    className="input-login-register-verification"
+                    required={true}
+                /> 
             </div>
-        );
-    };
+        )
+    }
 
-    const selectDeploymentSite = () => {
-        const defaultOption = "Select site";
-        const updateSites = [defaultOption, ...sites];
+    const setGitConfiguration = () => {
+        return (
+            <CustomButton
+                type="submit"
+                className="button-login-register-verification"
+                children="Set git configuration"
+                onClick={(e) => handleSites(e)}
+            />
+        )
+    }
+
+    useEffect(() => {
+        setDeploymentSite(sites[0]);
+    }, [sites]);
+
+    const renderDeploymentSite = () => {
         return (
             <div>
                 <h2>Site to deploy trial network: </h2>
                 <CustomSelect
                     value={deploymentSite}
                     onChange={(e) => setDeploymentSite(e.target.value)}
-                    options={updateSites}
+                    options={sites}
                 />
             </div>
         );
@@ -120,13 +136,13 @@ export default function TestPage() {
                     title="(Optional) Enter a trial network identifier: "
                     onChange={(e) => setTnId(e.target.value)}
                     className="input-login-register-verification"
-                    required="false"
+                    required={false}
                 />
                 <CustomInput
                     type="file"
                     title="Descriptor file: "
                     onChange={(e) => handleDescriptor(e.target.files)}
-                    required="true"
+                    required={true}
                 />
             </div>
         )
@@ -139,7 +155,7 @@ export default function TestPage() {
                     type="submit"
                     className="button-login-register-verification"
                     children="Create trial network"
-                    onClick={() => handleCreateTrialNetwork(tnId, deploymentSite, githubSixGLibraryReference, githubSixGSandboxSitesReference, descriptor)}
+                    onClick={() => handleCreateTrialNetwork(tnId, deploymentSite, githubSixGLibraryReferenceType, githubSixGLibraryReferenceValue, githubSixGSandboxSitesReferenceType, githubSixGSandboxSitesReferenceValue, descriptor)}
                 />
                 {trialNetworkCreated && (
                     <h5>Trial network created with identifier: {tnId}</h5>
@@ -172,16 +188,21 @@ export default function TestPage() {
                 <div>
                     <h1>Test page</h1>
                     <p>Page to test trial network descriptors</p>
-                    {sixGLibrarybranches.length > 0 && selectReferenceSixGLibrary()}
-                    {githubSixGLibraryReference !== "" && selectReferenceSixGSandboxSites()}
-                    {githubSixGSandboxSitesReference !== "" && selectDeploymentSite()}
-                    {deploymentSite !== "" && renderInputsTrialNetwork()}
-                    {descriptor !== null && renderCreateTrialNetwork()}
-                    {trialNetworkCreated && renderTrialNetworkStateMachine()}
-                    {trialNetworkState && (
+                    {renderSixGLibraryReferenceType()}
+                    {renderSixGSandboxSitesReferenceType()}
+                    {setGitConfiguration()}
+                    {sites.length > 0 && (
                         <>
-                            {setTnId("")}
-                            {setDescriptor(null)}
+                            {renderDeploymentSite()}
+                            {renderInputsTrialNetwork()}
+                            {descriptor !== null && renderCreateTrialNetwork()}
+                            {trialNetworkCreated && renderTrialNetworkStateMachine()}
+                            {trialNetworkState && (
+                                <>
+                                    {setTnId("")}
+                                    {setDescriptor(null)}
+                                </>
+                            )}
                         </>
                     )}
                 </div>
