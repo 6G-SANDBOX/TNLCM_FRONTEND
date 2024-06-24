@@ -45,10 +45,10 @@ TNLCM frontend is a web application tailored for use by the platform owners and,
 > [!TIP]
 > TNLCM frontend uses the following repository branches:
 > 
-> | Repository | Branch                                                                             |
-> | ---------- | ---------------------------------------------------------------------------------- |
-> | 6G-Library | [alt_architecture](https://github.com/6G-SANDBOX/6G-Library/tree/alt_architecture) |
-> | TNLCM      | [dev](https://github.com/6G-SANDBOX/TNLCM/tree/dev)                                |
+> | Repository | Release                                                                |
+> | ---------- | ---------------------------------------------------------------------- |
+> | 6G-Library | [v0.2.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.2.0) |
+> | TNLCM      | [v0.2.0](https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.2.0)      |
 
 > [!WARNING]
 > In order to run TNLCM frontend, the following tools are **required** to be deployed on the platforms:
@@ -77,7 +77,7 @@ git clone https://github.com/6G-SANDBOX/TNLCM_FRONTEND.git
 Create a `.env` file at the root level, using the structure and content provided in the [`.env.template`](../.env.template) file.
 
 Mandatory update the value of the variable according on the platform:
-- `NEXT_PUBLIC_TNLCM_BACKEND`
+- `NEXT_PUBLIC_LINKED_TNLCM_BACKEND_HOST`
 
 ### :file_folder: Add node_modules folder
 

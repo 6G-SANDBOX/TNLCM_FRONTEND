@@ -7,7 +7,7 @@ export async function loginUser(username, password) {
 
     const fetchLoginUser = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/user/login`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/user/login`, {
                 method: "POST",
                 headers: {
                     "Authorization": basicAuthHeader,
@@ -34,7 +34,7 @@ export async function registerUser(username, password, email, verificationToken,
 
     const fetchRegisterUser = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification-token/new-user-verification`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/verification-token/new-user-verification`, {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -62,7 +62,7 @@ export async function registerVerification(email) {
 
     const fetchRegisterVerification = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification-token/request-verification-token`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/verification-token/request-verification-token`, {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -90,7 +90,7 @@ export async function resetVerification(email) {
 
     const fetchResetVerification = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification-token/request-reset-token`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/verification-token/request-reset-token`, {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -118,7 +118,7 @@ export async function changePassword(email, password, resetToken) {
 
     const fetchChangePassword = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/verification-token/change-password`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/verification-token/change-password`, {
                 method: "POST",
                 headers: {
                     "Accept": "application/json",
@@ -148,7 +148,7 @@ export async function getTrialNetworks(token) {
 
     const fetchTrialNetworks = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-networks/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/trial-networks/`, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
@@ -181,9 +181,9 @@ export async function createTrialNetwork(token, tnId, deploymentSite, githubSixG
         formData = descriptor;
     }
 
-    let url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network?deployment_site=${deploymentSite}&github_6g_library_reference_type=${githubSixGLibraryReferenceType}&github_6g_library_reference_value=${githubSixGLibraryReferenceValue}&github_6g_sandbox_sites_reference_type=${githubSixGSandboxSitesReferenceType}&github_6g_sandbox_sites_reference_value=${githubSixGSandboxSitesReferenceValue}`
+    let url = `${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/trial-network?deployment_site=${deploymentSite}&github_6g_library_reference_type=${githubSixGLibraryReferenceType}&github_6g_library_reference_value=${githubSixGLibraryReferenceValue}&github_6g_sandbox_sites_reference_type=${githubSixGSandboxSitesReferenceType}&github_6g_sandbox_sites_reference_value=${githubSixGSandboxSitesReferenceValue}`
     if (tnId !== "") {
-        url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network?tn_id=${tnId}&deployment_site=${deploymentSite}&github_6g_library_reference_type=${githubSixGLibraryReferenceType}&github_6g_library_reference_value=${githubSixGLibraryReferenceValue}&github_6g_sandbox_sites_reference_type=${githubSixGSandboxSitesReferenceType}&github_6g_sandbox_sites_reference_value=${githubSixGSandboxSitesReferenceValue}`
+        url = `${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/trial-network?tn_id=${tnId}&deployment_site=${deploymentSite}&github_6g_library_reference_type=${githubSixGLibraryReferenceType}&github_6g_library_reference_value=${githubSixGLibraryReferenceValue}&github_6g_sandbox_sites_reference_type=${githubSixGSandboxSitesReferenceType}&github_6g_sandbox_sites_reference_value=${githubSixGSandboxSitesReferenceValue}`
     }
 
     const fetchCreateTrialNetwork = async () => {
@@ -213,9 +213,9 @@ export async function createTrialNetwork(token, tnId, deploymentSite, githubSixG
 
 export async function trialNetworkStateMachine(token, tnId, jobName) {
 
-    let url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network/${tnId}`
+    let url = `${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/trial-network/${tnId}`
     if (jobName !== undefined) {
-        url = `${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network/${tnId}?job_name=${jobName}`
+        url = `${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/trial-network/${tnId}?job_name=${jobName}`
     }
     
     const fetchTrialNetworkStateMachine = async () => {
@@ -248,7 +248,7 @@ export async function getTrialNetwork(token, tnId) {
 
     const fetchTrialNetwork = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network/${tnId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/trial-network/${tnId}`, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
@@ -276,7 +276,7 @@ export async function getTrialNetworkReport(token, tnId) {
 
     const fetchTrialNetworkReport = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network/report/${tnId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/trial-network/report/${tnId}`, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
@@ -304,7 +304,7 @@ export async function getTrialNetworksTemplates(token) {
 
     const fetchTrialNetworksTemplates = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-networks/templates/`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/trial-networks/templates/`, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
@@ -332,7 +332,7 @@ export async function deleteTrialNetwork(token, tnId) {
 
     const fetchDeleteTrialNetwork = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/trial-network/${tnId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/trial-network/${tnId}`, {
                 method: "DELETE",
                 headers: {
                     "Accept": "application/json",
@@ -362,7 +362,7 @@ export async function getSitePartsComponents(site, githubSixGLibraryReferenceTyp
 
     const fetchSitePartsComponents = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6G-Library/components/all?site=${site}&github_6g_library_reference_type=${githubSixGLibraryReferenceType}&github_6g_library_reference_value=${githubSixGLibraryReferenceValue}&github_6g_sandbox_sites_reference_type=${githubSixGSandboxSitesReferenceType}&github_6g_sandbox_sites_reference_value=${githubSixGSandboxSitesReferenceValue}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/6G-Library/components/all?site=${site}&github_6g_library_reference_type=${githubSixGLibraryReferenceType}&github_6g_library_reference_value=${githubSixGLibraryReferenceValue}&github_6g_sandbox_sites_reference_type=${githubSixGSandboxSitesReferenceType}&github_6g_sandbox_sites_reference_value=${githubSixGSandboxSitesReferenceValue}`, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",
@@ -391,7 +391,7 @@ export async function getSites(token, referenceType, referenceValue) {
 
     const fetchSites = async () => {
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/6G-Sandbox-Sites/sites?reference_type=${referenceType}&reference_value=${referenceValue}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/6G-Sandbox-Sites/sites?reference_type=${referenceType}&reference_value=${referenceValue}`, {
                 method: "GET",
                 headers: {
                     "Accept": "application/json",

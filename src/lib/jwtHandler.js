@@ -31,7 +31,7 @@ async function setAccessTokenUsingRefreshToken() {
   const fetchRefreshToken = async () => {
     try {
       const refreshToken = getRefreshTokenFromLocalStorage();
-      const response = await fetch(`${process.env.NEXT_PUBLIC_TNLCM_BACKEND}/tnlcm/user/refresh`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_LINKED_TNLCM_BACKEND_ENDPOINT}/tnlcm/user/refresh`, {
         method: "POST",
         headers: {
           "Accept": "application/json",
