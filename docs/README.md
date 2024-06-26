@@ -9,9 +9,7 @@
   <!-- [![MIT License][license-shield]][license-url] -->
   <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-  <a href="https://github.com/6G-SANDBOX/TNLCM_FRONTEND"><img src="../public/TNLCM_LOGO.png" width="80" title="TNLCM_FRONTEND"></a>
-
-  # Trial Network Life Cycle Manager Frontend - TNLCM <!-- omit in toc -->
+  <a href="https://github.com/6G-SANDBOX/TNLCM_FRONTEND"><img src="../public/TNLCM_LOGO.png" width="500" title="TNLCM_FRONTEND"></a>
 
   [![TNLCM_FRONTEND][tnlcm-frontend-badge]][tnlcm-frontend-url]
 
