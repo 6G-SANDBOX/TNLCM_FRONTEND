@@ -57,8 +57,8 @@ TNLCM frontend is a web application tailored for use by the platform owners and,
 > 
 > * Jenkins
 > * MinIO
-> * OneKE: v1.27 or later
-> * Ueransim: v3.2.6 or later
+> * OneKE: v1.27 or 1.29
+> * Ueransim: v3.2.6
 
 ### :inbox_tray: Download or clone repository
 
