@@ -5,11 +5,11 @@ import { getAccessTokenFromLocalStorage } from "@/lib/jwtHandler";
 export default function useCreateTrialNetwork() {
     const [tnId, setTnId] = useState("");
     const [trialNetworkCreated, setTrialNetworkCreated] = useState(false);
-
-    const handleCreateTrialNetwork = async (descriptorAsYaml) => {
+    
+    const handleCreateTrialNetwork = async (tnId, deploymentSite, githubSixGLibraryReferenceType, githubSixGLibraryReferenceValue, githubSixGSandboxSitesReferenceType, githubSixGSandboxSitesReferenceValue, descriptor) => {
         try {
             const token = await getAccessTokenFromLocalStorage();
-            const id = await createTrialNetwork(token, descriptorAsYaml);
+            const id = await createTrialNetwork(token, tnId, deploymentSite, githubSixGLibraryReferenceType, githubSixGLibraryReferenceValue, githubSixGSandboxSitesReferenceType, githubSixGSandboxSitesReferenceValue, descriptor);
             setTnId(id);
             setTrialNetworkCreated(true);
         } catch (error) {

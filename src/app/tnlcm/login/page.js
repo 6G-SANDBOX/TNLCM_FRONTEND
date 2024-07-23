@@ -17,9 +17,9 @@ export default function LoginPage() {
         handleKeyPress
     } = useLogin();
 
-    const fetchClearTokens = () => {
+    const fetchClearTokens = async () => {
         try {
-            clearAuthTokens()
+            await clearAuthTokens();
         } catch (error) {
             alert(error);
         }

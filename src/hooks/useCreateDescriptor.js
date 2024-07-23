@@ -1,21 +1,13 @@
 import { useState } from "react";
 import yaml from "js-yaml";
+
 export default function useCreateDescriptor() {
 
     const initDescriptor = {
-        "mandatory_tn_vxlan": {
-            "type": "tn_vxlan",
+        "tn_init": {
+            "type": "tn_init",
             "depends_on": [],
-            "public": {
-                "one_vxlan_name": "mandatory_tn_vxlan"
-            }
-        },
-        "mandatory_tn_bastion": {
-            "type": "tn_bastion",
-            "depends_on": ["mandatory_tn_vxlan"],
-            "public": {
-                "one_component_networks": ["mandatory_tn_vxlan"]
-            }
+            "public": {}
         }
     };
 

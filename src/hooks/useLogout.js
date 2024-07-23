@@ -4,8 +4,8 @@ import { clearAuthTokens } from "@/lib/jwtHandler";
 export default function useLogout() {
     const router = useRouter();
 
-    const handleLogout = () => {
-        clearAuthTokens();
+    const handleLogout = async () => {
+        await clearAuthTokens();
         router.push("/tnlcm/login");
     };
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import CustomTable from "@/components/elements/CustomTable";
-import Loader from "@/components/elements/CustomLoader";
+import CustomLoader from "@/components/elements/CustomLoader";
 import useTrialNetworks from "@/hooks/useTrialNetworks";
 
 export default function TrialNetworksInformationPage() {
@@ -33,7 +33,7 @@ export default function TrialNetworksInformationPage() {
         <div>
             <h1>Information about trial networks</h1>
             {loading ? (
-                <Loader />
+                <CustomLoader />
             ) : (
                 trialNetworks.length > 0 && (
                     <CustomTable

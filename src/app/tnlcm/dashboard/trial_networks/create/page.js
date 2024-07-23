@@ -3,49 +3,61 @@
 import { useEffect, useState } from "react";
 import { FaTrash } from "react-icons/fa";
 import CustomSelect from "@/components/elements/CustomSelect";
+import CustomInput from "@/components/elements/CustomInput";
 import CustomForm from "@/components/elements/CustomForm";
 import CustomButton from "@/components/elements/CustomButton";
-import useExtractInfoComponents6GLirabry from "@/hooks/useExtractInfoComponents6GLirabry";
+import useSixGLibrary from "@/hooks/useSixGLibrary";
+import useSixGSandboxSites from "@/hooks/useSixGSandboxSites";
 import useCreateEntity from "@/hooks/useCreateEntity";
 import useCreateDescriptor from "@/hooks/useCreateDescriptor";
 import useCreateTrialNetwork from "@/hooks/useCreateTrialNetwork";
-import useDeployTrialNetwork from "@/hooks/useDeployTrialNetwork";
+import useTrialNetworkStateMachine from "@/hooks/useTrialNetworkStateMachine";
 import styles from "./CreateTrialNetwork.module.css";
 
 export default function CreateTrialNetworkPage() {
 
-    const [branchOrCommit, setBranchOrCommit] = useState("branch");
-    const [renderedOnce, setRenderedOnce] = useState(false);
+    const gitOptions = ["branch", "commit", "tag"];
 
     const {
-        branch,
-        setBranch,
-        commitId,
-        setCommitId,
-        components,
-        loading,
-        handleExtractInfoComponents6GLibrary,
-        handleKeyExtractInfoComponents6GLibraryPress
-    } = useExtractInfoComponents6GLirabry();
+        githubSixGLibraryReferenceType,
+        setGithubSixGLibraryReferenceType,
+        githubSixGLibraryReferenceValue,
+        setGithubSixGLibraryReferenceValue,
+        partsComponents,
+        setPartsComponents,
+        handlePartsComponents
+    } = useSixGLibrary();
+
+    const {
+        githubSixGSandboxSitesReferenceType,
+        setGithubSixGSandboxSitesReferenceType,
+        githubSixGSandboxSitesReferenceValue,
+        setGithubSixGSandboxSitesReferenceValue,
+        deploymentSite,
+        setDeploymentSite,
+        sites,
+        setSites,
+        handleSites
+    } = useSixGSandboxSites();
 
     const {
         entity,
         setEntity,
         componentType,
         setComponentType,
-        publicPart,
-        setPublicPart,
-        dependsPart,
-        setDependsPart,
-        publicDescriptor,
-        setPublicDescriptor,
-        dependsDescriptor,
-        setDependsDescriptor,
+        dependencies,
+        setDependencies,
+        inputPart,
+        setInputPart,
+        metadataPart,
+        setMetadataPart,
+        inputDescriptor,
+        setInputDescriptor,
         handleComponentStructure,
-        handleDependsDescriptorChange,
-        handlePublicDescriptorChange,
+        handleInputDescriptorChange,
+        handleInputDependencies,
         handleAddEntityToDescriptor
-    } = useCreateEntity(components);
+    } = useCreateEntity(partsComponents);
 
     const {
         descriptorAsYaml,
@@ -63,69 +75,98 @@ export default function CreateTrialNetworkPage() {
     } = useCreateTrialNetwork();
 
     const {
-        trialNetworkDeployed,
-        setTrialNetworkDeployed,
-        handleDeployTrialNetwork
-    } = useDeployTrialNetwork();
+        trialNetworkState,
+        setTrialNetworkState,
+        handleTrialNetworkStateMachine
+    } = useTrialNetworkStateMachine();
 
     useEffect(() => {
-        if (!renderedOnce) {
-            handleExtractInfoComponents6GLibrary();
-            setBranchOrCommit("branch");
-            setRenderedOnce(true);
-        }
-    }, [renderedOnce, handleExtractInfoComponents6GLibrary]);
+        setGithubSixGLibraryReferenceType(gitOptions[0]);
+        setGithubSixGSandboxSitesReferenceType(gitOptions[0]);
+    }, []);
 
-    const branchOrCommitOptions = [
-        { label: "Branch", value: "branch" },
-        { label: "Commit ID", value: "commitId" }
-    ];
-
-    const inputs6glibrary = () => {
-        if (branchOrCommit === "branch") {
-            return [{
-                type: "text",
-                placeholder: "Introduce the 6G-Library branch",
-                value: branch,
-                onChange: (e) => setBranch(e.target.value),
-                onKeyDown: handleKeyExtractInfoComponents6GLibraryPress,
-                className: "input-login-register-verification",
-                required: false
-            }]
-        } else if (branchOrCommit === "commitId") {
-            return [{
-                type: "text",
-                placeholder: "Introduce the 6G-Library commit id",
-                value: commitId,
-                onChange: (e) => setCommitId(e.target.value),
-                onKeyDown: handleKeyExtractInfoComponents6GLibraryPress,
-                className: "input-login-register-verification",
-                required: false
-            }]
-        } else {
-            return [];
+    useEffect(() => {
+        if (sites.length > 0) {
+            setDeploymentSite(sites[0]);
         }
+    }, [sites]);
+
+    useEffect(() => {
+        if (deploymentSite !== "") {
+            handlePartsComponents(deploymentSite, githubSixGLibraryReferenceType, githubSixGLibraryReferenceValue, githubSixGSandboxSitesReferenceType, githubSixGSandboxSitesReferenceValue);
+        }
+    }, [deploymentSite]);
+
+    const renderSixGLibraryReferenceType = () => {
+        return (
+            <div>
+                <h2>6G-Library. Select reference type: </h2>
+                <CustomSelect options={gitOptions} value={githubSixGLibraryReferenceType} onChange={(e) => setGithubSixGLibraryReferenceType(e.target.value)} />
+                <CustomInput
+                    type="text"
+                    title="Enter reference value: "
+                    onChange={(e) => setGithubSixGLibraryReferenceValue(e.target.value)}
+                    className="input-login-register-verification"
+                    required={true}
+                />
+            </div>
+        )
+    }
+
+    const renderSixGSandboxSitesReferenceType = () => {
+        return (
+            <div>
+                <h2>6G-Sandbox-Sites. Select reference type:</h2>
+                <CustomSelect options={gitOptions} value={githubSixGSandboxSitesReferenceType} onChange={(e) => setGithubSixGSandboxSitesReferenceType(e.target.value)} />
+                <CustomInput
+                    type="text"
+                    title="Enter reference value: "
+                    onChange={(e) => setGithubSixGSandboxSitesReferenceValue(e.target.value)}
+                    className="input-login-register-verification"
+                    required={true}
+                />
+            </div>
+        )
+    }
+
+    const setGitConfiguration = () => {
+        return (
+            <CustomButton
+                type="submit"
+                className="button-login-register-verification"
+                children="Set git configuration"
+                onClick={(e) => handleSites(e)}
+            />
+        )
+    }
+
+    const renderDeploymentSite = () => {
+        return (
+            <div>
+                <h2>Site to deploy trial network: </h2>
+                <CustomSelect
+                    value={deploymentSite}
+                    onChange={(e) => setDeploymentSite(e.target.value)}
+                    options={sites}
+                />
+            </div>
+        );
     };
 
-    const buttons6glibrary = [
-        {
-            type: "submit",
-            className: "button-login-register-verification",
-            disabled: loading,
-            children: "Extract 6G-Library components",
-            onClick: handleExtractInfoComponents6GLibrary
-        }
-    ];
-
-    const renderComponents = () => {
+    const renderPartsComponents = () => {
         return (
-            <ul>
-                {Object.keys(components).map((componentType) => (
-                    <li key={componentType}>
-                        {componentType}
-                    </li>
-                ))}
-            </ul>
+            <div>
+                <h2>
+                    Components available on the {deploymentSite} site:
+                </h2>
+                <ul>
+                    {Object.keys(partsComponents).map((componentType) => (
+                        <li key={componentType}>
+                            {componentType}
+                        </li>
+                    ))}
+                </ul>
+            </div>
         );
     }
 
@@ -140,11 +181,10 @@ export default function CreateTrialNetworkPage() {
                 required: true
             }
         ]
-
         return (
             <div>
                 <h2>Add component</h2>
-                <h3>Name of entity:</h3>
+                <h3>Name of entity. Format: component_type-custom_name:</h3>
                 <CustomForm
                     containerClassName=""
                     formClassName=""
@@ -157,11 +197,8 @@ export default function CreateTrialNetworkPage() {
     }
 
     const renderTypeOfComponents = () => {
-        const defaultOption = { label: "Select type", value: "" };
-        const componentTypeOptions = [defaultOption, ...Object.keys(components).map(key => ({
-            label: key,
-            value: key
-        }))];
+        const defaultOption = "Select type";
+        const componentTypeOptions = [defaultOption, ...Object.keys(partsComponents)];
         return (
             <div>
                 <h3>Type of component:</h3>
@@ -170,80 +207,121 @@ export default function CreateTrialNetworkPage() {
                     onChange={(e) => handleComponentStructure(e.target.value)}
                     options={componentTypeOptions}
                 />
+                {componentType && <h4>{metadataPart.long_description}</h4>}
             </div>
         )
     }
 
-    const renderDependsComponent = () => {
-        if (dependsPart !== null) {
-            const inputsDependenciesComponents = dependsPart.flatMap((dependencies, index) =>
-                Object.entries(dependencies).map(([key, value]) => ({
-                    title: `${key} ${value["version"]}`,
-                    type: "text",
-                    placeholder: "",
-                    onChange: (e) => handleDependsDescriptorChange(e.target.value, index),
-                    className: "input-login-register-verification",
-                    required: true
-                }))
-            );
+    const evaluateCondition = (condition) => {
+        if (!condition || typeof condition !== 'string') return true;
+        if (condition.includes(' and ')) {
+            const conditions = condition.split(' and ');
+            return conditions.every(part => evaluatePart(part));
+        } else if (condition.includes(' or ')) {
+            const conditions = condition.split(' or ');
+            return conditions.some(part => evaluatePart(part));
+        }
+        return evaluatePart(condition);
+    };
 
-            if (inputsDependenciesComponents.length > 0) {
-                return (
-                    <div>
-                        <h4>Dependencies</h4>
-                        <CustomForm
-                            containerClassName=""
-                            formClassName=""
-                            h1=""
-                            inputs={inputsDependenciesComponents}
-                            buttons={[]}
-                        />
-                    </div>
-                )
+    const evaluatePart = (part) => {
+        const [left, operator, right] = part.split(' ');
+        if (operator === '==') {
+            return inputDescriptor[left] === right.replace(/['"]/g, '');
+        } else if (operator === '!=') {
+            return inputDescriptor[left] !== right.replace(/['"]/g, '');
+        }
+        return false;
+    };
+
+    useEffect(() => {
+        if (inputPart) {
+            const initialValues = {};
+            Object.entries(inputPart).forEach(([key, value]) => {
+                initialValues[key] = value.default_value || '';
+            });
+            setInputDescriptor(initialValues);
+        }
+    }, [inputPart]);
+
+    const isComponentType = (type) => {
+        return Object.values(partsComponents).includes(type);
+    }
+
+    const findSameTypesInDescriptor = (type) => {
+        let sameTypeEntities = [];
+        let trialNetwork = descriptor.trial_network;
+        for (let entity in trialNetwork) {
+            if (trialNetwork[entity].type === type) {
+                sameTypeEntities.push(entity);
             }
         }
+        return sameTypeEntities;
     }
 
     const renderPublicComponent = () => {
-        if (publicPart !== null) {
-            const inputsPublicComponent = [];
-            Object.entries(publicPart).forEach(([key, value]) => {
-                if (value["user_input"]) {
-                    inputsPublicComponent.push({
-                        title: `${key} - ${value["description"]}`,
-                        type: value["type"],
-                        placeholder: value["value"],
-                        onChange: (e) => handlePublicDescriptorChange(e.target.value, key),
-                        className: "input-login-register-verification",
-                        required: value["optional"]
-                    });
+        let inputsPublicComponent = [];
+        if (inputPart !== null) {
+            Object.entries(inputPart).forEach(([key, value]) => {
+                const isType = isComponentType(value.type);
+                const shouldRender = evaluateCondition(value.required_when);
+                if (shouldRender) {
+                    let inputElement = {};
+                    if (isType) {
+                        const sameTypesName = findSameTypesInDescriptor(value.type);
+                        inputElement = {
+                            title: `${key} - ${value.description}`,
+                            type: "select",
+                            options: sameTypesName,
+                            value: inputDescriptor[key],
+                            onChange: (e) => handleInputDependencies(e.target.value, key),
+                        };
+                    } else if (value.choices) {
+                        inputElement = {
+                            title: `${key} - ${value.description}`,
+                            type: "select",
+                            options: value.choices,
+                            value: inputDescriptor[key] || value.default_value,
+                            onChange: (e) => handleInputDescriptorChange(e.target.value, key),
+                        };
+                    } else {
+                        inputElement = {
+                            title: `${key} - ${value.description}`,
+                            type: value.type,
+                            placeholder: value.default_value || "",
+                            value: inputDescriptor[key] || "",
+                            onChange: (e) => handleInputDescriptorChange(e.target.value, key),
+                            className: "input-login-register-verification",
+                            required: value.required_when
+                        };
+                    }
+                    inputsPublicComponent.push(inputElement);
                 }
-                return inputsPublicComponent;
-            })
-            const buttonsPublicComponent = [
-                {
-                    type: "submit",
-                    className: "button-login-register-verification",
-                    children: "Add entity to descriptor",
-                    onClick: handleAddEntityToDescriptor(descriptor, setDescriptor)
-                }
-            ]
-            if (inputsPublicComponent.length > 0) {
-                return (
-                    <div>
-                        <h4>Parameters</h4>
-                        <CustomForm
-                            containerClassName=""
-                            formClassName=""
-                            h1=""
-                            inputs={inputsPublicComponent}
-                            buttons={buttonsPublicComponent}
-                        />
-                    </div>
-                )
-            }
+            });
         }
-    }
+        const buttonsPublicComponent = [
+            {
+                type: "submit",
+                className: "button-login-register-verification",
+                children: "Add entity to descriptor",
+                onClick: handleAddEntityToDescriptor(descriptor, setDescriptor)
+            }
+        ];
+        return (
+            <div>
+                {inputsPublicComponent.length > 0 && <h3>Parameters</h3>}
+                {componentType &&
+                    <CustomForm
+                        containerClassName=""
+                        formClassName=""
+                        h1=""
+                        inputs={inputsPublicComponent}
+                        buttons={buttonsPublicComponent}
+                    />
+                }
+            </div>
+        );
+    };
 
     const renderDescriptor = () => {
         return (
@@ -257,7 +335,7 @@ export default function CreateTrialNetworkPage() {
                     {Object.keys(descriptor["trial_network"]).map((entityName, index) => (
                         <li key={index}>
                             <span>{entityName}</span>
-                            {entityName !== "mandatory_tn_vxlan" && entityName !== "mandatory_tn_bastion" && (
+                            {entityName !== "tn_init" && (
                                 <FaTrash onClick={() => handleDeleteEntity(entityName)} />
                             )}
                         </li>
@@ -274,7 +352,7 @@ export default function CreateTrialNetworkPage() {
                     type="submit"
                     className="button-login-register-verification"
                     children="Create trial network"
-                    onClick={() => handleCreateTrialNetwork(descriptorAsYaml)}
+                    onClick={() => handleCreateTrialNetwork(tnId, deploymentSite, githubSixGLibraryReference, githubSixGSandboxSitesReference, descriptorAsYaml)}
                 />
                 {trialNetworkCreated && (
                     <h5>Trial network created with identifier: {tnId}</h5>
@@ -283,16 +361,16 @@ export default function CreateTrialNetworkPage() {
         )
     }
 
-    const renderDeployTrialNetwork = () => {
+    const renderTrialNetworkStateMachine = () => {
         return (
             <div>
                 <CustomButton
                     type="submit"
                     className="button-login-register-verification"
-                    children="Deploy trial network"
-                    onClick={() => handleDeployTrialNetwork(tnId, branchOrCommit, branch, commitId)}
+                    children="Trial network state machine"
+                    onClick={() => handleTrialNetworkStateMachine(tnId)}
                 />
-                {trialNetworkDeployed && (
+                {trialNetworkState && (
                     <h5>Trial network successfully deployed</h5>
                 )}
             </div>
@@ -302,33 +380,24 @@ export default function CreateTrialNetworkPage() {
     return (
         <div>
             <h1>Create trial network</h1>
-            <h2>6G-Library components from {branch} {branchOrCommit}</h2>
-            {/* <CustomSelect
-                value={branchOrCommit}
-                onChange={(e) => setBranchOrCommit(e.target.value)}
-                options={branchOrCommitOptions}
-            />
-            <br />
-            <CustomForm
-                onSubmit={handleExtractInfoComponents6GLibrary}
-                loading={loading}
-                containerClassName=""
-                formClassName=""
-                h1=""
-                inputs={inputs6glibrary()}
-                buttons={buttons6glibrary}
-            /> */}
-            {Object.keys(components).length > 0 && (
-                <div>
-                    {renderComponents()}
-                    {renderCreateEntities()}
-                    {renderTypeOfComponents()}
-                    {componentType && renderDependsComponent()}
-                    {componentType && renderPublicComponent()}
-                    {renderDescriptor()}
-                    {descriptor && renderCreateTrialNetwork()}
-                    {trialNetworkCreated && renderDeployTrialNetwork()}
-                </div>
+            {renderSixGLibraryReferenceType()}
+            {renderSixGSandboxSitesReferenceType()}
+            {setGitConfiguration()}
+            {sites.length > 0 && (
+                <>
+                    {renderDeploymentSite()}
+                    {renderPartsComponents()}
+                    {Object.keys(partsComponents).length > 0 && (
+                        <>
+                            {renderCreateEntities()}
+                            {renderTypeOfComponents()}
+                            {renderPublicComponent()}
+                            {renderDescriptor()}
+                            {renderCreateTrialNetwork()}
+                            {renderTrialNetworkStateMachine()}
+                        </>
+                    )}
+                </>
             )}
         </div>
     );
