@@ -37,13 +37,6 @@ To add Font Awesome for icons, install the following packages:
 ```bash
 npm install --save @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/react-fontawesome
 ```
-### 4. Install Axios
-To enable making HTTP requests, install Axios by running the following command:
-
-```bash
-npm install axios
-```
-Axios will allow you to make API calls and handle responses easily.
 #### Optionally, you can install other Font Awesome icon packs, such as:
 
 - Free Regular Icons:
@@ -55,7 +48,14 @@ Axios will allow you to make API calls and handle responses easily.
   npm install --save @fortawesome/free-brands-svg-icons
   ```
 
-### 4. Start the Development Server
+### 4. Install Axios
+To enable making HTTP requests, install Axios by running the following command:
+
+```bash
+npm install axios
+```
+Axios will allow you to make API calls and handle responses easily.
+### 5. Start the Development Server
 
 Run the following command to start the app in development mode:
 
