@@ -56,7 +56,7 @@ npm install --save @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg
 Run the following command to start the app in development mode:
 
 ```bash
-npm run dev
+npm run start
 ```
 
 This will start the development server and provide a local URL (usually `http://localhost:3000`) to preview the app in your browser.
@@ -66,4 +66,4 @@ This will start the development server and provide a local URL (usually `http://
 - Make sure to check the `README` or `package.json` of the project for any specific configurations or scripts that might differ.
 - If you encounter issues during setup, ensure that all dependencies are correctly installed and that your Node.js version meets the requirements.
 
-Enjoy building and running your React application!
+Enjoy building and running your application!
