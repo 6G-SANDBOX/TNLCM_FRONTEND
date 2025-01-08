@@ -1,7 +1,5 @@
 # TNLCM FRONTEND
 
-# React App Setup Guide
-
 This guide will walk you through the steps to set up and run a the front end application, including installing dependencies, adding Font Awesome for icons, and starting the development server.
 
 ## Prerequisites
@@ -39,7 +37,13 @@ To add Font Awesome for icons, install the following packages:
 ```bash
 npm install --save @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/react-fontawesome
 ```
+### 4. Install Axios
+To enable making HTTP requests, install Axios by running the following command:
 
+```bash
+npm install axios
+```
+Axios will allow you to make API calls and handle responses easily.
 #### Optionally, you can install other Font Awesome icon packs, such as:
 
 - Free Regular Icons:
