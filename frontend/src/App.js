@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { getAccessTokenFromSessionStorage } from "./auxFunc/jwt";
+import CreateTN from "./components/CreateTN";
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 
@@ -40,6 +41,11 @@ function App() {
         <Route
           path="/dashboard"
           element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />}
+        />
+        {/* Ruta para crearTN */}
+         <Route
+          path="/dashboard/createTN"
+          element={isAuthenticated ? <CreateTN /> : <Navigate to="/" />}
         />
       </Routes>
     </Router>

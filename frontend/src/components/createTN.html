@@ -1,0 +1,133 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Page</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body class="bg-white font-sans">
+  <!-- Header -->
+  <header class="bg-purple-600 text-white flex items-center justify-between px-4 py-2 shadow-md">
+    <i class="fas fa-bars text-2xl"></i>
+    <i class="fas fa-user-circle text-2xl"></i>
+  </header>
+
+  <!-- Main Content -->
+  <div class="flex flex-col lg:flex-row p-4">
+    <!-- Left Form Section -->
+    <div class="lg:w-1/2 space-y-4">
+      <!-- Trial Network ID -->
+      <div>
+        <label for="trial-network-id" class="block text-gray-700 font-medium">TRIAL NETWORK ID</label>
+        <input id="trial-network-id" type="text" placeholder="tn_id" class="w-full border border-gray-300 rounded-md p-2 mt-1">
+      </div>
+
+      <!-- Deployment Site -->
+      <div>
+        <label for="deployment-site" class="block text-gray-700 font-medium">DEPLOYMENT SITE</label>
+        <input id="deployment-site" type="text" placeholder="UMA / ATHENS / BERLIN / OULU..." class="w-full border border-gray-300 rounded-md p-2 mt-1">
+      </div>
+
+      <!-- Library URL -->
+      <div>
+        <label for="library-url" class="block text-gray-700 font-medium">LIBRARY URL</label>
+        <input id="library-url" type="text" placeholder="https://github.com/6G-SANDBOX/6G-Library.git" class="w-full border border-gray-300 rounded-md p-2 mt-1">
+      </div>
+
+      <!-- Library Reference Type -->
+      <div>
+        <label for="library-reference-type" class="block text-gray-700 font-medium">LIBRARY REFERENCE TYPE</label>
+        <select id="library-reference-type" class="w-full border border-gray-300 rounded-md p-2 mt-1">
+          <option value="">select value</option>
+        </select>
+      </div>
+
+      <!-- Library Reference Value -->
+      <div>
+        <label for="library-reference-value" class="block text-gray-700 font-medium">LIBRARY REFERENCE VALUE</label>
+        <input id="library-reference-value" type="text" placeholder="github_6g_library_reference_value" class="w-full border border-gray-300 rounded-md p-2 mt-1">
+      </div>
+
+      <!-- Sites URL -->
+      <div>
+        <label for="sites-url" class="block text-gray-700 font-medium">SITES URL</label>
+        <input id="sites-url" type="text" placeholder="https://github.com/6G-SANDBOX/6G-Sandbox-Sites.git" class="w-full border border-gray-300 rounded-md p-2 mt-1">
+      </div>
+
+      <!-- Sites Reference Type -->
+      <div>
+        <label for="sites-reference-type" class="block text-gray-700 font-medium">SITES REFERENCE TYPE</label>
+        <select id="sites-reference-type" class="w-full border border-gray-300 rounded-md p-2 mt-1">
+          <option value="">select value</option>
+        </select>
+      </div>
+
+      <!-- Sites Reference Value -->
+      <div>
+        <label for="sites-reference-value" class="block text-gray-700 font-medium">SITES REFERENCE VALUE</label>
+        <input id="sites-reference-value" type="text" placeholder="github_6g_library_reference_value" class="w-full border border-gray-300 rounded-md p-2 mt-1">
+      </div>
+    </div>
+
+    <!-- Right Icons Section -->
+    <div class="lg:w-1/2 grid grid-cols-4 gap-4 mt-8 lg:mt-0">
+      <!-- Icons -->
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="VXLAN logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="Kubernetes logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="WireGuard logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="VM logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="Open logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="Erans logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="TSN logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="Nokia logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="Phone logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="OpenSand GW logo" class="w-20 h-20 rounded-full">
+        <span class="text-sm mt-2">opensand_gw</span>
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="OpenSand SAT logo" class="w-20 h-20 rounded-full">
+        <span class="text-sm mt-2">opensand_sat</span>
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="OpenSand ST logo" class="w-20 h-20 rounded-full">
+        <span class="text-sm mt-2">opensand_st</span>
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="LoadCore logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="STF logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="Two dots logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="XRext logo" class="w-20 h-20 rounded-full">
+      </a>
+      <a href="#" class="flex flex-col items-center">
+        <img src="https://placehold.co/100x100" alt="INIT logo" class="w-20 h-20 rounded-full">
+      </a>
+    </div>
+  </div>
+</body>
+</html>

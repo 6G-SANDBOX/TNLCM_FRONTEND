@@ -12,7 +12,6 @@ const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState(1); // Página actual
   const [itemsPerPage] = useState(8); // Número de elementos por página
   const [alturaRestante, setAlturaRestante] = useState(0); // Para almacenar la altura restante calculada
-  const [topNavHeight, setTopNavHeight] = useState(0);
   const [activeCount, setActiveCount] = useState(0);
   
 
@@ -80,11 +79,10 @@ const Dashboard = () => {
     const timeoutId = setTimeout(() => {
       const topNavElement = document.getElementById('topNavigator');
       if (topNavElement) {
-        const height = topNavElement.getBoundingClientRect().height; // Obtener la altura usando getBoundingClientRect
-        setTopNavHeight(height); // Actualizar el estado con la altura
+        const height = topNavElement.getBoundingClientRect().height; // Obtener la altura usando getBoundingClientRect// Actualizar el estado con la altura
         setAlturaRestante(window.innerHeight - height - 200); // Calcular la altura restante
       }
-    }, 100); // 100 ms de retraso
+    }, 200); // 0,2s de retraso
   
     return () => {
       clearTimeout(timeoutId); // Limpiar el timeout si el componente se desmonta
@@ -174,7 +172,7 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="flex space-x-4 mb-4">
-            <button className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md">Create new Network</button>
+            <button className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md" onClick={() => window.location = '/dashboard/createTN'}>Create new Network</button>
             <button className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md">Import new File</button>
           </div>
           <table className="w-full text-left border-collapse ">
@@ -192,7 +190,7 @@ const Dashboard = () => {
               {currentItems.map((network, index) => (
                 <tr key={index} className="border-b">
                   <td className="py-2">
-                    <a href="" className="text-purple-600 hover:underline">{network.tn_id}</a>
+                  <button className="text-purple-600 hover:underline">{network.tn_id}</button>
                   </td>
                   <td className="py-2">{formatDate(network.date_created_utc)}</td>
                   <td className="py-2">{network.deployment_site}</td>
