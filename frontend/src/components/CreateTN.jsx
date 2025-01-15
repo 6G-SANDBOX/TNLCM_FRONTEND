@@ -204,6 +204,7 @@ const CreateTN = () => {
       <div className="flex justify-center p-4">
         <button className="bg-purple-600 text-white px-4 py-2 rounded-md">
           Create Trial Network
+          {/* TODO Devolver cada componente dependiendo de los clicks en las fotos*/}
         </button>
         </div>
     </div>
