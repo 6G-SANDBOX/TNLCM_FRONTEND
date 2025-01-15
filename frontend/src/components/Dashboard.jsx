@@ -19,6 +19,84 @@ const Dashboard = () => {
   const [selectedOptionS, setSelectedOptionS] = useState("")
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [changingStatesIdS,setChangingStatesIdS] = useState([]);
+
+
+  const handleDestroyClick = async () => {
+    try {
+      // Actualiza los estados fuera del bucle, antes de realizar las peticiones
+      setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
+      setChangingStatesIdS((prevState) => [...prevState, ...selectedIds]);
+  
+      // Generar las promesas para cada id en el array
+      const deleteRequests = selectedIds.map(async (id) => {
+        const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/${id}`;
+        const access_token = await getAccessTokenFromSessionStorage();
+        const auth = `Bearer ${access_token}`;
+  
+        // Realizar la petición DELETE
+        await axios.delete(url, {
+          headers: {
+            Authorization: auth,
+            "Content-Type": "application/json",
+          },
+        });
+  
+        // Una vez que la petición se ha realizado, puedes manejar el cambio de estado.
+        // Esto es opcional, dependiendo de cómo quieras hacerlo.
+      });
+  
+      // Esperar que todas las promesas se resuelvan
+      await Promise.all(deleteRequests);
+  
+      // Después de que todas las solicitudes se hayan completado, elimina los elementos de changingStatesIdS
+      setChangingStatesIdS((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
+    } catch (error) {
+      alert("Error deleting networks: " + error);
+    }
+  };
+  
+
+  const handleDeployClick = async () => {
+    try {
+      // Actualizar los estados antes de realizar las peticiones
+      setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
+      setChangingStatesIdS((prevState) => [...prevState, ...selectedIds]);
+  
+      // Crear una lista de promesas para cada solicitud PUT
+      const promises = selectedIds.map(async (id) => {
+        const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/${id}`;
+        const access_token = await getAccessTokenFromSessionStorage();
+        const auth = `Bearer ${access_token}`;
+  
+        // Realizar la petición PUT
+        try {
+          await axios.put(url, {}, {
+            headers: {
+              Authorization: auth,
+              "Content-Type": "application/json",
+            },
+          });
+  
+          // Después de que la petición se haya completado, actualizamos el estado
+          setChangingStatesIdS((prevState) => prevState.filter((item) => item !== id));
+          return { id, status: 'success' };  // Respuesta exitosa
+        } catch (error) {
+          return { id, status: 'failed', error };  // Error de la solicitud
+        }
+      });
+  
+      await Promise.allSettled(promises);
+  
+      // Procesar los resultados de las promesas
+     
+  
+    } catch (error) {
+      alert("Error deploying networks: " + error);
+    }
+  };
+  
+  
 
   const handleCheckboxChange = (id) => {
     setSelectedIds((prev) =>
@@ -40,13 +118,14 @@ const Dashboard = () => {
       setIsModalOpen(true);
     
     }
-    event.target.value = "";event.target.value = "";
+
   };
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    
   };
 
-  const handleSubmitModal = async () => {
+  const handleSubmitModal = async (event) => {
     setIsLoading(true); // Mostrar el GIF de cargando
     // Obtener los valores de los campos del modal
     const trialNetworkId = document.getElementById("trial-network-id").value;
@@ -87,7 +166,7 @@ const Dashboard = () => {
     } catch (error) {
       throw new Error("Failed to create trial network \n" + error);
     }
-  
+    event.target.value = "";
     setIsModalOpen(false);
     setIsLoading(false);
   };
@@ -258,13 +337,13 @@ const Dashboard = () => {
           </div>
           <div className="flex space-x-4 mb-4">
               <button
-                className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md"
+                className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
                 onClick={() => (window.location = "/dashboard/createTN")}
               >
                 Create new Network
               </button>
               <button
-                className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md"
+                className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
                 onClick={handleButtonClick}
               >
                 Import new File
@@ -275,27 +354,6 @@ const Dashboard = () => {
                 onChange={handleFileChange}
                 style={{ display: "none" }} // Oculta el input
               />
-              {/*TODO create buttons for deploy,undeploy and purge networks /*}
-              {/* Botón para desplegar redes */}
-              <button
-                className="bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md"
-              >
-                Deploy Networks
-              </button>
-
-              {/* Botón para detener redes */}
-              <button
-                className="bg-yellow-600 text-white py-2 px-4 rounded-lg shadow-md"
-              >
-                Undeploy Networks
-              </button>
-
-              {/* Botón para purgar redes */}
-              <button
-                className="bg-red-600 text-white py-2 px-4 rounded-lg shadow-md"
-              >
-                Purge Networks
-              </button>
 
               {/* Modal */}
               {isModalOpen && (
@@ -409,7 +467,7 @@ const Dashboard = () => {
                         </div>
                       ) : (
                         <button
-                          className="bg-purple-600 text-white py-2 px-4 rounded-lg"
+                          className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-500"
                           onClick={handleSubmitModal}
                         >
                           Submit
@@ -419,7 +477,7 @@ const Dashboard = () => {
                     {/* Close Modal Button */}
                     <div className="mt-4 text-right">
                       <button
-                        className="bg-red-600 text-white py-2 px-4 rounded-lg"
+                        className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-500"
                         onClick={handleCloseModal}
                       >
                         Close
@@ -429,6 +487,30 @@ const Dashboard = () => {
                 </div>
               </div>
             )}
+          </div>
+          <div className="flex space-x-4 mb-4">
+            {/* Botón para desplegar redes */}
+            <button
+              className="bg-blue-700 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-blue-500"
+              onClick={handleDeployClick}
+            >
+              Deploy Networks
+            </button>
+
+            {/* Botón para detener redes */}
+            <button
+              className="bg-yellow-700 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-yellow-500"
+              onClick={handleDestroyClick}
+            >
+              Destroy Networks
+            </button>
+
+            {/* Botón para purgar redes */}
+            <button
+              className="bg-red-700 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-red-500"
+            >
+              Purge Networks
+            </button>
           </div>
           <table className="w-full text-left border-collapse ">
             <thead>
@@ -446,8 +528,10 @@ const Dashboard = () => {
                   <td className="py-2">
                     <input
                       type="checkbox"
+                      id= {`checkbox-${network.tn_id}`}
                       onChange={() => handleCheckboxChange(network.tn_id)}
                       checked={selectedIds.includes(network.tn_id)}
+                      disabled={changingStatesIdS.includes(network.tn_id)}
                     />
                   </td>
                   <td className="py-2">
@@ -456,9 +540,11 @@ const Dashboard = () => {
                   <td className="py-2">{formatDate(network.date_created_utc)}</td>
                   <td className="py-2">{network.deployment_site}</td>
                   <td className="py-2">
-                    <span
+                  <span
                     className={[
-                      network.state === "failed"
+                      changingStatesIdS.includes(network.tn_id)
+                        ? "" // No aplicamos fondo cuando se está cargando
+                        : network.state === "failed"
                         ? "bg-red-100 text-red-500"
                         : network.state === "validated"
                         ? "bg-blue-100 text-blue-500"
@@ -466,7 +552,11 @@ const Dashboard = () => {
                       "py-1 px-3 rounded-full text-xs",
                     ].join(" ")}
                   >
-                    {network.state}
+                    {changingStatesIdS.includes(network.tn_id) ? (
+                      <img src="loading.gif" alt="loading" className="flex w-6 h-6 justify-center items-center" />
+                    ) : (
+                      network.state
+                    )}
                   </span>
                   </td>
                 </tr>
