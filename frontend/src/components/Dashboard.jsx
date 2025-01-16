@@ -615,7 +615,7 @@ const Dashboard = () => {
               ))}
             </tbody>
           </table>
-
+          
           {/* Paginación */}
           <div className={`flex  justify-between items-center mt-4 text-sm text-gray-500`}>
             <p>Showing data {data.trial_networks.length>0? indexOfFirstItem+1 : 0 } to {indexOfLastItem<data.trial_networks.length ? indexOfLastItem : data.trial_networks.length} of {data.trial_networks.length} entries</p>

@@ -1,0 +1,124 @@
+import React, { useState } from "react";
+import TopNavigator from "./TopNavigator";
+
+// Componentes asociados a cada label
+const Components = {
+  VXLAN: () => <div>Componente VXLAN</div>,
+  oneKE: () => <div>Componente oneKE</div>,
+  Bastion: () => <div>Componente Bastion</div>,
+  KVM: () => <div>Componente KVM</div>,
+  Open5GS: () => <div>Componente Open5GS</div>,
+  Uerasim: () => <div>Componente Uerasim</div>,
+  TSN: () => <div>Componente TSN</div>,
+  "Nokia Radio": () => <div>Componente Nokia Radio</div>,
+  "UE-PHONE": () => <div>Componente UE-PHONE</div>,
+  OCF: () => <div>Componente OCF</div>,
+  ELCM: () => <div>Componente ELCM</div>,
+  KS8500_Runner: () => <div>Componente KS8500_Runner</div>,
+  LoadCore_Agent: () => <div>Componente LoadCore_Agent</div>,
+  OpenSand_GW: () => <div>Componente OpenSand_GW</div>,
+  OpenSand_SAT: () => <div>Componente OpenSand_SAT</div>,
+  OpenSand_ST: () => <div>Componente OpenSand_ST</div>,
+  STF_UE: () => <div>Componente STF_UE</div>,
+  VNET: () => <div>Componente VNET</div>,
+  XRext: () => <div>Componente XRext</div>,
+  INIT: () => <div>Componente INIT</div>
+};
+
+const CreateTN = () => {
+  const [selectedOptionS, setSelectedOptionS] = useState(""); // Valor por defecto vacío
+  const [selectedOptionL, setSelectedOptionL] = useState(""); // Valor por defecto vacío
+  const [selectedComponent, setSelectedComponent] = useState([]); // Valor por defecto vacío
+
+  const handleChangeL = (event) => {
+    setSelectedOptionL(event.target.value); // Actualizar el estado con la opción seleccionada
+  };
+
+  const handleChangeS = (event) => {
+    setSelectedOptionS(event.target.value); // Actualizar el estado con la opción seleccionada
+  };
+
+  const handleComponentClick = (label) => {
+    setSelectedComponent((prevSelected) => {
+      if (prevSelected.includes(label)) {
+        // Si el label ya está en el estado, lo elimina
+        return prevSelected.filter((component) => component !== label);
+      } else {
+        // Si no está, lo añade
+        return [...prevSelected, label];
+      }
+    });
+  };
+
+  return (
+    <div className="bg-white font-sans">
+      {/* Header */}
+      <TopNavigator />
+
+      {/* Main Content */}
+      <div className="flex flex-col lg:flex-row p-4">
+        {/* Left Form Section */}
+        <div className="lg:w-1/2 space-y-4 justify-center p-4 ">
+          {/* Aquí van tus campos de formulario... */}
+        </div>
+
+        {/* Right Icons Section */}
+        <div className="lg:w-1/2 grid grid-cols-4 gap-4 mt-8 lg:mt-0">
+          {[
+            "VXLAN",
+            "oneKE",
+            "Bastion",
+            "KVM",
+            "Open5GS",
+            "Uerasim",
+            "TSN",
+            "Nokia Radio",
+            "UE-PHONE",
+            "OCF",
+            "ELCM",
+            "KS8500_Runner",
+            "LoadCore_Agent",
+            "OpenSand_GW",
+            "OpenSand_SAT",
+            "OpenSand_ST",
+            "STF_UE",
+            "VNET",
+            "XRext",
+            "INIT"
+          ].map((label, index) => (
+            <button
+              key={index}
+              type="button"
+              className="flex flex-col items-center"
+              title={label}
+              onClick={() => handleComponentClick(label)} // Agregar o eliminar el label
+            >
+              <img
+                src={`/icons/${label.toLowerCase()}.png`}
+                alt={`${label} logo`}
+                className="w-20 h-20 rounded-40"
+              />
+              <span className="text-sm mt-2">{label.toLowerCase()}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Mostrar los componentes seleccionados */}
+      <div className="mt-4 p-4">
+        {selectedComponent.map((componentLabel, index) => {
+          const ComponentToRender = Components[componentLabel]; // Obtener el componente correspondiente
+          return <ComponentToRender key={index} />; // Renderizar el componente
+        })}
+      </div>
+
+      <div className="flex justify-center p-4">
+        <button className="bg-purple-600 text-white px-4 py-2 rounded-md">
+          Create Trial Network
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default CreateTN;

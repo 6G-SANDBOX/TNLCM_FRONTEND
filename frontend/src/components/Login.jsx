@@ -152,6 +152,6 @@ export async function loginUser(username, password) {
     );
     return response;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Login failed. Please try again.");
+    alert(error.response?.data?.message || "Login failed. Please try again.");
   }
 }

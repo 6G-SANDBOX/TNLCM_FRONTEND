@@ -1,16 +1,47 @@
 import React, { useState } from "react";
+import TnInit from "./TnInit";
 import TopNavigator from "./TopNavigator";
 
 const CreateTN = () => {
-    const [selectedOptionL, setSelectedOptionL] = useState(""); // Valor por defecto vacío
-    const handleChangeL = (event) => {
-        setSelectedOptionL(event.target.value); // Actualizar el estado con la opción seleccionada
-    }
+  const [selectedOptionS, setSelectedOptionS] = useState(""); // Valor por defecto vacío
+  const [selectedOptionL, setSelectedOptionL] = useState(""); // Valor por defecto vacío
+  const [selectedComponent, setSelectedComponent] = useState([]); // Valor por defecto vacío
 
-    const [selectedOptionS, setSelectedOptionS] = useState(""); // Valor por defecto vacío
-    const handleChangeS = (event) => {
-        setSelectedOptionS(event.target.value); // Actualizar el estado con la opción seleccionada
+  const handleChangeL = (event) => {
+      setSelectedOptionL(event.target.value); // Actualizar el estado con la opción seleccionada
+  }
+
+  const handleChangeS = (event) => {
+      setSelectedOptionS(event.target.value); // Actualizar el estado con la opción seleccionada
+  }
+
+  const handleComponentClick = async (label) => {
+    await setSelectedComponent((prevSelected) => {
+      if (prevSelected.includes(label)) {
+        // Si el label ya está en el estado, lo elimina
+        return prevSelected.filter((component) => component !== label);
+      } else {
+        // Si no está, lo añade
+        return [...prevSelected, label];
+      }
+
+    });
+  }
+
+  const switchComponent = (input) => {
+    switch (input) {
+      case "tn_init":
+        return <TnInit/>;
+      case "option2":
+        return "Resultado para opción 2";
+      case "option3":
+        return "Resultado para opción 3";
+      default:
+        return "Opción no válida: " + input;
     }
+  };
+
+
 
   return (
     //
@@ -19,9 +50,9 @@ const CreateTN = () => {
       <TopNavigator />
 
       {/* Main Content */}
-      <div className="flex flex-col lg:flex-row p-4">
+      <div className="flex flex-col lg:flex-row p-4 ">
         {/* Left Form Section */}
-        <div className="lg:w-1/2 space-y-4">
+        <div className="lg:w-1/2 space-y-4 justify-center p-4 ">
           {/* Trial Network ID */}
           <div>
             <label
@@ -131,47 +162,65 @@ const CreateTN = () => {
         {/* Right Icons Section */}
         <div className="lg:w-1/2 grid grid-cols-4 gap-4 mt-8 lg:mt-0">
         {[
-            "VXLAN",
+            "elcm",
+            "ks8500_runner",
+            "loadcore_agent",
+            "nokia_radio",
+            "ocf",
             "oneKE",
-            "Bastion",
-            "KVM",
-            "Open5GS",
-            "Uerasim",
-            "TSN",
-            "Nokia Radio",
-            "UE-PHONE",
-            "OCF",
-            "ELCM",
-            "KS8500_Runner",
-            "LoadCore_Agent",
-            "OpenSand_GW",
-            "OpenSand_SAT",
-            "OpenSand_ST",
-            "STF_UE",
-            "VNET",
-            "XRext",
-            "INIT",
+            "open5gs",
+            "opensand_gw",
+            "opensand_sat",
+            "opensand_st",
+            "stf_ue",
+            "tn_bastion",
+            "tn_init",
+            "tn_vxlan",
+            "tsn",
+            "ueransim",
+            "vm_kvm",
+            "vnet",
+            "xrext",
         ].map((label, index) => (
             <button
             key={index}
             type="button"
             className="flex flex-col items-center"
             title={label}
+            onClick={() => handleComponentClick(label)}
+
             >
             <img
-                src={`/icons/${label.toLowerCase()}.png`}
+                src={`/icons/${label}.png`}
                 alt={`${label} logo`}
                 className="w-20 h-20 rounded-40"
             />
-            <span className="text-sm mt-2">{label.toLowerCase()}</span>
+            <span className="text-sm mt-2">{label}</span>
             </button>
         ))}
         </div>
       </div>
+      {/* TODO mostrar todos los componentes que estan en electedComponent */}
+      <div className="p-4">
+        <h2 className="text-xl font-medium mb-4">Componentes Seleccionados</h2>
+        {selectedComponent.length === 0 ? (
+          <p>No components selected yet</p>
+          
+        ) : (
+          <ul>
+            {selectedComponent.map((component, index) => (
+              <li key={index} className="flex items-center mb-2">
+
+                 <span className="mr-2">{switchComponent(component)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
       <div className="flex justify-center p-4">
         <button className="bg-purple-600 text-white px-4 py-2 rounded-md">
           Create Trial Network
-          {/* TODO Devolver cada componente dependiendo de los clicks en las fotos*/}
         </button>
         </div>
     </div>
