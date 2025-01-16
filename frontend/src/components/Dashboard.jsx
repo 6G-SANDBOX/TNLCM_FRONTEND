@@ -21,6 +21,58 @@ const Dashboard = () => {
   const [selectedIds, setSelectedIds] = useState([]);
   const [changingStatesIdS,setChangingStatesIdS] = useState([]);
 
+  const handlePurgeClick = async () => {
+    try {
+      // Separar IDs válidos e inválidos
+      const validIds = [];
+      const invalidIds = [];
+      
+      selectedIds.forEach((id) => {
+        const network = data.trial_networks.find((network) => network.tn_id === id);
+        if (network && (network.state === "validated" || network.state === "destroyed")) {
+          validIds.push(id);
+        } else {
+          invalidIds.push(id);
+        }
+      });
+  
+      // Mostrar alerta si hay IDs no válidos
+      if (invalidIds.length > 0) {
+        alert(`No se pueden purgar los siguientes IDs porque su estado no es "destroyed" o "validated": ${invalidIds.join(", ")}`);
+      }
+  
+      // Actualizar los estados antes de realizar las peticiones
+      setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
+      setChangingStatesIdS((prevState) => [...prevState, ...validIds]);
+  
+      // Generar las promesas para los IDs válidos
+      const deleteRequests = validIds.map(async (id) => {
+        const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/purge/${id}`;
+        const access_token = await getAccessTokenFromSessionStorage();
+        const auth = `Bearer ${access_token}`;
+  
+        // Realizar la petición PURGE
+        return axios.delete(url, {
+          headers: {
+            Authorization: auth,
+            "Content-Type": "application/json",
+          },
+        });
+      });
+  
+      // Ejecutar todas las promesas con Promise.allSettled
+       await Promise.allSettled(deleteRequests);
+  
+      // Actualizar el estado después de que se completen todas las peticiones
+      setChangingStatesIdS((prevState) => prevState.filter((id) => !validIds.includes(id)));
+  
+    } catch (error) {
+      alert("Error al realizar el proceso de purge:", error);
+    }
+  };
+  
+  
+  
 
   const handleDestroyClick = async () => {
     try {
@@ -153,18 +205,17 @@ const Dashboard = () => {
             "Content-Type": "multipart/form-data",
           },
         });
-  
         return response;
       } catch (err) {
-        console.error("Error while creating trial network:", err);
-        throw new Error("Failed to fetch data \n" + err);
+        console.error("Error while creating trial network:", err.response.data.message);
+        alert("Failed to fetch data \n" + err.response.data.message);
       }
     };
   
     try {
       await createTrialNetwork(formData);
     } catch (error) {
-      throw new Error("Failed to create trial network \n" + error);
+    alert("Failed to create trial network \n" + error.response.data.message);
     }
     event.target.value = "";
     setIsModalOpen(false);
@@ -243,7 +294,7 @@ const Dashboard = () => {
       }
     };
 
-    // Ejecutar inmediatamente la función y luego cada 5 segundos
+    // Ejecutar inmediatamente la función y luego cada 1 segundo
     updateAlturaRestante();
     const intervalId = setInterval(updateAlturaRestante, 100);
 
@@ -255,7 +306,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <img src="/images/loading.gif" alt="Loading..." />
+        <img src="loading.gif" alt="Loading..." />
       </div>
     );
   }
@@ -491,7 +542,7 @@ const Dashboard = () => {
           <div className="flex space-x-4 mb-4">
             {/* Botón para desplegar redes */}
             <button
-              className="bg-blue-700 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-blue-500"
+              className="bg-blue-800 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-blue-500"
               onClick={handleDeployClick}
             >
               Deploy Networks
@@ -507,7 +558,8 @@ const Dashboard = () => {
 
             {/* Botón para purgar redes */}
             <button
-              className="bg-red-700 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-red-500"
+              className="bg-red-800 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-red-500"
+              onClick={handlePurgeClick}
             >
               Purge Networks
             </button>
@@ -544,7 +596,7 @@ const Dashboard = () => {
                     className={[
                       changingStatesIdS.includes(network.tn_id)
                         ? "" // No aplicamos fondo cuando se está cargando
-                        : network.state === "failed"
+                        : network.state === "failed" || network.state === "destroyed"
                         ? "bg-red-100 text-red-500"
                         : network.state === "validated"
                         ? "bg-blue-100 text-blue-500"
@@ -566,7 +618,7 @@ const Dashboard = () => {
 
           {/* Paginación */}
           <div className={`flex  justify-between items-center mt-4 text-sm text-gray-500`}>
-            <p>Showing data {indexOfFirstItem + 1} to {indexOfLastItem<data.trial_networks.length ? indexOfLastItem : data.trial_networks.length} of {data.trial_networks.length} entries</p>
+            <p>Showing data {data.trial_networks.length>0? indexOfFirstItem+1 : 0 } to {indexOfLastItem<data.trial_networks.length ? indexOfLastItem : data.trial_networks.length} of {data.trial_networks.length} entries</p>
             <div className="flex space-x-2">
               {Array.from({ length: totalPages }, (_, index) => (
                 <button
@@ -579,7 +631,6 @@ const Dashboard = () => {
               ))}
             </div>
           </div>
-
         </div>
       </div>
     </div>

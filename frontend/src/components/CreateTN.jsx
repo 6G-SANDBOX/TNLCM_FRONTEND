@@ -54,22 +54,6 @@ const CreateTN = () => {
             />
           </div>
 
-          {/* Library URL */}
-          <div>
-            <label
-              htmlFor="library-url"
-              className="block text-gray-700 font-medium"
-            >
-              LIBRARY URL
-            </label>
-            <input
-              id="library-url"
-              type="text"
-              placeholder="https://github.com/6G-SANDBOX/6G-Library.git"
-              className="w-full border border-gray-300 rounded-md p-2 mt-1"
-            />
-          </div>
-
           {/* Library Reference Type */}
           <div>
             <label
@@ -106,23 +90,6 @@ const CreateTN = () => {
               className="w-full border border-gray-300 rounded-md p-2 mt-1"
             />
           </div>
-
-          {/* Sites URL */}
-          <div>
-            <label
-              htmlFor="sites-url"
-              className="block text-gray-700 font-medium"
-            >
-              SITES URL
-            </label>
-            <input
-              id="sites-url"
-              type="text"
-              placeholder="https://github.com/6G-SANDBOX/6G-Sandbox-Sites.git"
-              className="w-full border border-gray-300 rounded-md p-2 mt-1"
-            />
-          </div>
-
           {/* Sites Reference Type */}
           <div>
             <label

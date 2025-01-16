@@ -67,12 +67,12 @@ const TopNavigator = () => {
         {menuVisible && isAuthenticated && (
           <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg">
             <button 
-              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:rounded-lg"
             >
               Perfil
             </button>
             <button
-              className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100"
+              className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 hover:rounded-lg"
               onClick={handleLogout}
             >
               Cerrar sesión
