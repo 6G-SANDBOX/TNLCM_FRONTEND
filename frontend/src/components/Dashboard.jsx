@@ -1,8 +1,9 @@
-import { faDesktop, faNetworkWired, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faDesktop, faNetworkWired, faSearch, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
+import TerminalModal from './TerminalModal';
 import TopNavigator from './TopNavigator';
 
 const Dashboard = () => {
@@ -20,6 +21,13 @@ const Dashboard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [changingStatesIdS,setChangingStatesIdS] = useState([]);
+  const [isModalOpen2, setModalOpen2] = useState(false);
+  const [selectedNetworkId, setSelectedNetworkId] = useState(null);
+
+  const handleOpenLogs = (tn_id) => {
+    setSelectedNetworkId(tn_id); // Establece el ID de la red seleccionada
+    setModalOpen2(true); // Abre el modal
+  };
 
   const handlePurgeClick = async () => {
     try {
@@ -572,6 +580,7 @@ const Dashboard = () => {
                 <th className="py-2">Date Created UTC </th>
                 <th className="py-2">Deployment Site</th>
                 <th className="py-2">Status</th>
+                <th className="py-2">Logs</th>
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -611,11 +620,21 @@ const Dashboard = () => {
                     )}
                   </span>
                   </td>
+                  <td className="py-2">
+                    <button className="text-purple-600 hover:underline" onClick={() => handleOpenLogs(network.tn_id)} ><FontAwesomeIcon icon={faTerminal} /></button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
-          
+            {/* Modal para mostrar los logs */}
+        {isModalOpen2 && (
+          <TerminalModal
+            isOpen={isModalOpen2}
+            onClose={() => setModalOpen2(false)} // Cierra el modal
+            vmId={selectedNetworkId} // Pasa el ID de la red al modal
+          />
+        )}
           {/* Paginación */}
           <div className={`flex  justify-between items-center mt-4 text-sm text-gray-500`}>
             <p>Showing data {data.trial_networks.length>0? indexOfFirstItem+1 : 0 } to {indexOfLastItem<data.trial_networks.length ? indexOfLastItem : data.trial_networks.length} of {data.trial_networks.length} entries</p>

@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import Elcm from "./Elcm";
+import Ks8500Runner from "./Ks8500_runner";
 import TnInit from "./TnInit";
 import TopNavigator from "./TopNavigator";
 
@@ -27,15 +29,15 @@ const CreateTN = () => {
 
     });
   }
-
+  //TODO poner todos los componentes
   const switchComponent = (input) => {
     switch (input) {
       case "tn_init":
         return <TnInit/>;
-      case "option2":
-        return "Resultado para opción 2";
-      case "option3":
-        return "Resultado para opción 3";
+      case "elcm":
+        return  <Elcm/>;
+      case "ks8500_runner":
+        return <Ks8500Runner/>;
       default:
         return "Opción no válida: " + input;
     }
@@ -200,12 +202,10 @@ const CreateTN = () => {
         ))}
         </div>
       </div>
-      {/* TODO mostrar todos los componentes que estan en electedComponent */}
       <div className="p-4">
-        <h2 className="text-xl font-medium mb-4">Componentes Seleccionados</h2>
+        <h2 className="text-xl font-medium mb-4">Selected components:</h2>
         {selectedComponent.length === 0 ? (
           <p>No components selected yet</p>
-          
         ) : (
           <ul>
             {selectedComponent.map((component, index) => (
