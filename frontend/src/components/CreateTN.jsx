@@ -1,7 +1,10 @@
 import React, { useState } from "react";
-import Elcm from "./Elcm";
-import Ks8500Runner from "./Ks8500_runner";
-import TnInit from "./TnInit";
+import Elcm from "./library/Elcm";
+import Ks8500Runner from "./library/Ks8500_runner";
+import LoadcoreAgent from "./library/LoadcoreAgent";
+import NokiaRadio from "./library/NokiaRadio";
+import Ocf from "./library/Ocf";
+import TnInit from "./library/TnInit";
 import TopNavigator from "./TopNavigator";
 
 const CreateTN = () => {
@@ -38,6 +41,12 @@ const CreateTN = () => {
         return  <Elcm/>;
       case "ks8500_runner":
         return <Ks8500Runner/>;
+      case "loadcore_agent":
+        return <LoadcoreAgent/>;
+      case "nokia_radio":
+        return <NokiaRadio/>;
+      case "ocf":
+        return <Ocf/>;
       default:
         return "Opción no válida: " + input;
     }
@@ -190,7 +199,6 @@ const CreateTN = () => {
             className="flex flex-col items-center"
             title={label}
             onClick={() => handleComponentClick(label)}
-
             >
             <img
                 src={`/icons/${label}.png`}
