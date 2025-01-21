@@ -44,10 +44,15 @@ const Ocf = ({ id, removeComponent, onChange }) => {
           initialValues[key] = field.default_value || "";
         }
         setFormValues(initialValues);
+
+        // Llamar a onChange para pasar los valores iniciales al componente principal
+        for (const key in initialValues) {
+          onChange(id, key, initialValues[key]);
+        }
       }
     };
     loadData();
-  }, []);
+  }, [id, onChange]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -61,16 +66,16 @@ const Ocf = ({ id, removeComponent, onChange }) => {
     // Llamamos a onChange para actualizar el estado en el componente principal
     onChange(id, name, value);
 
-    // Si el campo es obligatorio, verificamos si está vacío y mostramos el mensaje de error
+    // Validación de campos requeridos
     if (data[name]?.required_when && value.trim() === "") {
       setErrorMessages((prevState) => ({
         ...prevState,
-        [name]: `${name} cannot be empty.`,
+        [name]: `${name.replace(/_/g, " ")} cannot be empty.`,
       }));
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[name]; // Eliminamos el mensaje de error si el campo no está vacío
+        delete newState[name]; // Eliminar el mensaje de error si el campo no está vacío
         return newState;
       });
     }
@@ -87,15 +92,16 @@ const Ocf = ({ id, removeComponent, onChange }) => {
       [key]: value,
     }));
 
+    // Validar si el valor es un número entero
     if (!validateInteger(value)) {
       setErrorMessages((prevState) => ({
         ...prevState,
-        [key]: `${key} must be an integer.`,
+        [key]: `${key.replace(/_/g, " ")} must be an integer.`,
       }));
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[key];
+        delete newState[key]; // Eliminar mensaje de error si es un número entero
         return newState;
       });
     }
@@ -140,7 +146,7 @@ const Ocf = ({ id, removeComponent, onChange }) => {
             return (
               <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
-                  {key}:
+                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
                 <input
                   type="text"

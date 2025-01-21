@@ -41,10 +41,15 @@ const OpensandSt = ({ id, removeComponent, onChange }) => {
           initialValues[key] = result.component_input[key].default_value || "";
         }
         setFormValues(initialValues);
+
+        // Llamamos a onChange para enviar los valores iniciales al componente principal
+        for (const key in initialValues) {
+          onChange(id, key, initialValues[key]);
+        }
       }
     };
     loadData();
-  }, []);
+  }, [id, onChange]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -62,7 +67,7 @@ const OpensandSt = ({ id, removeComponent, onChange }) => {
     if (data[name]?.required_when && value.trim() === "") {
       setErrorMessages((prevState) => ({
         ...prevState,
-        [name]: `${name} cannot be empty.`,
+        [name]: `${name.replace(/_/g, " ")} cannot be empty.`,
       }));
     } else {
       setErrorMessages((prevState) => {
@@ -84,8 +89,8 @@ const OpensandSt = ({ id, removeComponent, onChange }) => {
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>
-          <h1 className="text-3xl font-bold">OPENSAND_ST Added</h1>
-          <p className="mt-2">The OPENSAND_ST component has been added successfully.</p>
+          <h1 className="text-3xl font-bold">Opensand_ST Added</h1>
+          <p className="mt-2">The Opensand_ST component has been added successfully.</p>
         </header>
       </div>
     );
@@ -112,7 +117,7 @@ const OpensandSt = ({ id, removeComponent, onChange }) => {
             return (
               <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
-                  {key}:
+                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
                 <input
                   type="text"

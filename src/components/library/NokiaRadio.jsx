@@ -44,33 +44,38 @@ const NokiaRadio = ({ id, removeComponent, onChange }) => {
           initialValues[key] = field.default_value || "";
         }
         setFormValues(initialValues);
+
+        // Llamar a onChange para pasar los valores iniciales al componente principal
+        for (const key in initialValues) {
+          onChange(id, key, initialValues[key]);
+        }
       }
     };
     loadData();
-  }, []);
+  }, [id, onChange]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Actualizamos los valores del formulario
+    // Actualizar los valores del formulario
     setFormValues((prevState) => ({
       ...prevState,
       [name]: value,
     }));
 
-    // Llamamos a onChange para actualizar el estado en el componente principal
+    // Llamar a onChange para actualizar el estado en el componente principal
     onChange(id, name, value);
 
-    // Si el campo es obligatorio, verificamos si está vacío y mostramos el mensaje de error
+    // Validación de campos requeridos
     if (data[name]?.required_when && value.trim() === "") {
       setErrorMessages((prevState) => ({
         ...prevState,
-        [name]: `${name} cannot be empty.`,
+        [name]: `${name.replace(/_/g, " ")} cannot be empty.`,
       }));
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[name]; // Eliminamos el mensaje de error si el campo no está vacío
+        delete newState[name]; // Eliminar el mensaje de error si el campo no está vacío
         return newState;
       });
     }
@@ -87,15 +92,16 @@ const NokiaRadio = ({ id, removeComponent, onChange }) => {
       [key]: value,
     }));
 
+    // Validar si el valor es un número entero
     if (!validateInteger(value)) {
       setErrorMessages((prevState) => ({
         ...prevState,
-        [key]: `${key} must be an integer.`,
+        [key]: `${key.replace(/_/g, " ")} must be an integer.`,
       }));
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[key];
+        delete newState[key]; // Eliminar mensaje de error si es un número entero
         return newState;
       });
     }

@@ -44,10 +44,15 @@ const TnInit = ({ id, removeComponent, onChange }) => {
           initialValues[key] = field.default_value || "";
         }
         setFormValues(initialValues);
+
+        // Llamamos a onChange para enviar los valores iniciales al componente principal
+        for (const key in initialValues) {
+          onChange(id, key, initialValues[key]);
+        }
       }
     };
     loadData();
-  }, []);
+  }, [id, onChange]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -65,7 +70,7 @@ const TnInit = ({ id, removeComponent, onChange }) => {
     if (data[name]?.required_when && value.trim() === "") {
       setErrorMessages((prevState) => ({
         ...prevState,
-        [name]: `${name} cannot be empty.`,
+        [name]: `${name.replace(/_/g, " ")} cannot be empty.`,
       }));
     } else {
       setErrorMessages((prevState) => {
@@ -90,7 +95,7 @@ const TnInit = ({ id, removeComponent, onChange }) => {
     if (!validateInteger(value)) {
       setErrorMessages((prevState) => ({
         ...prevState,
-        [key]: `${key} must be an integer.`,
+        [key]: `${key.replace(/_/g, " ")} must be an integer.`,
       }));
     } else {
       setErrorMessages((prevState) => {
@@ -140,7 +145,7 @@ const TnInit = ({ id, removeComponent, onChange }) => {
             return (
               <div key={key} className="mb-4">
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
-                  {key}:
+                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
                 <input
                   type="text"

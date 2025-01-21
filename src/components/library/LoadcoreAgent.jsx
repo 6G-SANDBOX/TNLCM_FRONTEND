@@ -44,10 +44,15 @@ const LoadcoreAgent = ({ id, removeComponent, onChange }) => {
           initialValues[key] = field.default_value || "";
         }
         setFormValues(initialValues);
+
+        // Call onChange to send default values to the parent component
+        for (const key in initialValues) {
+          onChange(id, key, initialValues[key]);
+        }
       }
     };
     loadData();
-  }, []);
+  }, [id, onChange]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -122,7 +127,7 @@ const LoadcoreAgent = ({ id, removeComponent, onChange }) => {
                     type="text"
                     id={key}
                     name={key}
-                    value={formValues[key]}
+                    value={formValues[key]?.join(", ")}
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   />
@@ -141,7 +146,7 @@ const LoadcoreAgent = ({ id, removeComponent, onChange }) => {
                   type="text"
                   id={key}
                   name={key}
-                  value={formValues[key]}
+                  value={formValues[key] || ""}
                   onChange={handleChange}
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                 />

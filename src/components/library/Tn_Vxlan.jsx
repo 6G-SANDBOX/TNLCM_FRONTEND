@@ -36,15 +36,22 @@ const TnVxlan = ({ id, removeComponent, onChange }) => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
+
+        // Inicializar los valores del formulario con los valores predeterminados de la API
         const initialValues = {};
         for (const key in result.component_input) {
           initialValues[key] = result.component_input[key].default_value || "";
         }
         setFormValues(initialValues);
+
+        // Llamamos a onChange para enviar los valores iniciales al componente principal
+        for (const key in initialValues) {
+          onChange(id, key, initialValues[key]);
+        }
       }
     };
     loadData();
-  }, []);
+  }, [id, onChange]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -59,12 +66,12 @@ const TnVxlan = ({ id, removeComponent, onChange }) => {
     if (data[name] && data[name].required_when && value.trim() === "") {
       setErrorMessages((prevState) => ({
         ...prevState,
-        [name]: `${name} cannot be empty.`,
+        [name]: `${name.replace(/_/g, " ")} cannot be empty.`,
       }));
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[name];
+        delete newState[name]; // Eliminamos el mensaje de error si el campo no está vacío
         return newState;
       });
     }
@@ -109,7 +116,7 @@ const TnVxlan = ({ id, removeComponent, onChange }) => {
             return (
               <div key={key} className="mb-4">
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
-                  {key}:
+                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
                 <input
                   type="text"

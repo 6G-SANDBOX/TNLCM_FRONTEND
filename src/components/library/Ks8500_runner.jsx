@@ -37,31 +37,36 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
       if (result) {
         setData(result.component_input);
 
-        // Initialize form values with default values from the API
+        // Inicializa los valores del formulario con los valores predeterminados de la API
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
           initialValues[key] = field.default_value || "";
         }
         setFormValues(initialValues);
+
+        // Llama a onChange para enviar los valores predeterminados
+        for (const key in initialValues) {
+          onChange(id, key, initialValues[key]); // Envía los valores predeterminados al componente principal
+        }
       }
     };
     loadData();
-  }, []);
+  }, [id, onChange]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Update form values
+    // Actualiza los valores del formulario
     setFormValues((prevState) => ({
       ...prevState,
       [name]: value,
     }));
 
-    // Call onChange to update parent component's state
+    // Llama a onChange para actualizar el estado en el componente principal
     onChange(id, name, value);
 
-    // Validate if the field is empty and show an error message if necessary
+    // Validación si el campo está vacío y muestra el mensaje de error si es necesario
     if (data[name]?.required_when && value.trim() === "") {
       setErrorMessages((prevState) => ({
         ...prevState,
@@ -70,7 +75,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[name]; // Remove error message if the field is not empty
+        delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
         return newState;
       });
     }
@@ -80,17 +85,17 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
     const { value } = event.target;
     const networkValue = value.split(",").map((v) => v.trim());
 
-    // Update the form value for "one_ks8500runner_networks"
+    // Actualiza el valor del formulario para "one_ks8500runner_networks"
     setFormValues((prevState) => ({
       ...prevState,
       one_ks8500runner_networks: networkValue,
     }));
 
-    // Call onChange to update the parent component's state
+    // Llama a onChange para actualizar el estado en el componente principal
     onChange(id, "one_ks8500runner_networks", networkValue);
   };
 
-  // Show success message if data is null
+  // Muestra el mensaje de éxito si data es null
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">

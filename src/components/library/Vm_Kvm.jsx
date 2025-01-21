@@ -41,12 +41,17 @@ const VmKvm = ({ id, removeComponent, onChange }) => {
           initialValues[key] = result.component_input[key].default_value || "";
         }
         setFormValues(initialValues);
+
+        // Llamar a onChange para pasar los valores iniciales al componente principal
+        for (const key in initialValues) {
+          onChange(id, key, initialValues[key]);
+        }
       } else {
         setData(null);  // Si no hay datos, establecer data como null
       }
     };
     loadData();
-  }, []);
+  }, [id, onChange]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -62,12 +67,12 @@ const VmKvm = ({ id, removeComponent, onChange }) => {
     if (data[name] && data[name].required_when && value.trim() === "") {
       setErrorMessages((prevState) => ({
         ...prevState,
-        [name]: `${name} cannot be empty.`,
+        [name]: `${name.replace(/_/g, " ")} cannot be empty.`,
       }));
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[name];
+        delete newState[name]; // Eliminamos el mensaje de error si el campo no está vacío
         return newState;
       });
     }
@@ -112,7 +117,7 @@ const VmKvm = ({ id, removeComponent, onChange }) => {
             return (
               <div key={key} className="mb-4">
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
-                  {key}:
+                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
                 <input
                   type="text"
