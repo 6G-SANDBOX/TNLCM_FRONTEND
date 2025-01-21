@@ -1,73 +1,70 @@
-# TNLCM FRONTEND
+# Getting Started with Create React App
 
-This guide will walk you through the steps to set up and run a the front end application, including installing dependencies, adding Font Awesome for icons, and starting the development server.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Prerequisites
+## Available Scripts
 
-Before you begin, ensure you have the following installed on your machine:
+In the project directory, you can run:
 
-- **Node.js** (v14 or later) and **npm** (Node Package Manager)
-- A code editor (e.g., VS Code)
+### `npm start`
 
-## Steps to Set Up the App
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-### 1. Clone the Repository
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-If you haven’t already cloned the project repository, do so with the following command:
+### `npm test`
 
-```bash
-git clone <repository-url>
-cd <project-folder>
-```
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### 2. Install Dependencies
+### `npm run build`
 
-Run the following command to install all necessary dependencies:
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-```bash
-npm install
-```
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-This will install the packages listed in the `package.json` file.
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### 3. Install Font Awesome
+### `npm run eject`
 
-To add Font Awesome for icons, install the following packages:
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-```bash
-npm install --save @fortawesome/fontawesome-svg-core @fortawesome/free-solid-svg-icons @fortawesome/react-fontawesome
-```
-#### Optionally, you can install other Font Awesome icon packs, such as:
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-- Free Regular Icons:
-  ```bash
-  npm install --save @fortawesome/free-regular-svg-icons
-  ```
-- Free Brands Icons:
-  ```bash
-  npm install --save @fortawesome/free-brands-svg-icons
-  ```
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-### 4. Install Axios
-To enable making HTTP requests, install Axios by running the following command:
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-```bash
-npm install axios
-```
-Axios will allow you to make API calls and handle responses easily.
-### 5. Start the Development Server
+## Learn More
 
-Run the following command to start the app in development mode:
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-```bash
-npm run start
-```
+To learn React, check out the [React documentation](https://reactjs.org/).
 
-This will start the development server and provide a local URL (usually `http://localhost:3000`) to preview the app in your browser.
+### Code Splitting
 
-## Additional Notes
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-- Make sure to check the `README` or `package.json` of the project for any specific configurations or scripts that might differ.
-- If you encounter issues during setup, ensure that all dependencies are correctly installed and that your Node.js version meets the requirements.
+### Analyzing the Bundle Size
 
-Enjoy building and running your application!
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
