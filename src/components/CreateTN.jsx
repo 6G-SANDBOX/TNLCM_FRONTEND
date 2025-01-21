@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import TopNavigator from "./TopNavigator";
 // Importar los componentes
 import Elcm from "./library/Elcm";
@@ -66,18 +66,18 @@ const CreateTN = () => {
     });
   };
 
-  const handleComponentFormChange = (id, fieldName, value) => {
+  const handleComponentFormChange = useCallback((id, fieldName, value) => { 
     setComponentForms((prevForms) => {
       const updatedForm = {
         ...prevForms,
         [id]: {
           ...prevForms[id],
-          [fieldName]: value
-        }
+          [fieldName]: value,
+        },
       };
       return updatedForm;
     });
-  };
+  }, []);
 
   const handleDownload = () => {
     const networkData = {

@@ -4,6 +4,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { getAccessTokenFromSessionStorage } from "../../auxFunc/jwt.js";
 
+// Función para obtener los datos de la API
 const fetchData = async () => {
   const access_token = await getAccessTokenFromSessionStorage();
   if (access_token) {
@@ -31,6 +32,7 @@ const Elcm = ({ id, removeComponent, onChange }) => {
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
 
+  // useEffect para cargar los datos una vez que el componente se monta
   useEffect(() => {
     const loadData = async () => {
       const result = await fetchData();
@@ -52,22 +54,19 @@ const Elcm = ({ id, removeComponent, onChange }) => {
       }
     };
     loadData();
-  }, [id, onChange]);
+  }, [id]); // Solo depende de 'id', no de 'onChange'
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Verifica si el valor ha cambiado o si debe ser el valor por defecto
-    const updatedValue = value === "" ? data[name]?.default_value || "" : value;
-
     // Actualiza los valores del formulario con el valor ingresado por el usuario
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: updatedValue,
+      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
     }));
 
-    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado o por defecto
-    onChange(id, name, updatedValue);
+    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
+    onChange(id, name, value);
 
     // Validación de campo
     if (data[name]?.required_when && value.trim() === "") {
@@ -128,7 +127,7 @@ const Elcm = ({ id, removeComponent, onChange }) => {
                   type="text"
                   id={key}
                   name={key}
-                  value={formValues[key] || data[key]?.default_value || ""} // Usa el valor actual o el predeterminado
+                  value={formValues[key] || ""} // Muestra el valor editado, o un campo vacío si no hay valor
                   onChange={handleChange}  // Llama a handleChange para actualizar el valor
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                 />
