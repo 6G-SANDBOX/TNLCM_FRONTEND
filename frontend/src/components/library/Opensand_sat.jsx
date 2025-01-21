@@ -11,7 +11,7 @@ const fetchData = async () => {
     const bearerJwt = `Bearer ${access_token}`;
 
     try {
-      const response = await axios.get(`${url}/tnlcm/library/components/nokia_radio`, {
+      const response = await axios.get(`${url}/tnlcm/library/components/opensand_sat`, {
         headers: {
           Authorization: bearerJwt,
           "Content-Type": "application/json",
@@ -19,14 +19,14 @@ const fetchData = async () => {
       });
       return response.data;
     } catch (error) {
-      alert(`Error fetching data for nokia_radio:`, error);
+      alert(`Error fetching data for opensand_sat:`, error);
       return null;
     }
   }
   return null;
 };
 
-const NokiaRadio = ({ id, removeComponent, onChange }) => {
+const OpensandSat = ({ id, removeComponent, onChange }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -36,12 +36,9 @@ const NokiaRadio = ({ id, removeComponent, onChange }) => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-
-        // Inicializar los valores del formulario con los valores predeterminados de la API
         const initialValues = {};
         for (const key in result.component_input) {
-          const field = result.component_input[key];
-          initialValues[key] = field.default_value || "";
+          initialValues[key] = result.component_input[key].default_value || "";
         }
         setFormValues(initialValues);
       }
@@ -61,7 +58,7 @@ const NokiaRadio = ({ id, removeComponent, onChange }) => {
     // Llamamos a onChange para actualizar el estado en el componente principal
     onChange(id, name, value);
 
-    // Si el campo es obligatorio, verificamos si está vacío y mostramos el mensaje de error
+    // Verificar si el campo es obligatorio y si está vacío
     if (data[name]?.required_when && value.trim() === "") {
       setErrorMessages((prevState) => ({
         ...prevState,
@@ -71,31 +68,6 @@ const NokiaRadio = ({ id, removeComponent, onChange }) => {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
         delete newState[name]; // Eliminamos el mensaje de error si el campo no está vacío
-        return newState;
-      });
-    }
-  };
-
-  const validateInteger = (value) => {
-    return Number.isInteger(Number(value));
-  };
-
-  const handleIntegerValidation = (event, key) => {
-    const value = event.target.value;
-    setFormValues((prevState) => ({
-      ...prevState,
-      [key]: value,
-    }));
-
-    if (!validateInteger(value)) {
-      setErrorMessages((prevState) => ({
-        ...prevState,
-        [key]: `${key} must be an integer.`,
-      }));
-    } else {
-      setErrorMessages((prevState) => {
-        const newState = { ...prevState };
-        delete newState[key];
         return newState;
       });
     }
@@ -112,8 +84,8 @@ const NokiaRadio = ({ id, removeComponent, onChange }) => {
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>
-          <h1 className="text-3xl font-bold">NOKIA_RADIO Added</h1>
-          <p className="mt-2">The NOKIA_RADIO component has been added successfully.</p>
+          <h1 className="text-3xl font-bold">OPENSAND_SAT Added</h1>
+          <p className="mt-2">The OPENSAND_SAT component has been added successfully.</p>
         </header>
       </div>
     );
@@ -129,7 +101,7 @@ const NokiaRadio = ({ id, removeComponent, onChange }) => {
         >
           <FontAwesomeIcon icon={faTrash} />
         </button>
-        <h1 className="text-3xl font-bold">Nokia Radio Config</h1>
+        <h1 className="text-3xl font-bold">Opensand Satellite Config</h1>
         <p className="mt-2">Please fill in the fields below to configure the system</p>
       </header>
 
@@ -138,22 +110,16 @@ const NokiaRadio = ({ id, removeComponent, onChange }) => {
           {Object.keys(data).map((key) => {
             const field = data[key];
             return (
-              <div key={key} className="mb-4">
+              <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
-                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
+                  {key}:
                 </label>
                 <input
                   type="text"
                   id={key}
                   name={key}
                   value={formValues[key] || ""}
-                  onChange={(event) => {
-                    if (field.type === "int") {
-                      handleIntegerValidation(event, key); // Validación para campos de tipo entero
-                    } else {
-                      handleChange(event); // Para otros tipos de campos
-                    }
-                  }}
+                  onChange={handleChange}
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                 />
                 {errorMessages[key] && (
@@ -169,4 +135,4 @@ const NokiaRadio = ({ id, removeComponent, onChange }) => {
   );
 };
 
-export default NokiaRadio;
+export default OpensandSat;

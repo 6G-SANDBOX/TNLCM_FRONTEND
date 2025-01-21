@@ -11,7 +11,7 @@ const fetchData = async () => {
     const bearerJwt = `Bearer ${access_token}`;
 
     try {
-      const response = await axios.get(`${url}/tnlcm/library/components/ks8500_runner`, {
+      const response = await axios.get(`${url}/tnlcm/library/components/open5gs`, {
         headers: {
           Authorization: bearerJwt,
           "Content-Type": "application/json",
@@ -19,14 +19,14 @@ const fetchData = async () => {
       });
       return response.data;
     } catch (error) {
-      alert(`Error fetching data for ks8500_runner:`, error);
+      alert(`Error fetching data for open5gs:`, error);
       return null;
     }
   }
   return null;
 };
 
-const Ks8500Runner = ({ id, removeComponent, onChange }) => {
+const Open5gs = ({ id, removeComponent, onChange }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -36,8 +36,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-
-        // Initialize form values with default values from the API
+        // Inicializamos el estado formValues con los valores predeterminados de los campos.
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
@@ -52,45 +51,56 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Update form values
+    // Actualizamos los valores del formulario
     setFormValues((prevState) => ({
       ...prevState,
       [name]: value,
     }));
 
-    // Call onChange to update parent component's state
+    // Llamamos a onChange para actualizar el estado en el componente principal
     onChange(id, name, value);
 
-    // Validate if the field is empty and show an error message if necessary
+    // Verificar si el campo es obligatorio y si está vacío.
     if (data[name]?.required_when && value.trim() === "") {
       setErrorMessages((prevState) => ({
         ...prevState,
-        [name]: `${name.replace(/_/g, " ")} cannot be empty.`,
+        [name]: `${name} cannot be empty.`,
       }));
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[name]; // Remove error message if the field is not empty
+        delete newState[name]; // Eliminamos el mensaje de error si el campo no está vacío
         return newState;
       });
     }
   };
 
-  const handleNetworkChange = (event) => {
-    const { value } = event.target;
-    const networkValue = value.split(",").map((v) => v.trim());
-
-    // Update the form value for "one_ks8500runner_networks"
-    setFormValues((prevState) => ({
-      ...prevState,
-      one_ks8500runner_networks: networkValue,
-    }));
-
-    // Call onChange to update the parent component's state
-    onChange(id, "one_ks8500runner_networks", networkValue);
+  const validateInteger = (value) => {
+    return Number.isInteger(Number(value));
   };
 
-  // Show success message if data is null
+  const handleIntegerValidation = (event, key) => {
+    const value = event.target.value;
+    setFormValues((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+
+    if (!validateInteger(value)) {
+      setErrorMessages((prevState) => ({
+        ...prevState,
+        [key]: `${key} must be an integer.`,
+      }));
+    } else {
+      setErrorMessages((prevState) => {
+        const newState = { ...prevState };
+        delete newState[key];
+        return newState;
+      });
+    }
+  };
+
+  // Mostrar mensaje si data es null
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">
@@ -101,15 +111,16 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>
-          <h1 className="text-3xl font-bold">KS8500_RUNNER Added</h1>
-          <p className="mt-2">The KS8500_RUNNER component has been added successfully.</p>
+          <h1 className="text-3xl font-bold">OPEN5GS Added</h1>
+          <p className="mt-2">The OPEN5GS component has been added successfully.</p>
         </header>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-100 p-6 relative">
+    <div className="bg-gray-100 p-6">
+      {/* Encabezado con botón de eliminación */}
       <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
         <button
           onClick={() => removeComponent(id)}
@@ -117,7 +128,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
         >
           <FontAwesomeIcon icon={faTrash} />
         </button>
-        <h1 className="text-3xl font-bold">KS8500 Runner Configuration</h1>
+        <h1 className="text-3xl font-bold">Open5GS Config</h1>
         <p className="mt-2">Please fill in the fields below to configure the system</p>
       </header>
 
@@ -125,61 +136,29 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
         <form>
           {Object.keys(data).map((key) => {
             const field = data[key];
-            if (key === "one_ks8500runner_networks") {
-              return (
-                <div key={key} className="mb-4">
-                  <label htmlFor={key} className="block text-gray-700 font-semibold">
-                    {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())} (comma separated list):
-                  </label>
-                  <input
-                    type="text"
-                    id={key}
-                    name={key}
-                    value={formValues[key]?.join(", ")}
-                    onChange={handleNetworkChange}
-                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                  />
-                  <small className="block mt-1 text-gray-500">{field.description}</small>
-                </div>
-              );
-            }
-
-            if (key === "ks8500runner_special_action") {
-              return (
-                <div key={key} className="mb-4">
-                  <label htmlFor={key} className="block text-gray-700 font-semibold">
-                    {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
-                  </label>
-                  <select
-                    id={key}
-                    name={key}
-                    value={formValues[key]}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                  >
-                    <option value="none">None</option>
-                    <option value="delete_runner_data">Delete Runner Data</option>
-                  </select>
-                  <small className="block mt-1 text-gray-500">{field.description}</small>
-                </div>
-              );
-            }
-
             return (
-              <div key={key} className="mb-4">
+              <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
-                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
+                  {key}:
                 </label>
                 <input
                   type="text"
                   id={key}
                   name={key}
                   value={formValues[key] || ""}
-                  onChange={handleChange}
+                  onChange={(event) => {
+                    if (field.type === "int") {
+                      handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                    } else {
+                      handleChange(event); // Para otros tipos de campos
+                    }
+                  }}
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                 />
+                {errorMessages[key] && (
+                  <small className="block mt-1 text-red-500">{errorMessages[key]}</small>
+                )}
                 <small className="block mt-1 text-gray-500">{field.description}</small>
-                {errorMessages[key] && <p className="text-red-500">{errorMessages[key]}</p>}
               </div>
             );
           })}
@@ -189,4 +168,4 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
   );
 };
 
-export default Ks8500Runner;
+export default Open5gs;

@@ -1,3 +1,5 @@
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { getAccessTokenFromSessionStorage } from "../../auxFunc/jwt.js";
@@ -24,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const Elcm = () => {
+const Elcm = ({ id, removeComponent, onChange }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -35,28 +37,39 @@ const Elcm = () => {
       if (result) {
         setData(result.component_input);
 
-        // Initialize form values with default values from the API
+        // Inicializa los valores del formulario con los valores predeterminados de la API
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          initialValues[key] = field.default_value || "";
+          initialValues[key] = field.default_value || "";  // Establece el valor por defecto
         }
-        setFormValues(initialValues);
+        setFormValues(initialValues); // Establece los valores por defecto en el estado
+
+        // Llama a onChange para enviar los valores predeterminados
+        for (const key in initialValues) {
+          onChange(id, key, initialValues[key]); // Envia los valores al componente principal
+        }
       }
     };
     loadData();
-  }, []);
+  }, [id, onChange]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Update form values
+    // Verifica si el valor ha cambiado o si debe ser el valor por defecto
+    const updatedValue = value === "" ? data[name]?.default_value || "" : value;
+
+    // Actualiza los valores del formulario con el valor ingresado por el usuario
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,
+      [name]: updatedValue,
     }));
 
-    // If the field is required, validate if it's empty and show error message
+    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado o por defecto
+    onChange(id, name, updatedValue);
+
+    // Validación de campo
     if (data[name]?.required_when && value.trim() === "") {
       setErrorMessages((prevState) => ({
         ...prevState,
@@ -65,23 +78,39 @@ const Elcm = () => {
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[name]; // Remove the error message if the field is not empty
+        delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
         return newState;
       });
     }
   };
 
-  if (!data) {
+  // Si data es null, muestra mensaje de éxito
+  if (data === null) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <img src="loading.gif" alt="Loading..." />
+      <div className="bg-gray-100 p-6">
+        <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
+          <button
+            onClick={() => removeComponent(id)}
+            className="flex text-red-500"
+          >
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
+          <h1 className="text-3xl font-bold">ELCM Added</h1>
+          <p className="mt-2">The ELCM component has been added successfully.</p>
+        </header>
       </div>
     );
   }
 
   return (
-    <div className="bg-gray-100 p-6">
+    <div className="bg-gray-100 p-6 relative">
       <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
+        <button
+          onClick={() => removeComponent(id)}
+          className="absolute flex flex-col text-red-500"
+        >
+          <FontAwesomeIcon icon={faTrash} />
+        </button>
         <h1 className="text-3xl font-bold">ELCM Configuration</h1>
         <p className="mt-2">Please fill in the fields below to configure the system</p>
       </header>
@@ -93,14 +122,14 @@ const Elcm = () => {
             return (
               <div key={key} className="mb-4">
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
-                  {key.replace(/_/g, " ").replace(/\b\w/g, char => char.toUpperCase())}:
+                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
                 <input
                   type="text"
                   id={key}
                   name={key}
-                  value={formValues[key] || ""}
-                  onChange={handleChange}
+                  value={formValues[key] || data[key]?.default_value || ""} // Usa el valor actual o el predeterminado
+                  onChange={handleChange}  // Llama a handleChange para actualizar el valor
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                 />
                 {errorMessages[key] && (

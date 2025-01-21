@@ -1,3 +1,5 @@
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { getAccessTokenFromSessionStorage } from "../../auxFunc/jwt.js";
@@ -24,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const Ocf = () => {
+const Ocf = ({ id, removeComponent, onChange }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -34,15 +36,12 @@ const Ocf = () => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-        // Inicializamos el estado formValues con los valores predeterminados de los campos.
+
+        // Inicializar los valores del formulario con los valores predeterminados de la API
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          if (field.default_value) {
-            initialValues[key] = field.default_value;
-          } else {
-            initialValues[key] = "";
-          }
+          initialValues[key] = field.default_value || "";
         }
         setFormValues(initialValues);
       }
@@ -52,37 +51,84 @@ const Ocf = () => {
 
   const handleChange = (event) => {
     const { name, value } = event.target;
+
+    // Actualizamos los valores del formulario
     setFormValues((prevState) => ({
       ...prevState,
       [name]: value,
     }));
 
-    // Verificar si el campo es obligatorio y si está vacío.
-    if (data[name] && data[name].required_when && value.trim() === "") {
+    // Llamamos a onChange para actualizar el estado en el componente principal
+    onChange(id, name, value);
+
+    // Si el campo es obligatorio, verificamos si está vacío y mostramos el mensaje de error
+    if (data[name]?.required_when && value.trim() === "") {
       setErrorMessages((prevState) => ({
         ...prevState,
-        [name]: `${name} no puede estar vacío.`, // Usamos la clave como parte del mensaje.
+        [name]: `${name} cannot be empty.`,
       }));
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[name];
+        delete newState[name]; // Eliminamos el mensaje de error si el campo no está vacío
         return newState;
       });
     }
   };
 
-  if (!data) {
+  const validateInteger = (value) => {
+    return Number.isInteger(Number(value));
+  };
+
+  const handleIntegerValidation = (event, key) => {
+    const value = event.target.value;
+    setFormValues((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+
+    if (!validateInteger(value)) {
+      setErrorMessages((prevState) => ({
+        ...prevState,
+        [key]: `${key} must be an integer.`,
+      }));
+    } else {
+      setErrorMessages((prevState) => {
+        const newState = { ...prevState };
+        delete newState[key];
+        return newState;
+      });
+    }
+  };
+
+  // Mostrar mensaje si data es null
+  if (data === null) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <img src="loading.gif" alt="Loading..." />
+      <div className="bg-gray-100 p-6">
+        <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
+          <button
+            onClick={() => removeComponent(id)}
+            className="flex text-red-500"
+          >
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
+          <h1 className="text-3xl font-bold">OCF Added</h1>
+          <p className="mt-2">The OCF component has been added successfully.</p>
+        </header>
       </div>
     );
   }
 
   return (
     <div className="bg-gray-100 p-6">
+      {/* Encabezado con botón de eliminación */}
       <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
+        <button
+          onClick={() => removeComponent(id)}
+          className="flex text-red-500"
+        >
+          <FontAwesomeIcon icon={faTrash} />
+        </button>
         <h1 className="text-3xl font-bold">OCF Config</h1>
         <p className="mt-2">Please fill in the fields below to configure the system</p>
       </header>
@@ -101,7 +147,13 @@ const Ocf = () => {
                   id={key}
                   name={key}
                   value={formValues[key] || ""}
-                  onChange={handleChange}
+                  onChange={(event) => {
+                    if (field.type === "int") {
+                      handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                    } else {
+                      handleChange(event); // Para otros tipos de campos
+                    }
+                  }}
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                 />
                 {errorMessages[key] && (

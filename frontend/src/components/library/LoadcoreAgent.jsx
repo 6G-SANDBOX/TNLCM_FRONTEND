@@ -1,3 +1,5 @@
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { getAccessTokenFromSessionStorage } from "../../auxFunc/jwt.js";
@@ -24,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const LoadcoreAgent = () => {
+const LoadcoreAgent = ({ id, removeComponent, onChange }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -56,6 +58,9 @@ const LoadcoreAgent = () => {
       [name]: value,
     }));
 
+    // Call onChange to update parent component's state
+    onChange(id, name, value);
+
     // Validate if the field is empty and show an error message if necessary
     if (data[name]?.required_when && value.trim() === "") {
       setErrorMessages((prevState) => ({
@@ -71,17 +76,34 @@ const LoadcoreAgent = () => {
     }
   };
 
-  if (!data) {
+  // Show success message if data is null
+  if (data === null) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <img src="loading.gif" alt="Loading..." />
+      <div className="bg-gray-100 p-6">
+        <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
+          <button
+            onClick={() => removeComponent(id)}
+            className="flex text-red-500"
+          >
+            <FontAwesomeIcon icon={faTrash} />
+          </button>
+          <h1 className="text-3xl font-bold">LOADCORE_AGENT Added</h1>
+          <p className="mt-2">The LOADCORE_AGENT component has been added successfully.</p>
+        </header>
       </div>
     );
   }
 
   return (
     <div className="bg-gray-100 p-6">
+      {/* Header with close button */}
       <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
+        <button
+          onClick={() => removeComponent(id)}
+          className="flex text-red-500"
+        >
+          <FontAwesomeIcon icon={faTrash} />
+        </button>
         <h1 className="text-3xl font-bold">Loadcore Agent Configuration</h1>
         <p className="mt-2">Please fill in the fields below to configure the system</p>
       </header>
