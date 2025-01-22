@@ -126,7 +126,7 @@ const Tsn = ({ id, removeComponent, onChange }) => {
                   type="text"
                   id={key}
                   name={key}
-                  value={formValues[key] || ""}
+                  value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                   onChange={handleChange}
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                 />

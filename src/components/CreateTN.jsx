@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from "react";
 import TopNavigator from "./TopNavigator";
-// Importar los componentes
 import Elcm from "./library/Elcm";
 import Ks8500Runner from "./library/Ks8500_runner";
 import LoadcoreAgent from "./library/LoadcoreAgent";
@@ -22,10 +21,7 @@ import Vnet from "./library/Vnet";
 import Xrext from "./library/Xrext";
 
 const CreateTN = () => {
-  const [selectedOptionS, setSelectedOptionS] = useState("");
-  const [selectedOptionL, setSelectedOptionL] = useState("");
   const [selectedComponent, setSelectedComponent] = useState([]);
-  
   const [formData, setFormData] = useState({
     trialNetworkId: "",
     deploymentSite: "",
@@ -35,8 +31,19 @@ const CreateTN = () => {
     sitesReferenceValue: "",
   });
 
-  // Mantener el estado de los formularios dinámicos para cada componente
   const [componentForms, setComponentForms] = useState({});
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    Object.keys(formData).forEach((key) => {
+      if (!formData[key].trim()) {
+        newErrors[key] = "This field is required";
+      }
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -47,26 +54,40 @@ const CreateTN = () => {
   };
 
   const handleComponentClick = (label) => {
+    // Define the components that should only have one instance
+    const restrictedComponents = ["tn_bastion", "tn_init", "tn_vxlan", "tsn"];
+
+    // Check if the clicked component is in the restricted list and if it's already selected
+    if (restrictedComponents.includes(label)) {
+      const isAlreadySelected = selectedComponent.some((component) => component.label === label);
+      if (isAlreadySelected) {
+        // If already selected, don't add another one
+        alert(`${label} is already selected. Only one instance of this component is allowed.`);
+        return;
+      }
+    }
+
     const newComponent = {
       id: `${label}-${new Date().getTime()}`,
-      label: label
+      label: label,
     };
+
     setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
     setComponentForms((prevForms) => ({
       ...prevForms,
-      [newComponent.id]: {} // Inicializa el estado del formulario vacío para este nuevo componente
+      [newComponent.id]: {},
     }));
   };
 
   const handleRemoveComponent = (id) => {
     setSelectedComponent((prevSelected) => prevSelected.filter((component) => component.id !== id));
     setComponentForms((prevForms) => {
-      const { [id]: removed, ...rest } = prevForms; // Eliminar el estado del formulario de ese componente
+      const { [id]: removed, ...rest } = prevForms;
       return rest;
     });
   };
 
-  const handleComponentFormChange = useCallback((id, fieldName, value) => { 
+  const handleComponentFormChange = useCallback((id, fieldName, value) => {
     setComponentForms((prevForms) => {
       const updatedForm = {
         ...prevForms,
@@ -80,28 +101,35 @@ const CreateTN = () => {
   }, []);
 
   const handleDownload = () => {
+    if (!validateForm()) return;
+  
     const networkData = {
       formData,
       components: selectedComponent.map((component) => {
-        // Aquí aseguramos que siempre se tenga data actualizada del formulario
         const componentData = componentForms[component.id] || {};
+        
+        // Concatenate label and name when generating the file
+        const labelWithName = componentForms[component.id]?.name
+          ? `${component.label}-${componentForms[component.id]?.name}`
+          : component.label;
+  
         return {
-          label: component.label,
-          data: componentData // Aquí pasamos los datos correctos de cada componente
+          label: labelWithName, // Use label-name format for the download
+          data: componentData,
         };
-      })
+      }),
     };
-    // Ahora los datos de cada componente se reflejarán correctamente
-  const fileData = JSON.stringify(networkData, null, 2); // Formato JSON bonito
-  const blob = new Blob([fileData], { type: "application/json" });
-
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = "trial_network_data.json"; // Nombre del archivo
-  link.click();
+  
+    const fileData = JSON.stringify(networkData, null, 2);
+    const blob = new Blob([fileData], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "trial_network_data.json";
+    link.click();
   };
+  
 
-  const switchComponent = (component, removeComponent) => {
+  const switchComponent = (component, removeComponent, handleComponentFormChange) => {
     switch (component.label) {
       case "tn_init":
         return <TnInit id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
@@ -142,7 +170,7 @@ const CreateTN = () => {
       case "xrext":
         return <Xrext id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       default:
-        return "Opción no válida: " + component.label;
+        return "No valid option selected: " + component.label;
     }
   };
 
@@ -150,7 +178,6 @@ const CreateTN = () => {
     <div className="bg-white font-sans">
       <TopNavigator />
       <div className="flex flex-col lg:flex-row p-4">
-        {/* Formulario principal */}
         <div className="lg:w-1/2 space-y-4 justify-center p-4">
           <div>
             <label htmlFor="trial-network-id" className="block text-gray-700 font-medium">
@@ -161,10 +188,11 @@ const CreateTN = () => {
               name="trialNetworkId"
               type="text"
               placeholder="tn_id"
-              className="w-full border border-gray-300 rounded-md p-2 mt-1"
+              className={`w-full border p-2 mt-1 rounded-md ${errors.trialNetworkId ? "border-red-500" : "border-gray-300"}`}
               value={formData.trialNetworkId}
               onChange={handleInputChange}
             />
+            {errors.trialNetworkId && <p className="text-red-500 text-sm mt-1">{errors.trialNetworkId}</p>}
           </div>
 
           <div>
@@ -176,10 +204,11 @@ const CreateTN = () => {
               name="deploymentSite"
               type="text"
               placeholder="UMA / ATHENS / BERLIN / OULU..."
-              className="w-full border border-gray-300 rounded-md p-2 mt-1"
+              className={`w-full border p-2 mt-1 rounded-md ${errors.deploymentSite ? "border-red-500" : "border-gray-300"}`}
               value={formData.deploymentSite}
               onChange={handleInputChange}
             />
+            {errors.deploymentSite && <p className="text-red-500 text-sm mt-1">{errors.deploymentSite}</p>}
           </div>
 
           <div>
@@ -188,15 +217,17 @@ const CreateTN = () => {
             </label>
             <select
               id="library-reference-type"
-              className="w-full border border-gray-300 rounded-md p-2 mt-1"
-              value={selectedOptionL}
-              onChange={(e) => setSelectedOptionL(e.target.value)}
+              name="libraryReferenceType"
+              className={`w-full border p-2 mt-1 rounded-md ${errors.libraryReferenceType ? "border-red-500" : "border-gray-300"}`}
+              value={formData.libraryReferenceType}
+              onChange={handleInputChange}
             >
               <option value="" disabled>-- Select an option --</option>
-              <option value="lrt-b">branch</option>
-              <option value="lrt-c">commit</option>
-              <option value="lrt-t">tag</option>
+              <option value="branch">branch</option>
+              <option value="commit">commit</option>
+              <option value="tag">tag</option>
             </select>
+            {errors.libraryReferenceType && <p className="text-red-500 text-sm mt-1">{errors.libraryReferenceType}</p>}
           </div>
 
           <div>
@@ -205,12 +236,14 @@ const CreateTN = () => {
             </label>
             <input
               id="library-reference-value"
+              name="libraryReferenceValue"
               type="text"
               placeholder="github_6g_library_reference_value"
-              className="w-full border border-gray-300 rounded-md p-2 mt-1"
+              className={`w-full border p-2 mt-1 rounded-md ${errors.libraryReferenceValue ? "border-red-500" : "border-gray-300"}`}
               value={formData.libraryReferenceValue}
               onChange={handleInputChange}
             />
+            {errors.libraryReferenceValue && <p className="text-red-500 text-sm mt-1">{errors.libraryReferenceValue}</p>}
           </div>
 
           <div>
@@ -219,15 +252,17 @@ const CreateTN = () => {
             </label>
             <select
               id="sites-reference-type"
-              className="w-full border border-gray-300 rounded-md p-2 mt-1"
-              value={selectedOptionS}
-              onChange={(e) => setSelectedOptionS(e.target.value)}
+              name="sitesReferenceType"
+              className={`w-full border p-2 mt-1 rounded-md ${errors.sitesReferenceType ? "border-red-500" : "border-gray-300"}`}
+              value={formData.sitesReferenceType}
+              onChange={handleInputChange}
             >
               <option value="" disabled>-- Select an option --</option>
-              <option value="srt-b">branch</option>
-              <option value="srt-c">commit</option>
-              <option value="srt-t">tag</option>
+              <option value="branch">branch</option>
+              <option value="commit">commit</option>
+              <option value="tag">tag</option>
             </select>
+            {errors.sitesReferenceType && <p className="text-red-500 text-sm mt-1">{errors.sitesReferenceType}</p>}
           </div>
 
           <div>
@@ -236,23 +271,19 @@ const CreateTN = () => {
             </label>
             <input
               id="sites-reference-value"
+              name="sitesReferenceValue"
               type="text"
               placeholder="github_6g_library_reference_value"
-              className="w-full border border-gray-300 rounded-md p-2 mt-1"
+              className={`w-full border p-2 mt-1 rounded-md ${errors.sitesReferenceValue ? "border-red-500" : "border-gray-300"}`}
               value={formData.sitesReferenceValue}
               onChange={handleInputChange}
             />
+            {errors.sitesReferenceValue && <p className="text-red-500 text-sm mt-1">{errors.sitesReferenceValue}</p>}
           </div>
         </div>
 
-        {/* Iconos de Componentes */}
         <div className="lg:w-1/2 grid grid-cols-4 gap-4 mt-8 lg:mt-0">
-          {[
-            "elcm", "ks8500_runner", "loadcore_agent", "nokia_radio",
-            "ocf", "oneKE", "open5gs", "opensand_gw", "opensand_sat",
-            "opensand_st", "stf_ue", "tn_bastion", "tn_init", "tn_vxlan",
-            "tsn", "ueransim", "vm_kvm", "vnet", "xrext",
-          ].map((label, index) => (
+          {["elcm", "ks8500_runner", "loadcore_agent", "nokia_radio", "ocf", "oneKE", "open5gs", "opensand_gw", "opensand_sat", "opensand_st", "stf_ue", "tn_bastion", "tn_init", "tn_vxlan", "tsn", "ueransim", "vm_kvm", "vnet", "xrext"].map((label, index) => (
             <button
               key={index}
               type="button"
@@ -263,37 +294,31 @@ const CreateTN = () => {
               <img
                 src={`/icons/${label}.png`}
                 alt={`${label} logo`}
-                className="w-20 h-20 rounded-40"
               />
               <span className="text-sm mt-2">{label}</span>
             </button>
           ))}
         </div>
       </div>
-
-      {/* Mostrar Componentes Seleccionados */}
       <div className="p-4">
-        <h2 className="text-xl font-medium mb-4">Selected components:</h2>
-        {selectedComponent.length === 0 ? (
-          <p>No components selected yet</p>
-        ) : (
-          <ul>
-            {selectedComponent.map((component) => (
-              <li key={component.id} className="flex items-center mb-2">
-                {switchComponent(component, handleRemoveComponent)}
-              </li>
-            ))}
-          </ul>
-        )}
+        {selectedComponent.map((component) => (
+          <div key={component.id} className="border rounded p-4 mb-4">
+            {switchComponent(component, handleRemoveComponent, handleComponentFormChange)}
+          </div>
+        ))}
       </div>
-
-      <div className="flex justify-center p-4">
-        <button className="bg-purple-600 text-white px-4 py-2 rounded-md" onClick={handleDownload}>
-          Download Trial Network Data
-        </button>
-      </div>
+      <div className="p-4 flex justify-center items-center">
+      <button
+        type="button"
+        className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
+        onClick={handleDownload}
+      >
+        Download Configuration
+      </button>
+    </div>
     </div>
   );
 };
 
 export default CreateTN;
+

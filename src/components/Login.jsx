@@ -15,31 +15,49 @@ const Login = () => {
 
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevenir el comportamiento por defecto del formulario
+    e.preventDefault(); // Prevent the default form behavior
     try {
-      // Llamamos a la función loginUser pasando el usuario y password
-      const response = await loginUser(user, password);
+        // Configure a timeout for the request
+        const response = await loginUser(user, password, { timeout: 10000 }); // 10-second timeout
 
-      // Suponiendo que el servidor devuelve un JSON con access_token y refresh_token
-      const accessToken = response.data.access_token;
-      const refreshToken = response.data.refresh_token;
+        // Assuming the server returns a JSON with access_token and refresh_token
+        const accessToken = response.data.access_token;
+        const refreshToken = response.data.refresh_token;
 
-      // Guardamos el access_token en sessionStorage (solo para la sesión actual)
-      sessionStorage.setItem("access_token", accessToken);
-      // Guardamos el refresh_token en localStorage (para persistirlo entre sesiones)
-      localStorage.setItem("refresh_token", refreshToken);
-      
-      setSuccess("Login successful!");
-      setError(""); // Limpiamos el mensaje de error
-      setTimeout(() => {
-       window.location = '/dashboard';
-      } , 1002);
+        // Save the access_token in sessionStorage (only for the current session)
+        sessionStorage.setItem("access_token", accessToken);
+        // Save the refresh_token in localStorage (to persist it across sessions)
+        localStorage.setItem("refresh_token", refreshToken);
+
+        setSuccess("Login successful!");
+        setError(""); // Clear the error message
+        setTimeout(() => {
+            window.location = '/dashboard';
+        }, 1002);
     } catch (err) {
-      // Manejar errores
-      setError(err.message || "Login failed. Please try again.");
-      setSuccess(""); // Limpiamos el mensaje de éxito
+        // Handle different types of errors
+        if (err.response) {
+            // Errors with server response
+            if (err.response.status === 404) {
+                setError("The server is not responding.");
+            } else {
+                setError(err.message || "Login failed. Please try again.");
+            }
+        } else if (err.code === 'ECONNABORTED') {
+            // Timeout errors
+            setError("The request took too long to respond. Please try again later.");
+        } else if (err.message === "Network Error") {
+            // General network errors
+            setError("Network error. Please check your internet connection.");
+        } else {
+            // Other errors
+            setError(err.message || "Login failed. Please try again.");
+        }
+        setSuccess(""); // Clear the success message
     }
   };
+
+
 
   return (
     <div className="bg-white font-sans min-h-screen flex flex-col relative">

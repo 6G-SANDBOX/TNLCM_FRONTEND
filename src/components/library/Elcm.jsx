@@ -45,6 +45,10 @@ const Elcm = ({ id, removeComponent, onChange }) => {
           const field = result.component_input[key];
           initialValues[key] = field.default_value || "";  // Establece el valor por defecto
         }
+
+        // Agregar el campo 'name' con un valor inicial vacío
+        initialValues['name'] = '';
+
         setFormValues(initialValues); // Establece los valores por defecto en el estado
 
         // Llama a onChange para enviar los valores predeterminados
@@ -54,7 +58,7 @@ const Elcm = ({ id, removeComponent, onChange }) => {
       }
     };
     loadData();
-  }, [id]); // Solo depende de 'id', no de 'onChange'
+  }, [id, onChange]); // Solo depende de 'id', no de 'onChange'
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -116,7 +120,25 @@ const Elcm = ({ id, removeComponent, onChange }) => {
 
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
         <form>
-          {Object.keys(data).map((key) => {
+           {/* Campo adicional 'name' */}
+           <div className="mb-4">
+            <label htmlFor="name" className="block text-gray-700 font-semibold">
+              Name:
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
+              onChange={handleChange}  // Llama a handleChange para actualizar el valor
+              className="w-full border border-gray-300 rounded-md p-2 mt-1"
+            />
+            {errorMessages.name && (
+              <small className="block mt-1 text-red-500">{errorMessages.name}</small>
+            )}
+          </div>
+          {/* Renderiza los campos de la API */}
+          {data && Object.keys(data).map((key) => {
             const field = data[key];
             return (
               <div key={key} className="mb-4">
@@ -127,7 +149,7 @@ const Elcm = ({ id, removeComponent, onChange }) => {
                   type="text"
                   id={key}
                   name={key}
-                  value={formValues[key] || ""} // Muestra el valor editado, o un campo vacío si no hay valor
+                  value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                   onChange={handleChange}  // Llama a handleChange para actualizar el valor
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                 />

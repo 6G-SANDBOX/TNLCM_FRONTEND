@@ -151,7 +151,7 @@ const TnInit = ({ id, removeComponent, onChange }) => {
                   type="text"
                   id={key}
                   name={key}
-                  value={formValues[key] || ""}
+                  value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                   onChange={(event) => {
                     if (field.type === "int") {
                       handleIntegerValidation(event, key); // Validación para campos de tipo entero

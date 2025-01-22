@@ -43,6 +43,8 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
           const field = result.component_input[key];
           initialValues[key] = field.default_value || "";
         }
+        // Agregar el campo 'name' con un valor inicial vacío
+        initialValues['name'] = ''; 
         setFormValues(initialValues);
 
         // Llama a onChange para enviar los valores predeterminados
@@ -128,6 +130,24 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
 
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
         <form>
+           {/* Campo adicional 'name' */}
+           <div className="mb-4">
+            <label htmlFor="name" className="block text-gray-700 font-semibold">
+              Name:
+            </label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
+              onChange={handleChange}  // Llama a handleChange para actualizar el valor
+              className="w-full border border-gray-300 rounded-md p-2 mt-1"
+            />
+            {errorMessages.name && (
+              <small className="block mt-1 text-red-500">{errorMessages.name}</small>
+            )}
+          </div>
+          
           {Object.keys(data).map((key) => {
             const field = data[key];
             if (key === "one_ks8500runner_networks") {
@@ -140,7 +160,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
                     type="text"
                     id={key}
                     name={key}
-                    value={formValues[key]?.join(", ")}
+                    value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                     onChange={handleNetworkChange}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   />
@@ -179,7 +199,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
                   type="text"
                   id={key}
                   name={key}
-                  value={formValues[key] || ""}
+                  value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                   onChange={handleChange}
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                 />
