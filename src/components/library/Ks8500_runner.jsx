@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const Ks8500Runner = ({ id, removeComponent, onChange }) => {
+const Ks8500Runner = ({ id, removeComponent, onChange, list }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -44,9 +44,8 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
           initialValues[key] = field.default_value || "";
         }
         // Agregar el campo 'name' con un valor inicial vacío
-        initialValues['name'] = ''; 
+        initialValues['name'] = '';
         setFormValues(initialValues);
-
         // Llama a onChange para enviar los valores predeterminados
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]); // Envía los valores predeterminados al componente principal
@@ -54,39 +53,41 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
       }
     };
     loadData();
-  }, [id, onChange]);
+  }, [id, onChange,]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Actualiza los valores del formulario
+    // Actualiza los valores del formulario con el valor ingresado por el usuario
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,
+      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
     }));
 
-    // Llama a onChange para actualizar el estado en el componente principal
+    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
     onChange(id, name, value);
 
-    // Validación si el campo está vacío y muestra el mensaje de error si es necesario
-    if (data[name]?.required_when && value.trim() === "") {
-      setErrorMessages((prevState) => ({
-        ...prevState,
-        [name]: `${name.replace(/_/g, " ")} cannot be empty.`,
-      }));
-    } else {
-      setErrorMessages((prevState) => {
-        const newState = { ...prevState };
-        delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
-        return newState;
-      });
+    // Validación de campo
+    if (data[name]?.required_when || name === 'name') {  // Verifica si el campo es obligatorio (incluyendo 'name')
+      if (value.trim() === "") {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `${name} cannot be empty.`,
+        }));
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+      }
     }
   };
 
   const handleNetworkChange = (event) => {
     const { value } = event.target;
     const networkValue = value.split(",").map((v) => v.trim());
-
+    console.log(list)
     // Actualiza el valor del formulario para "one_ks8500runner_networks"
     setFormValues((prevState) => ({
       ...prevState,
@@ -151,6 +152,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange }) => {
           {Object.keys(data).map((key) => {
             const field = data[key];
             if (key === "one_ks8500runner_networks") {
+              //TODO - Hacer un adder de networks seleccionables de aquellas creadas en el sistema
               return (
                 <div key={key} className="mb-4">
                   <label htmlFor={key} className="block text-gray-700 font-semibold">

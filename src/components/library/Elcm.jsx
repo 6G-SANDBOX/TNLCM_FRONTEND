@@ -50,7 +50,7 @@ const Elcm = ({ id, removeComponent, onChange }) => {
         initialValues['name'] = '';
 
         setFormValues(initialValues); // Establece los valores por defecto en el estado
-
+        
         // Llama a onChange para enviar los valores predeterminados
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]); // Envia los valores al componente principal
@@ -73,17 +73,19 @@ const Elcm = ({ id, removeComponent, onChange }) => {
     onChange(id, name, value);
 
     // Validación de campo
-    if (data[name]?.required_when && value.trim() === "") {
-      setErrorMessages((prevState) => ({
-        ...prevState,
-        [name]: `${name} cannot be empty.`,
-      }));
-    } else {
-      setErrorMessages((prevState) => {
-        const newState = { ...prevState };
-        delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
-        return newState;
-      });
+    if (data[name]?.required_when || name === 'name') {  // Verifica si el campo es obligatorio (incluyendo 'name')
+      if (value.trim() === "") {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `${name} cannot be empty.`,
+        }));
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+      }
     }
   };
 

@@ -60,27 +60,29 @@ const LoadcoreAgent = ({ id, removeComponent, onChange }) => {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Update form values
+    // Actualiza los valores del formulario con el valor ingresado por el usuario
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,
+      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
     }));
 
-    // Call onChange to update parent component's state
+    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
     onChange(id, name, value);
 
-    // Validate if the field is empty and show an error message if necessary
-    if (data[name]?.required_when && value.trim() === "") {
-      setErrorMessages((prevState) => ({
-        ...prevState,
-        [name]: `${name.replace(/_/g, " ")} cannot be empty.`,
-      }));
-    } else {
-      setErrorMessages((prevState) => {
-        const newState = { ...prevState };
-        delete newState[name]; // Remove error message if the field is not empty
-        return newState;
-      });
+    // Validación de campo
+    if (data[name]?.required_when || name === 'name') {  // Verifica si el campo es obligatorio (incluyendo 'name')
+      if (value.trim() === "") {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `${name} cannot be empty.`,
+        }));
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+      }
     }
   };
 

@@ -34,6 +34,19 @@ const CreateTN = () => {
   const [componentForms, setComponentForms] = useState({});
   const [errors, setErrors] = useState({});
 
+  const filterVnetOrTnVxlanComponents = () => {
+    const filteredComponents = selectedComponent.filter((component) => 
+      component.label.toLowerCase().includes('vnet') || component.label.toLowerCase().includes('tn_vxlan')
+    );
+    
+    // Devuelve una lista en formato "label-name"
+    return filteredComponents.map((component) => {
+      const componentForm = componentForms[component.id] || {};
+      return `${component.label}-${componentForm.name || ''}`;
+    });
+  };
+
+
   const validateForm = () => {
     const newErrors = {};
     Object.keys(formData).forEach((key) => {
@@ -138,7 +151,8 @@ const CreateTN = () => {
       case "elcm":
         return <Elcm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "ks8500_runner":
-        return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        const list =filterVnetOrTnVxlanComponents; // Aquí puedes generar la lista de manera dinámica
+        return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={list} />;
       case "loadcore_agent":
         return <LoadcoreAgent id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "nokia_radio":
