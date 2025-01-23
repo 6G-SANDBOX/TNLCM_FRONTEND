@@ -31,30 +31,36 @@ const Elcm = ({ id, removeComponent, onChange }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
-
+  const [requiredFields, setRequiredFields] = useState({});
   // useEffect para cargar los datos una vez que el componente se monta
   useEffect(() => {
     const loadData = async () => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-
+        const required = [];  // Para almacenar los campos obligatorios
         // Inicializa los valores del formulario con los valores predeterminados de la API
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
           initialValues[key] = field.default_value || "";  // Establece el valor por defecto
+          if (field.required_when) {
+            required.push(key);
+          }
         }
 
         // Agregar el campo 'name' con un valor inicial vacío
+        required.push("name");
         initialValues['name'] = '';
-
-        setFormValues(initialValues); // Establece los valores por defecto en el estado
+        initialValues['required']=required;
         
+        setRequiredFields(required);  // Actualiza la lista de campos obligatorios
+        setFormValues(initialValues); // Establece los valores por defecto en el estado
         // Llama a onChange para enviar los valores predeterminados
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]); // Envia los valores al componente principal
         }
+        
       }
     };
     loadData();
@@ -72,8 +78,8 @@ const Elcm = ({ id, removeComponent, onChange }) => {
     // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
     onChange(id, name, value);
 
-    // Validación de campo
-    if (data[name]?.required_when || name === 'name') {  // Verifica si el campo es obligatorio (incluyendo 'name')
+    // Actualiza los errores para el campo correspondiente
+    if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
           ...prevState,

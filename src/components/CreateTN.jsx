@@ -58,6 +58,24 @@ const CreateTN = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const validateComps= () => {
+    const requi= getRequiredFields();
+    console.log(requi);
+    //TODO VALIDAR LOS COMPONENTES
+
+  }
+  const getRequiredFields = () => {
+    return selectedComponent.map((component) => {
+      const componentData = componentForms[component.id] || {};
+      return {
+        label: component.label,
+        name: componentData.name,
+        requiredFields: componentData.required || [], // Obtiene los campos requeridos para el componente
+      };
+    });
+  };
+  
+
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevState) => ({
@@ -114,8 +132,11 @@ const CreateTN = () => {
   }, []);
 
   const handleDownload = () => {
-    if (!validateForm()) return;
-  
+    if (!validateForm()) { //TODO PONER EN EL IF LA VALIDACIÓN
+      validateComps();
+      return;
+    }
+      
     const networkData = {
       formData,
       components: selectedComponent.map((component) => {
