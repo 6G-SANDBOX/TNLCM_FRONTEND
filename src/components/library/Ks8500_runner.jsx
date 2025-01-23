@@ -36,7 +36,6 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list }) => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-
         // Inicializa los valores del formulario con los valores predeterminados de la API
         const initialValues = {};
         for (const key in result.component_input) {
@@ -68,7 +67,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list }) => {
     onChange(id, name, value);
 
     // Validación de campo
-    if (data[name]?.required_when || name === 'name') {  // Verifica si el campo es obligatorio (incluyendo 'name')
+    if (data[name]?.required_when || name === 'name') { // Ver ifica si el campo es obligatorio (incluyendo 'name')
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
           ...prevState,
@@ -84,19 +83,6 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list }) => {
     }
   };
 
-  const handleNetworkChange = (event) => {
-    const { value } = event.target;
-    const networkValue = value.split(",").map((v) => v.trim());
-    console.log(list)
-    // Actualiza el valor del formulario para "one_ks8500runner_networks"
-    setFormValues((prevState) => ({
-      ...prevState,
-      one_ks8500runner_networks: networkValue,
-    }));
-
-    // Llama a onChange para actualizar el estado en el componente principal
-    onChange(id, "one_ks8500runner_networks", networkValue);
-  };
 
   // Muestra el mensaje de éxito si data es null
   if (data === null) {
@@ -152,24 +138,62 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list }) => {
           {Object.keys(data).map((key) => {
             const field = data[key];
             if (key === "one_ks8500runner_networks") {
-              //TODO - Hacer un adder de networks seleccionables de aquellas creadas en el sistema
+              // Sincroniza las opciones seleccionadas con las actuales de la lista
+              const validSelectedNetworks =
+                formValues[key]?.filter((n) => list.includes(n)) || [];
+            
+              // Si las redes válidas han cambiado, actualiza el estado
+              if (validSelectedNetworks.length !== (formValues[key]?.length || 0)) {
+                setFormValues((prevState) => ({
+                  ...prevState,
+                  [key]: validSelectedNetworks,
+                }));
+            
+                // Notifica el cambio al componente padre
+                onChange(id, key, validSelectedNetworks);
+              }
+            
               return (
                 <div key={key} className="mb-4">
-                  <label htmlFor={key} className="block text-gray-700 font-semibold">
-                    {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())} (comma separated list):
+                  <label className="block text-gray-700 font-semibold mb-2">
+                    Select Networks:
                   </label>
-                  <input
-                    type="text"
-                    id={key}
-                    name={key}
-                    value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
-                    onChange={handleNetworkChange}
-                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                  />
-                  <small className="block mt-1 text-gray-500">{field.description}</small>
+                  {list.map((network, index) => (
+                    <div key={index} className="flex items-center mb-1">
+                      <input
+                        type="checkbox"
+                        id={`${key}_${index}`}
+                        name={key}
+                        value={network}
+                        checked={formValues[key]?.includes(network) || false}
+                        onChange={(event) => {
+                          const updatedNetworks = event.target.checked
+                            ? [...validSelectedNetworks, network]
+                            : validSelectedNetworks.filter((n) => n !== network);
+            
+                          setFormValues((prevState) => ({
+                            ...prevState,
+                            [key]: updatedNetworks,
+                          }));
+            
+                          onChange(id, key, updatedNetworks);
+                        }}
+                        className="mr-2"
+                      />
+                      <label htmlFor={`${key}_${index}`} className="text-gray-700">
+                        {network}
+                      </label>
+                    </div>
+                  ))}
+                  <small className="block mt-1 text-gray-500">
+                    Select one or more networks to include.
+                  </small>
                 </div>
               );
             }
+            
+            
+            
 
             if (key === "ks8500runner_special_action") {
               return (

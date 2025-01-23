@@ -34,6 +34,13 @@ const TopNavigator = () => {
     setMenuVisible(!menuVisible); // Alternar la visibilidad del menú
   };
 
+  const handleListClick= () => {
+
+    if (!isAuthenticated){
+      return;
+    }
+    window.location = '/dashboard'
+  }
   // Función para cerrar sesión y eliminar los tokens
   const handleLogout = () => {
     // Eliminar los tokens de sessionStorage y localStorage
@@ -53,7 +60,7 @@ const TopNavigator = () => {
   return (
     <div id="topNavigator" className="bg-purple-600 h-16 flex items-center justify-between px-4 shadow-md">
       {/* Boton para ir  a dashboard */}
-      <button className="text-white text-lg focus:outline-none" onClick={() => window.location = '/dashboard'}>
+      <button className="text-white text-lg focus:outline-none" onClick={handleListClick}>
         <FontAwesomeIcon icon={faBars} />
       </button>
 
@@ -66,16 +73,16 @@ const TopNavigator = () => {
         {/* Menú desplegable */}
         {menuVisible && isAuthenticated && (
           <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg">
-            <button 
+            <button
               className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:rounded-lg"
             >
-              Perfil
+              Profile
             </button>
             <button
               className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 hover:rounded-lg"
               onClick={handleLogout}
             >
-              Cerrar sesión
+              Close Session
             </button>
           </div>
         )}

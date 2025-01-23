@@ -151,7 +151,7 @@ const CreateTN = () => {
       case "elcm":
         return <Elcm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "ks8500_runner":
-        const list =filterVnetOrTnVxlanComponents; // Aquí puedes generar la lista de manera dinámica
+        const list =filterVnetOrTnVxlanComponents(); // Aquí puedes generar la lista de manera dinámica
         return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={list} />;
       case "loadcore_agent":
         return <LoadcoreAgent id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;

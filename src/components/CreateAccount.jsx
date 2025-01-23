@@ -56,14 +56,14 @@ import React, { useState } from "react";
       } catch (error) {
         if (error.response) {
           if (error.response.status === 409) {
-            setErrorMessage("Ya existe el usuario o el correo");
+            setErrorMessage("This username or mail already exists");
           } else {
             setErrorMessage(
-              `Error inesperado: ${error.response.status} - ${error.response.data.message || "Por favor intenta nuevamente"}`
+              `Unexpected error: ${error.response.status} - ${error.response.data.message || "Please try again later"}`
             );
           }
         } else {
-          setErrorMessage("Error de conexión al servidor. Por favor, verifica tu red.");
+          setErrorMessage("Connection error, please check your internet network.");
         }
         console.error("Error creating account:", error);
       }

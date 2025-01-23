@@ -97,7 +97,7 @@ const TerminalModal = ({ isOpen, onClose, vmId }) => {
               </p>
             ))
           ) : (
-            <p className="text-gray-500">No logs disponibles.</p>
+            <p className="text-gray-500">No logs avaliables.</p>
           )}
         </div>
       </div>

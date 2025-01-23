@@ -15,47 +15,48 @@ const Login = () => {
 
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent the default form behavior
+    e.preventDefault(); // Evita el comportamiento predeterminado del formulario
     try {
-        // Configure a timeout for the request
-        const response = await loginUser(user, password, { timeout: 10000 }); // 10-second timeout
-
-        // Assuming the server returns a JSON with access_token and refresh_token
-        const accessToken = response.data.access_token;
-        const refreshToken = response.data.refresh_token;
-
-        // Save the access_token in sessionStorage (only for the current session)
-        sessionStorage.setItem("access_token", accessToken);
-        // Save the refresh_token in localStorage (to persist it across sessions)
-        localStorage.setItem("refresh_token", refreshToken);
-
-        setSuccess("Login successful!");
-        setError(""); // Clear the error message
-        setTimeout(() => {
-            window.location = '/dashboard';
-        }, 1002);
+      // Configura un timeout de 5 segundos
+      const response = await loginUser(user, password, { timeout: 5000 }); // Timeout en 5 segundos
+  
+      // Suponiendo que el servidor devuelve un JSON con access_token y refresh_token
+      const accessToken = response.data.access_token;
+      const refreshToken = response.data.refresh_token;
+  
+      // Guarda el access_token en sessionStorage (solo para la sesión actual)
+      sessionStorage.setItem("access_token", accessToken);
+      // Guarda el refresh_token en localStorage (para persistirlo entre sesiones)
+      localStorage.setItem("refresh_token", refreshToken);
+  
+      setSuccess("Login successful!");
+      setError(""); // Limpia los mensajes de error
+      setTimeout(() => {
+        window.location = "/dashboard";
+      }, 1002);
     } catch (err) {
-        // Handle different types of errors
-        if (err.response) {
-            // Errors with server response
-            if (err.response.status === 404) {
-                setError("The server is not responding.");
-            } else {
-                setError(err.message || "Login failed. Please try again.");
-            }
-        } else if (err.code === 'ECONNABORTED') {
-            // Timeout errors
-            setError("The request took too long to respond. Please try again later.");
-        } else if (err.message === "Network Error") {
-            // General network errors
-            setError("Network error. Please check your internet connection.");
+      // Manejo de diferentes tipos de errores
+      if (err.response) {
+        // Errores con respuesta del servidor
+        if (err.response.status === 404) {
+          setError("The server is not responding.");
         } else {
-            // Other errors
-            setError(err.message || "Login failed. Please try again.");
+          setError(err.message || "Login failed. Please try again.");
         }
-        setSuccess(""); // Clear the success message
+      } else if (err.code === "ECONNABORTED") {
+        // Errores por timeout
+        setError("Can not connect with the server. The request timed out.");
+      } else if (err.message === "Network Error") {
+        // Errores de red generales
+        setError("Network error. Please check your internet connection.");
+      } else {
+        // Otros errores
+        setError( "Login failed. Please try again later.");
+      }
+      setSuccess(""); // Limpia los mensajes de éxito
     }
   };
+  
 
 
 
@@ -150,26 +151,34 @@ const Login = () => {
 
 export default Login;
 
-export async function loginUser(username, password) {
+export async function loginUser(username, password, config = {}) {
+  // Construir la cadena de autenticación básica
   const authString = `${username}:${password}`;
   const encodedAuth = window.btoa(unescape(encodeURIComponent(authString))); // Soporta caracteres especiales
   const basicAuthHeader = `Basic ${encodedAuth}`;
 
   try {
-    // Leer la URL desde el archivo .env
+    // Leer la URL base desde las variables de entorno
     const url = process.env.REACT_APP_ENDPOINT;
+
+    // Realizar la solicitud POST al endpoint de login
     const response = await axios.post(
       `${url}/tnlcm/user/login`,
-      {}, // No hay cuerpo, ya que el auth está en los headers
+      {}, // No hay cuerpo, ya que la autenticación está en los headers
       {
         headers: {
-          Authorization: basicAuthHeader,
+          Authorization: basicAuthHeader, // Header de autenticación básica
           "Content-Type": "application/json",
         },
+        ...config, // Incluye configuraciones adicionales como timeout
       }
     );
+
+    // Devolver la respuesta si es exitosa
     return response;
   } catch (error) {
-    alert(error.response?.data?.message || "Login failed. Please try again.");
+    // Lanzar el error para que el manejo ocurra en el lugar donde se llama esta función
+    throw error;
   }
 }
+
