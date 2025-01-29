@@ -30,22 +30,37 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2 }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
+  const [requiredFields, setRequiredFields] = useState({});
 
   useEffect(() => {
     const loadData = async () => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
+        const required = [];
         // Inicializamos el estado formValues con los valores predeterminados de los campos.
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          initialValues[key] = field.default_value || "";
+          //TODO ME MARCA POR DEFECTOTN_VXLAN EN EXTERNAL
+          //TODO PROBAR QUE FUNCIONA BIEN
+          // No asignar valor por defecto si el campo es 'one_oneKE_external_vnet o one_oneKE_internal_vnet '
+          if (key !== "one_oneKE_external_vnet" || key !== "one_oneKE_internal_vnet") {
+            initialValues[key] = field.default_value || "";
+          } else {
+            initialValues[key] ="";
+          }
+          
+          if (field.required_when) {
+            required.push(key);
+          }
         }
         // Agregar el campo 'name' con un valor inicial vacío
+        required.push("name");
         initialValues['name'] = '';
+        initialValues['required']=required;
         setFormValues(initialValues);
-
+        setRequiredFields(required);
         // Llamamos a onChange para enviar los valores iniciales al componente principal
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
@@ -54,6 +69,60 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2 }) => {
     };
     loadData();
   }, [id, onChange]);
+
+  useEffect(() => {
+    // Asegúrate de que "one_loadcore_agent_networks" sea un array, incluso si no está inicializado
+    const networks1 = Array.isArray(formValues["one_oneKE_external_vnet"])
+      ? formValues["one_oneKE_external_vnet"]
+      : [];
+  
+    // Filtrar las redes seleccionadas que aún están en la lista
+    const validNetworks1 = networks1.filter((network) => list1.includes(network));
+  
+    // Si las redes válidas han cambiado, actualiza los valores del formulario
+    if (validNetworks1.length !== networks1.length) {
+      setFormValues((prevState) => ({
+        ...prevState,
+        "one_oneKE_external_vnet": validNetworks1,  // Actualiza el estado de las redes seleccionadas
+      }));
+  
+      // Llama a onChange para actualizar el estado en el componente principal
+      onChange(id, "one_oneKE_external_vnet", validNetworks1);
+    }
+
+    const networks2 = Array.isArray(formValues["one_oneKE_internal_vnet"])
+      ? formValues["one_oneKE_internal_vnet"]
+      : [];
+    const validNetworks2 =networks2.filter((network) => list2.includes(network));
+    if (validNetworks2.length !== networks2.length) {
+      setFormValues((prevState) => ({
+        ...prevState,
+        "one_oneKE_internal_vnet": validNetworks2,  // Actualiza el estado de las redes seleccionadas
+      }));
+  
+      // Llama a onChange para actualizar el estado en el componente principal
+      onChange(id, "one_oneKE_internal_vnet", validNetworks2);
+    }
+
+  }, [list1,list2,formValues,id,onChange]);  // Dependencia de `list`
+
+  const handleCheckboxChange = (event, key, network) => {
+    // Asegúrate de que formValues[key] sea un arreglo antes de intentar usar filter
+    const currentValue = Array.isArray(formValues[key]) ? formValues[key] : [];
+
+    const updatedNetworks = event.target.checked
+    ? [...currentValue, network] // Si está seleccionado, agrega la red
+    : currentValue.filter((n) => n !== network); // Si no está seleccionado, la elimina
+
+    // Actualiza los valores del formulario
+    setFormValues((prevState) => ({
+      ...prevState,
+      [key]: updatedNetworks,
+    }));
+  
+    // Llama a onChange para actualizar el estado en el componente principal
+    onChange(id, key, updatedNetworks);
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -68,7 +137,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2 }) => {
     onChange(id, name, value);
 
     // Validación de campo
-    if (data[name]?.required_when || name === 'name') {  // Verifica si el campo es obligatorio (incluyendo 'name')
+    if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
           ...prevState,
@@ -164,25 +233,107 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2 }) => {
 
           {Object.keys(data).map((key) => {
             const field = data[key];
+            if (key === "one_oneKE_external_vnet"){
+              return (
+                <div key={key} className="mb-4">
+                  <label className="block text-gray-700 font-semibold mb-2">
+                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
+                  </label>
+                  {list1.map((network, index) => (
+                    <div key={index} className="flex items-center mb-1">
+                      <input
+                        type="checkbox"
+                        id={`${key}_${index}`}
+                        name={key}
+                        value={network}
+                        checked={formValues[key]?.includes(network) || false}
+                        onChange={(event) => handleCheckboxChange(event, key, network)}
+                        className="mr-2"
+                      />
+                      <label htmlFor={`${key}_${index}`} className="text-gray-700">
+                        {network}
+                      </label>
+                    </div>
+                  ))}
+                 <small className="block mt-1 text-gray-500">
+                  {list1.length === 0 || list1 === ""
+                    ? "Create news vnets to be able to select"
+                    : "Select one or more networks to include"
+                  }
+                </small>
+                </div>
+              );
+            }
+            if(key === "one_oneKE_internal_vnet"){
+              return (
+                <div key={key} className="mb-4">
+                  <label className="block text-gray-700 font-semibold mb-2">
+                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
+                  </label>
+                  {list2.map((network, index) => (
+                    <div key={index} className="flex items-center mb-1">
+                      <input
+                        type="checkbox"
+                        id={`${key}_${index}`}
+                        name={key}
+                        value={network}
+                        checked={formValues[key]?.includes(network) || false}
+                        onChange={(event) => handleCheckboxChange(event, key, network)}
+                        className="mr-2"
+                      />
+                      <label htmlFor={`${key}_${index}`} className="text-gray-700">
+                        {network}
+                      </label>
+                    </div>
+                  ))}
+                 <small className="block mt-1 text-gray-500">
+                  {list2.length === 0 || list2 === ""
+                    ? "Create news vnets to be able to select"
+                    : "Select one or more networks to include"
+                  }
+                </small>
+                </div>
+              );
+            }
             return (
               <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
                   {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
-                <input
-                  type="text"
-                  id={key}
-                  name={key}
-                  value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
-                  onChange={(event) => {
-                    if (field.type === "int") {
-                      handleIntegerValidation(event, key); // Validación para campos de tipo entero
-                    } else {
-                      handleChange(event); // Para otros tipos de campos
-                    }
-                  }}
-                  className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                />
+
+                {/* Condicional para renderizar un input o select dependiendo de si hay "choices" */}
+                {field.choices ? (
+                  <select
+                    id={key}
+                    name={key}
+                    value={formValues[key] || ""}
+                    onChange={(event) => handleChange(event)} // Usar handleChange para actualizar el valor
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  >
+                    <option disabled value="">Select an option</option>
+                    {field.choices.map((choice, index) => (
+                      <option key={index} value={choice}>
+                        {choice}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    id={key}
+                    name={key}
+                    value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
+                    onChange={(event) => {
+                      if (field.type === "int") {
+                        handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                      } else {
+                        handleChange(event); // Para otros tipos de campos
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  />
+                )}
+
                 {errorMessages[key] && (
                   <small className="block mt-1 text-red-500">{errorMessages[key]}</small>
                 )}
