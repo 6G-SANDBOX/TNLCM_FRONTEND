@@ -230,7 +230,7 @@ const validateComps = () => {
         const listKS8 =filterVnetOrTnVxlanComponents(); // Aquí puedes generar la lista de manera dinámica
         return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listKS8} />;
       case "loadcore_agent":
-        const listLCA= filterVnetComponents();
+        const listLCA= filterVnetOrTnVxlanComponents();
         return <LoadcoreAgent id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listLCA}/>;
       case "nokia_radio":
         const listNokia=filterOneKEComponents();
@@ -239,7 +239,9 @@ const validateComps = () => {
         const listOCF=filterOneKEComponents();
         return <Ocf id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOCF}/>;
       case "oneKE":
-        return <OneKe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        const listO1=filterVnetOrTnVxlanComponents();
+        const listO2=filterVnetComponents();
+        return <OneKe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO1} list2={listO2}/>;
       case "open5gs":
         return <Open5gs id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "opensand_gw":

@@ -73,8 +73,8 @@ const Ocf = ({ id, removeComponent, onChange,list }) => {
     useEffect(() => {
       if (prevListRef.current?.length !== list.length) {
         // Realizar actualización solo si list cambia
-        if (list.length === 0 && formValues['nokia_radio_one_oneKE'] !== "") {
-          onChange(id, 'nokia_radio_one_oneKE', "");  // Enviar valor vacío
+        if (list.length === 0 && formValues['ocf_one_oneKE'] !== "") {
+          onChange(id, 'ocf_one_oneKE', "");  // Enviar valor vacío
         }
       }
       prevListRef.current = list;  // Actualizar el valor de referencia para la próxima comparación
@@ -250,7 +250,7 @@ const Ocf = ({ id, removeComponent, onChange,list }) => {
                 </div>
               );
             }
-            
+
             return (
               <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">

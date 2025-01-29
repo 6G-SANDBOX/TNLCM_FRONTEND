@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const OneKe = ({ id, removeComponent, onChange }) => {
+const OneKe = ({ id, removeComponent, onChange, list1, list2 }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
