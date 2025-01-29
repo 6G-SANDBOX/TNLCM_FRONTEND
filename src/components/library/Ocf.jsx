@@ -1,7 +1,7 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getAccessTokenFromSessionStorage } from "../../auxFunc/jwt.js";
 
 const fetchData = async () => {
@@ -26,27 +26,40 @@ const fetchData = async () => {
   return null;
 };
 
-const Ocf = ({ id, removeComponent, onChange }) => {
+const Ocf = ({ id, removeComponent, onChange,list }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
+   const [requiredFields, setRequiredFields] = useState({});
 
   useEffect(() => {
     const loadData = async () => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-
+        const required = [];
         // Inicializar los valores del formulario con los valores predeterminados de la API
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          initialValues[key] = field.default_value || "";
+          
+          // No asignar valor por defecto si el campo es 'one_ks8500runner_networks'
+          if (key !== "ocf_one_oneKE") {
+            initialValues[key] = field.default_value || "";
+          } else {
+            initialValues[key] ="";
+          }
+          
+          if (field.required_when) {
+            required.push(key);
+          }
         }
         // Agregar el campo 'name' con un valor inicial vacío
+        required.push("name");
         initialValues['name'] = '';
+        initialValues['required']=required;
         setFormValues(initialValues);
-
+        setRequiredFields(required);
         // Llamar a onChange para pasar los valores iniciales al componente principal
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
@@ -55,6 +68,49 @@ const Ocf = ({ id, removeComponent, onChange }) => {
     };
     loadData();
   }, [id, onChange]);
+
+  const prevListRef = useRef();
+    useEffect(() => {
+      if (prevListRef.current?.length !== list.length) {
+        // Realizar actualización solo si list cambia
+        if (list.length === 0 && formValues['nokia_radio_one_oneKE'] !== "") {
+          onChange(id, 'nokia_radio_one_oneKE', "");  // Enviar valor vacío
+        }
+      }
+      prevListRef.current = list;  // Actualizar el valor de referencia para la próxima comparación
+    }, [list, formValues, onChange, id]);
+
+  const handleSelectChange = (event, key) => {
+    const { name, value } = event.target;
+    setFormValues((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+    // Si la opción seleccionada desaparece de la lista (es decir, la opción ya no está disponible)
+    if (!list.includes(value)) {
+      // Aquí actualizamos el estado del componente padre para reflejar el cambio
+      onChange(id, key, "");  // Enviamos un valor vacío o nulo al componente padre para indicar que la selección fue eliminada
+    } else {
+      // Si la opción sigue disponible, actualizamos normalmente el valor
+      onChange(id, key, value);
+    }
+    
+    // Validación de campo
+    if (requiredFields.includes(name)) {
+      if (value.trim() === "") {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `${name} cannot be empty.`,
+        }));
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+      }
+    }
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -69,7 +125,7 @@ const Ocf = ({ id, removeComponent, onChange }) => {
     onChange(id, name, value);
 
     // Validación de campo
-    if (data[name]?.required_when || name === 'name') {  // Verifica si el campo es obligatorio (incluyendo 'name')
+    if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
           ...prevState,
@@ -165,6 +221,36 @@ const Ocf = ({ id, removeComponent, onChange }) => {
 
           {Object.keys(data).map((key) => {
             const field = data[key];
+            if (key === "ocf_one_oneKE"){
+              return (
+                <div key={key} className="mb-4">
+                  <label htmlFor={key} className="block text-gray-700 font-semibold">
+                    {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
+                  </label>
+                  <select
+                    id={key}
+                    name={key}
+                    value={formValues[key] || ""}
+                    onChange={(e) => handleSelectChange(e, key)}
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  >
+                    <option value="">Select an option</option>
+                    {list && list.map((option, index) => (
+                      <option key={index} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <small className="block mt-1 text-gray-500">
+                  {list.length === 0 || list === ""
+                    ? "Create news oneKEs to be able to select"
+                    : field.description
+                  }
+                </small>
+                </div>
+              );
+            }
+            
             return (
               <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">

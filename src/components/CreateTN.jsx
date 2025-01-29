@@ -20,6 +20,7 @@ import VmKvm from "./library/Vm_Kvm";
 import Vnet from "./library/Vnet";
 import Xrext from "./library/Xrext";
 
+
 const CreateTN = () => {
   const [selectedComponent, setSelectedComponent] = useState([]);
   const [formData, setFormData] = useState({
@@ -33,18 +34,43 @@ const CreateTN = () => {
 
   const [componentForms, setComponentForms] = useState({});
   const [errors, setErrors] = useState({});
+  const [Cerrors,SetCerrors] = useState({});
 
-  const filterVnetOrTnVxlanComponents = () => {
-    const filteredComponents = selectedComponent.filter((component) => 
+  const filterVnetOrTnVxlanComponents = useCallback(() => {
+    const filteredComponents = selectedComponent.filter((component) =>
       component.label.toLowerCase().includes('vnet') || component.label.toLowerCase().includes('tn_vxlan')
     );
-    
+  
     // Devuelve una lista en formato "label-name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
-      return `${component.label}-${componentForm.name || ''}`;
+      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
     });
-  };
+  }, [selectedComponent, componentForms]);
+  
+  const filterVnetComponents = useCallback(() => {
+    const filteredComponents = selectedComponent.filter((component) =>
+      component.label.toLowerCase().includes('vnet')
+    );
+  
+    // Devuelve una lista en formato "label-name"
+    return filteredComponents.map((component) => {
+      const componentForm = componentForms[component.id] || {};
+      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
+    });
+  }, [selectedComponent, componentForms]);
+  
+  const filterOneKEComponents = useCallback(() => {
+    const filteredComponents = selectedComponent.filter((component) =>
+      component.label.toLowerCase().includes('oneke')
+    );
+  
+    // Devuelve una lista en formato "label-name"
+    return filteredComponents.map((component) => {
+      const componentForm = componentForms[component.id] || {};
+      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
+    });
+  }, [selectedComponent, componentForms]);
 
 
   const validateForm = () => {
@@ -58,12 +84,42 @@ const CreateTN = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateComps= () => {
-    const requi= getRequiredFields();
-    console.log(requi);
-    //TODO VALIDAR LOS COMPONENTES
+const validateComps = () => {
+  const requi = getRequiredFields();
+  let newErrors = {}; // Objeto temporal para acumular los errores
 
-  }
+  requi.forEach((component) => {
+    const matchedComponent = selectedComponent.find(
+      (comp) => comp.label === component.label &&
+                (componentForms[comp.id]?.name === component.name)
+    );
+
+    if (matchedComponent) {
+      const componentData = componentForms[matchedComponent.id] || {};
+
+      component.requiredFields.forEach((field) => {
+        if (
+          !componentData.hasOwnProperty(field) || // No existe el campo
+          componentData[field] === "" ||         // Está vacío
+          componentData[field] === null||
+          (Array.isArray(componentData[field]) && componentData[field].length === 0)
+          // Es null
+        ) {
+          // Agregar el error al objeto de errores
+          if (!newErrors[matchedComponent.id]) {
+            newErrors[matchedComponent.id] = {};
+          }
+          newErrors[matchedComponent.id][field] = `The field "${field}" is required for "${component.label}"`;
+        }
+      });
+    }
+  });
+
+  SetCerrors(newErrors); // Actualizar el estado de errores con los nuevos errores
+  return Object.keys(newErrors).length === 0;
+};
+
+  
   const getRequiredFields = () => {
     return selectedComponent.map((component) => {
       const componentData = componentForms[component.id] || {};
@@ -132,8 +188,7 @@ const CreateTN = () => {
   }, []);
 
   const handleDownload = () => {
-    if (!validateForm()) { //TODO PONER EN EL IF LA VALIDACIÓN
-      validateComps();
+    if (!validateForm() || !validateComps()) {
       return;
     }
       
@@ -172,14 +227,17 @@ const CreateTN = () => {
       case "elcm":
         return <Elcm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "ks8500_runner":
-        const list =filterVnetOrTnVxlanComponents(); // Aquí puedes generar la lista de manera dinámica
-        return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={list} />;
+        const listKS8 =filterVnetOrTnVxlanComponents(); // Aquí puedes generar la lista de manera dinámica
+        return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listKS8} />;
       case "loadcore_agent":
-        return <LoadcoreAgent id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        const listLCA= filterVnetComponents();
+        return <LoadcoreAgent id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listLCA}/>;
       case "nokia_radio":
-        return <NokiaRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        const listNokia=filterOneKEComponents();
+        return <NokiaRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listNokia}/>;
       case "ocf":
-        return <Ocf id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        const listOCF=filterOneKEComponents();
+        return <Ocf id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOCF}/>;
       case "oneKE":
         return <OneKe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "open5gs":
@@ -334,7 +392,28 @@ const CreateTN = () => {
             </button>
           ))}
         </div>
-      </div>
+
+        </div>
+        
+        {Object.keys(Cerrors).length > 0 && (
+          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg">
+            <h3 className="font-bold text-lg">Components errors:</h3>
+            <ul className="list-disc pl-5">
+              {Object.entries(Cerrors).map(([componentId, fields]) => (
+                <li key={componentId}>
+                  <strong>Component {componentId}:</strong>
+                  <ul className="list-disc pl-5">
+                    {Object.entries(fields).map(([field, message]) => (
+                      <li key={field} className="text-sm">{message}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+
       <div className="p-4">
         {selectedComponent.map((component) => (
           <div key={component.id} className="border rounded p-4 mb-4">
@@ -342,6 +421,7 @@ const CreateTN = () => {
           </div>
         ))}
       </div>
+      
       <div className="p-4 flex justify-center items-center">
       <button
         type="button"

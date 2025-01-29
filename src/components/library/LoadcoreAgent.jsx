@@ -26,28 +26,40 @@ const fetchData = async () => {
   return null;
 };
 
-const LoadcoreAgent = ({ id, removeComponent, onChange }) => {
+const LoadcoreAgent = ({ id, removeComponent, onChange,list }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
+  const [requiredFields, setRequiredFields] = useState({});
 
   useEffect(() => {
     const loadData = async () => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-
+        const required = [];  // Para almacenar los campos obligatorios
         // Initialize form values with default values from the API
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          initialValues[key] = field.default_value || "";
+          
+          // No asignar valor por defecto si el campo es 'one_ks8500runner_networks'
+          if (key !== "one_loadcore_agent_networks") {
+            initialValues[key] = field.default_value || "";
+          } else {
+            initialValues[key] ="";
+          }
+          
+          if (field.required_when) {
+            required.push(key);
+          }
         }
 
-        // Agregar el campo 'name' con un valor inicial vacío
+        required.push("name");
         initialValues['name'] = '';
+        initialValues['required']=required;
         setFormValues(initialValues);
-
+        setRequiredFields(required);
         // Call onChange to send default values to the parent component
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
@@ -56,6 +68,42 @@ const LoadcoreAgent = ({ id, removeComponent, onChange }) => {
     };
     loadData();
   }, [id, onChange]);
+
+  useEffect(() => {
+      // Asegúrate de que "one_loadcore_agent_networks" sea un array, incluso si no está inicializado
+      const networks = Array.isArray(formValues["one_loadcore_agent_networks"])
+        ? formValues["one_loadcore_agent_networks"]
+        : [];
+    
+      // Filtrar las redes seleccionadas que aún están en la lista
+      const validNetworks = networks.filter((network) => list.includes(network));
+    
+      // Si las redes válidas han cambiado, actualiza los valores del formulario
+      if (validNetworks.length !== networks.length) {
+        setFormValues((prevState) => ({
+          ...prevState,
+          "one_loadcore_agent_networks": validNetworks,  // Actualiza el estado de las redes seleccionadas
+        }));
+    
+        // Llama a onChange para actualizar el estado en el componente principal
+        onChange(id, "one_loadcore_agent_networks", validNetworks);
+      }
+    }, [list,formValues,id,onChange]);  // Dependencia de `list`
+
+    const handleCheckboxChange = (event, key, network) => {
+      const updatedNetworks = event.target.checked
+        ? [...formValues[key], network] // Si está seleccionado, agrega la red
+        : formValues[key].filter((n) => n !== network); // Si no está seleccionado, la elimina
+    
+      // Actualiza los valores del formulario
+      setFormValues((prevState) => ({
+        ...prevState,
+        [key]: updatedNetworks,
+      }));
+    
+      // Llama a onChange para actualizar el estado en el componente principal
+      onChange(id, key, updatedNetworks);
+    };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -70,7 +118,7 @@ const LoadcoreAgent = ({ id, removeComponent, onChange }) => {
     onChange(id, name, value);
 
     // Validación de campo
-    if (data[name]?.required_when || name === 'name') {  // Verifica si el campo es obligatorio (incluyendo 'name')
+    if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
           ...prevState,
@@ -127,7 +175,7 @@ const LoadcoreAgent = ({ id, removeComponent, onChange }) => {
             </label>
             <input
               type="text"
-              id="name"
+              id={`name-${id}`}
               name="name"
               value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
               onChange={handleChange}  // Llama a handleChange para actualizar el valor
@@ -143,19 +191,31 @@ const LoadcoreAgent = ({ id, removeComponent, onChange }) => {
             if (key === "one_loadcore_agent_networks") {
               return (
                 <div key={key} className="mb-4">
-                  <label htmlFor={key} className="block text-gray-700 font-semibold">
-                    {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())} (comma separated list):
+                  <label className="block text-gray-700 font-semibold mb-2">
+                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                   </label>
-                  <input
-                    type="text"
-                    id={key}
-                    name={key}
-                    value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
-                    onChange={handleChange}
-                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                  />
-                  <small className="block mt-1 text-gray-500">{field.description}</small>
-                  {errorMessages[key] && <p className="text-red-500">{errorMessages[key]}</p>}
+                  {list.map((network, index) => (
+                    <div key={index} className="flex items-center mb-1">
+                      <input
+                        type="checkbox"
+                        id={`${key}_${index}`}
+                        name={key}
+                        value={network}
+                        checked={formValues[key]?.includes(network) || false}
+                        onChange={(event) => handleCheckboxChange(event, key, network)}
+                        className="mr-2"
+                      />
+                      <label htmlFor={`${key}_${index}`} className="text-gray-700">
+                        {network}
+                      </label>
+                    </div>
+                  ))}
+                 <small className="block mt-1 text-gray-500">
+                  {list.length === 0 || list === ""
+                    ? "Create news vnets to be able to select"
+                    : "Select one or more networks to include"
+                  }
+                </small>
                 </div>
               );
             }
