@@ -208,7 +208,7 @@ const Ocf = ({ id, removeComponent, onChange,list }) => {
             </label>
             <input
               type="text"
-              id="name"
+              id={`name-${id}`}
               name="name"
               value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
               onChange={handleChange}  // Llama a handleChange para actualizar el valor

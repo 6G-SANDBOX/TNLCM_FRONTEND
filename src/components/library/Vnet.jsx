@@ -30,6 +30,7 @@ const Vnet = ({ id, removeComponent, onChange }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
+  const [requiredFields, setRequiredFields] = useState({});
 
   useEffect(() => {
     const loadData = async () => {
@@ -37,23 +38,53 @@ const Vnet = ({ id, removeComponent, onChange }) => {
       if (result) {
         setData(result.component_input);
         const initialValues = {};
+        const required = [];
         for (const key in result.component_input) {
-          initialValues[key] = result.component_input[key].default_value || "";
+          const field = result.component_input[key];
+          initialValues[key] = field.default_value || "";
+          if (field.required_when) {
+            required.push(key);
+          }
         }
         // Agregar el campo 'name' con un valor inicial vacío
+        required.push("name");
         initialValues['name'] = '';
+        initialValues['required']=required;
         setFormValues(initialValues);
-
+        setRequiredFields(required);
         // Llamar a onChange para pasar los valores iniciales al componente principal
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
         }
-      } else {
-        setData(null);  // Si no hay datos, establecer data como null
       }
     };
     loadData();
   }, [id, onChange]);
+  const validateInteger = (value) => {
+    return Number.isInteger(Number(value));
+  };
+
+  const handleIntegerValidation = (event, key) => {
+    const value = event.target.value;
+    setFormValues((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+
+    // Validar si el valor es un número entero
+    if (!validateInteger(value)) {
+      setErrorMessages((prevState) => ({
+        ...prevState,
+        [key]: `${key.replace(/_/g, " ")} must be an integer.`,
+      }));
+    } else {
+      setErrorMessages((prevState) => {
+        const newState = { ...prevState };
+        delete newState[key]; // Eliminar mensaje de error si es un número entero
+        return newState;
+      });
+    }
+  };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -68,7 +99,7 @@ const Vnet = ({ id, removeComponent, onChange }) => {
     onChange(id, name, value);
 
     // Validación de campo
-    if (data[name]?.required_when || name === 'name') {  // Verifica si el campo es obligatorio (incluyendo 'name')
+    if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
           ...prevState,
@@ -125,7 +156,7 @@ const Vnet = ({ id, removeComponent, onChange }) => {
             </label>
             <input
               type="text"
-              id="name"
+              id={`name-${id}`}
               name="name"
               value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
               onChange={handleChange}  // Llama a handleChange para actualizar el valor
@@ -138,18 +169,44 @@ const Vnet = ({ id, removeComponent, onChange }) => {
           {Object.keys(data).map((key) => {
             const field = data[key];
             return (
-              <div key={key} className="mb-4">
+              <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
                   {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
-                <input
-                  type="text"
-                  id={key}
-                  name={key}
-                  value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                />
+
+                {/* Condicional para renderizar un input o select dependiendo de si hay "choices" */}
+                {field.choices ? (
+                  <select
+                    id={key}
+                    name={key}
+                    value={formValues[key] || ""}
+                    onChange={(event) => handleChange(event)} // Usar handleChange para actualizar el valor
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  >
+                    <option disabled value="">Select an option</option>
+                    {field.choices.map((choice, index) => (
+                      <option key={index} value={choice}>
+                        {choice}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    id={key}
+                    name={key}
+                    value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
+                    onChange={(event) => {
+                      if (field.type === "int") {
+                        handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                      } else {
+                        handleChange(event); // Para otros tipos de campos
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  />
+                )}
+
                 {errorMessages[key] && (
                   <small className="block mt-1 text-red-500">{errorMessages[key]}</small>
                 )}

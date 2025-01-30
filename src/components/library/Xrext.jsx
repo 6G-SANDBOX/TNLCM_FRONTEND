@@ -26,34 +26,84 @@ const fetchData = async () => {
   return null;
 };
 
-const Xrext = ({ id, removeComponent, onChange }) => {
+const Xrext = ({ id, removeComponent, onChange,list }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
+  const [requiredFields, setRequiredFields] = useState({});
 
   useEffect(() => {
     const loadData = async () => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
+        const required = [];  // Para almacenar los campos obligatorios
+        // Initialize form values with default values from the API
         const initialValues = {};
         for (const key in result.component_input) {
-          initialValues[key] = result.component_input[key].default_value || "";
+          const field = result.component_input[key];
+          
+          // No asignar valor por defecto si el campo es 'one_ks8500runner_networks'
+          if (key !== "one_xrext_networks") {
+            initialValues[key] = field.default_value || "";
+          } else {
+            initialValues[key] ="";
+          }
+          
+          if (field.required_when) {
+            required.push(key);
+          }
         }
         // Agregar el campo 'name' con un valor inicial vacío
+        required.push("name");
         initialValues['name'] = '';
+        initialValues['required']=required;
         setFormValues(initialValues);
-
+        setRequiredFields(required);
         // Llamar a onChange para pasar los valores iniciales al componente principal
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
         }
-      } else {
-        setData(null); // Si no hay datos, establecer data como null
       }
     };
     loadData();
   }, [id, onChange]);
+
+  useEffect(() => {
+        // Asegúrate de que "one_xrext_networks" sea un array, incluso si no está inicializado
+        const networks = Array.isArray(formValues["one_xrext_networks"])
+          ? formValues["one_xrext_networks"]
+          : [];
+      
+        // Filtrar las redes seleccionadas que aún están en la lista
+        const validNetworks = networks.filter((network) => list.includes(network));
+      
+        // Si las redes válidas han cambiado, actualiza los valores del formulario
+        if (validNetworks.length !== networks.length) {
+          setFormValues((prevState) => ({
+            ...prevState,
+            "one_xrext_networks": validNetworks,  // Actualiza el estado de las redes seleccionadas
+          }));
+      
+          // Llama a onChange para actualizar el estado en el componente principal
+          onChange(id, "one_xrext_networks", validNetworks);
+        }
+      }, [list,formValues,id,onChange]);  // Dependencia de `list`
+
+    const handleCheckboxChange = (event, key, network) => {
+      const updatedNetworks = event.target.checked
+        ? [...formValues[key], network] // Si está seleccionado, agrega la red
+        : formValues[key].filter((n) => n !== network); // Si no está seleccionado, la elimina
+    
+      // Actualiza los valores del formulario
+      setFormValues((prevState) => ({
+        ...prevState,
+        [key]: updatedNetworks,
+      }));
+    
+      // Llama a onChange para actualizar el estado en el componente principal
+      onChange(id, key, updatedNetworks);
+    };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -68,7 +118,7 @@ const Xrext = ({ id, removeComponent, onChange }) => {
     onChange(id, name, value);
 
     // Validación de campo
-    if (data[name]?.required_when || name === 'name') {  // Verifica si el campo es obligatorio (incluyendo 'name')
+    if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
           ...prevState,
@@ -81,6 +131,31 @@ const Xrext = ({ id, removeComponent, onChange }) => {
           return newState;
         });
       }
+    }
+  };
+  const validateInteger = (value) => {
+    return Number.isInteger(Number(value));
+  };
+
+  const handleIntegerValidation = (event, key) => {
+    const value = event.target.value;
+    setFormValues((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+
+    // Validar si el valor es un número entero
+    if (!validateInteger(value)) {
+      setErrorMessages((prevState) => ({
+        ...prevState,
+        [key]: `${key.replace(/_/g, " ")} must be an integer.`,
+      }));
+    } else {
+      setErrorMessages((prevState) => {
+        const newState = { ...prevState };
+        delete newState[key]; // Eliminar mensaje de error si es un número entero
+        return newState;
+      });
     }
   };
 
@@ -125,7 +200,7 @@ const Xrext = ({ id, removeComponent, onChange }) => {
             </label>
             <input
               type="text"
-              id="name"
+              id={`name-${id}`}
               name="name"
               value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
               onChange={handleChange}  // Llama a handleChange para actualizar el valor
@@ -137,19 +212,76 @@ const Xrext = ({ id, removeComponent, onChange }) => {
           </div>
           {Object.keys(data).map((key) => {
             const field = data[key];
+            if (key === "one_xrext_networks") {
+              return (
+                <div key={key} className="mb-4">
+                  <label className="block text-gray-700 font-semibold mb-2">
+                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
+                  </label>
+                  {list.map((network, index) => (
+                    <div key={index} className="flex items-center mb-1">
+                      <input
+                        type="checkbox"
+                        id={`${key}_${index}`}
+                        name={key}
+                        value={network}
+                        checked={formValues[key]?.includes(network) || false}
+                        onChange={(event) => handleCheckboxChange(event, key, network)}
+                        className="mr-2"
+                      />
+                      <label htmlFor={`${key}_${index}`} className="text-gray-700">
+                        {network}
+                      </label>
+                    </div>
+                  ))}
+                 <small className="block mt-1 text-gray-500">
+                  {list.length === 0 || list === ""
+                    ? "Create news vnets or tn_vxlan to be able to select"
+                    : "Select one or more networks to include"
+                  }
+                </small>
+                </div>
+              );
+            }
             return (
               <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
                   {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
-                <input
-                  type="text"
-                  id={key}
-                  name={key}
-                  value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                />
+
+                {/* Condicional para renderizar un input o select dependiendo de si hay "choices" */}
+                {field.choices ? (
+                  <select
+                    id={key}
+                    name={key}
+                    value={formValues[key] || ""}
+                    onChange={(event) => handleChange(event)} // Usar handleChange para actualizar el valor
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  >
+                    <option disabled value="">Select an option</option>
+                    {field.choices.map((choice, index) => (
+                      <option key={index} value={choice}>
+                        {choice}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    id={key}
+                    name={key}
+                    value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
+                    onChange={(event) => {
+                      if (field.type === "int") {
+                        handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                      } else {
+                        handleChange(event); // Para otros tipos de campos
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  />
+                )}
+
                 {errorMessages[key] && (
                   <small className="block mt-1 text-red-500">{errorMessages[key]}</small>
                 )}

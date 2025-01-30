@@ -216,7 +216,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list }) => {
                   ))}
                   <small className="block mt-1 text-gray-500">
                   {list.length === 0 || list === ""
-                    ? "Create news vnets to be able to select"
+                    ? "Create news vnets or tn_vxlan to be able to select"
                     : "Select one or more networks to include"
                   }
                 </small>

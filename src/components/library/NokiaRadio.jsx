@@ -68,6 +68,7 @@ const NokiaRadio = ({ id, removeComponent, onChange,list }) => {
     loadData();
   }, [id, onChange]);
 
+  //Comprobamos que si se borran los items de la lista se actualice bien en el componente padre
   const prevListRef = useRef();
   useEffect(() => {
     if (prevListRef.current?.length !== list.length) {
@@ -212,7 +213,7 @@ const NokiaRadio = ({ id, removeComponent, onChange,list }) => {
             </label>
             <input
               type="text"
-              id="name"
+              id={`name-${id}`}
               name="name"
               value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
               onChange={handleChange}  // Llama a handleChange para actualizar el valor

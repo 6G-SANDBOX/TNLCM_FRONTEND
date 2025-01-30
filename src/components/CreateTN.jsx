@@ -187,8 +187,20 @@ const validateComps = () => {
     });
   }, []);
 
+  const validateFields = () => {
+    const v1= !validateComps();
+    const v2= !validateForm();
+    if (v1 || v2) {
+      window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+      });
+    }
+    return (v1 || v2)
+  }
+
   const handleDownload = () => {
-    if (!validateForm() || !validateComps()) {
+    if (validateFields()) {
       return;
     }
       
@@ -243,7 +255,8 @@ const validateComps = () => {
         const listO2=filterVnetComponents();
         return <OneKe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO1} list2={listO2}/>;
       case "open5gs":
-        return <Open5gs id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        const listO5=filterOneKEComponents();
+        return <Open5gs id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange}  list={listO5}/>;
       case "opensand_gw":
         return <OpensandGw id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "opensand_sat":
@@ -259,11 +272,13 @@ const validateComps = () => {
       case "ueransim":
         return <Ueransim id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "vm_kvm":
-        return <VmKvm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        const listVK=filterVnetOrTnVxlanComponents();
+        return <VmKvm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listVK}/>;
       case "vnet":
         return <Vnet id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "xrext":
-        return <Xrext id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        const listXR=filterVnetOrTnVxlanComponents();
+        return <Xrext id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listXR}/>;
       default:
         return "No valid option selected: " + component.label;
     }
@@ -398,7 +413,7 @@ const validateComps = () => {
         </div>
         
         {Object.keys(Cerrors).length > 0 && (
-          <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg">
+          <div  id="Cerror" className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg">
             <h3 className="font-bold text-lg">Components errors:</h3>
             <ul className="list-disc pl-5">
               {Object.entries(Cerrors).map(([componentId, fields]) => (

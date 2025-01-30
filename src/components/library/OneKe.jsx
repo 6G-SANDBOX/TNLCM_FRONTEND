@@ -220,7 +220,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2 }) => {
             </label>
             <input
               type="text"
-              id="name"
+              id={`name-${id}`}
               name="name"
               value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
               onChange={handleChange}  // Llama a handleChange para actualizar el valor
@@ -257,7 +257,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2 }) => {
                   ))}
                  <small className="block mt-1 text-gray-500">
                   {list1.length === 0 || list1 === ""
-                    ? "Create news vnets to be able to select"
+                    ? "Create news vnets or txlan to be able to select"
                     : "Select one or more networks to include"
                   }
                 </small>

@@ -1,7 +1,7 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getAccessTokenFromSessionStorage } from "../../auxFunc/jwt.js";
 
 const fetchData = async () => {
@@ -26,10 +26,11 @@ const fetchData = async () => {
   return null;
 };
 
-const Open5gs = ({ id, removeComponent, onChange }) => {
+const Open5gs = ({ id, removeComponent, onChange,list }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
+  const [requiredFields, setRequiredFields] = useState({});
 
   useEffect(() => {
     const loadData = async () => {
@@ -38,14 +39,27 @@ const Open5gs = ({ id, removeComponent, onChange }) => {
         setData(result.component_input);
         // Inicializamos el estado formValues con los valores predeterminados de los campos.
         const initialValues = {};
+        const required = [];
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          initialValues[key] = field.default_value || "";
+          
+          // No asignar valor por defecto si el campo es 'one_ks8500runner_networks'
+          if (key !== "one_open5gs_oneKE") {
+            initialValues[key] = field.default_value || "";
+          } else {
+            initialValues[key] ="";
+          }
+          
+          if (field.required_when) {
+            required.push(key);
+          }
         }
         // Agregar el campo 'name' con un valor inicial vacío
+        required.push("name");
         initialValues['name'] = '';
+        initialValues['required']=required;
         setFormValues(initialValues);
-
+        setRequiredFields(required);
         // Llamamos a onChange para enviar los valores iniciales al componente principal
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
@@ -55,6 +69,49 @@ const Open5gs = ({ id, removeComponent, onChange }) => {
     loadData();
   }, [id, onChange]);
 
+  const prevListRef = useRef();
+    useEffect(() => {
+      if (prevListRef.current?.length !== list.length) {
+        // Realizar actualización solo si list cambia
+        if (list.length === 0 && formValues['one_open5gs_oneKE'] !== "") {
+          onChange(id, 'one_open5gs_oneKE', "");  // Enviar valor vacío
+        }
+      }
+      prevListRef.current = list;  // Actualizar el valor de referencia para la próxima comparación
+    }, [list, formValues, onChange, id]);
+
+    const handleSelectChange = (event, key) => {
+    const { name, value } = event.target;
+    setFormValues((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+    // Si la opción seleccionada desaparece de la lista (es decir, la opción ya no está disponible)
+    if (!list.includes(value)) {
+      // Aquí actualizamos el estado del componente padre para reflejar el cambio
+      onChange(id, key, "");  // Enviamos un valor vacío o nulo al componente padre para indicar que la selección fue eliminada
+    } else {
+      // Si la opción sigue disponible, actualizamos normalmente el valor
+      onChange(id, key, value);
+    }
+    
+    // Validación de campo
+    if (requiredFields.includes(name)) {
+      if (value.trim() === "") {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `${name} cannot be empty.`,
+        }));
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+      }
+    }
+  };
+  
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -68,7 +125,7 @@ const Open5gs = ({ id, removeComponent, onChange }) => {
     onChange(id, name, value);
 
     // Validación de campo
-    if (data[name]?.required_when || name === 'name') {  // Verifica si el campo es obligatorio (incluyendo 'name')
+    if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
           ...prevState,
@@ -151,7 +208,7 @@ const Open5gs = ({ id, removeComponent, onChange }) => {
             </label>
             <input
               type="text"
-              id="name"
+              id={`name-${id}`}
               name="name"
               value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
               onChange={handleChange}  // Llama a handleChange para actualizar el valor
@@ -164,25 +221,75 @@ const Open5gs = ({ id, removeComponent, onChange }) => {
 
           {Object.keys(data).map((key) => {
             const field = data[key];
+            if (key === "one_open5gs_oneKE") {
+              return (
+                <div key={key} className="mb-4">
+                  <label htmlFor={key} className="block text-gray-700 font-semibold">
+                    {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
+                  </label>
+                  <select
+                    id={key}
+                    name={key}
+                    value={formValues[key] || ""}
+                    onChange={(e) => handleSelectChange(e, key)}
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  >
+                    <option value="">Select an option</option>
+                    {list && list.map((option, index) => (
+                      <option key={index} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                  <small className="block mt-1 text-gray-500">
+                  {list.length === 0 || list === ""
+                    ? "Create news oneKEs to be able to select"
+                    : field.description
+                  }
+                </small>
+                </div>
+              );
+            }
+
             return (
               <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
                   {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
-                <input
-                  type="text"
-                  id={key}
-                  name={key}
-                  value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
-                  onChange={(event) => {
-                    if (field.type === "int") {
-                      handleIntegerValidation(event, key); // Validación para campos de tipo entero
-                    } else {
-                      handleChange(event); // Para otros tipos de campos
-                    }
-                  }}
-                  className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                />
+
+                {/* Condicional para renderizar un input o select dependiendo de si hay "choices" */}
+                {field.choices ? (
+                  <select
+                    id={key}
+                    name={key}
+                    value={formValues[key] || ""}
+                    onChange={(event) => handleChange(event)} // Usar handleChange para actualizar el valor
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  >
+                    <option disabled value="">Select an option</option>
+                    {field.choices.map((choice, index) => (
+                      <option key={index} value={choice}>
+                        {choice}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    id={key}
+                    name={key}
+                    value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
+                    onChange={(event) => {
+                      if (field.type === "int") {
+                        handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                      } else {
+                        handleChange(event); // Para otros tipos de campos
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  />
+                )}
+
                 {errorMessages[key] && (
                   <small className="block mt-1 text-red-500">{errorMessages[key]}</small>
                 )}
