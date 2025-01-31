@@ -133,6 +133,7 @@ const LoadcoreAgent = ({ id, removeComponent, onChange,list }) => {
       }
     }
   };
+  
   const validateInteger = (value) => {
     return Number.isInteger(Number(value));
   };

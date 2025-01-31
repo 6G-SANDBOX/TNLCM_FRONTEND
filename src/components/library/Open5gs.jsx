@@ -234,7 +234,7 @@ const Open5gs = ({ id, removeComponent, onChange,list }) => {
                     onChange={(e) => handleSelectChange(e, key)}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   >
-                    <option value="">Select an option</option>
+                    <option disabled value="">Select an option</option>
                     {list && list.map((option, index) => (
                       <option key={index} value={option}>
                         {option}

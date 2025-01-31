@@ -72,6 +72,30 @@ const CreateTN = () => {
     });
   }, [selectedComponent, componentForms]);
 
+  const filterOpen5GsComponents = useCallback(() => {
+    const filteredComponents = selectedComponent.filter((component) =>
+      component.label.toLowerCase().includes('open5gs')
+    );
+  
+    // Devuelve una lista en formato "label-name"
+    return filteredComponents.map((component) => {
+      const componentForm = componentForms[component.id] || {};
+      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
+    });
+  }, [selectedComponent, componentForms]);
+
+  const filterUeransimComponents = useCallback(() => {
+    const filteredComponents = selectedComponent.filter((component) =>
+      component.label.toLowerCase().includes('ueransim')
+    );
+  
+    // Devuelve una lista en formato "label-name"
+    return filteredComponents.map((component) => {
+      const componentForm = componentForms[component.id] || {};
+      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
+    });
+  }, [selectedComponent, componentForms]);
+
 
   const validateForm = () => {
     const newErrors = {};
@@ -86,6 +110,9 @@ const CreateTN = () => {
 
 const validateComps = () => {
   const requi = getRequiredFields();
+  console.log(requi);
+  //TODO VALIDAR QUE LOS VALORES TENGAN SENTIDO EN CADA COMPONENTE
+  //NO QUE SOLO SEAN NO VACIOS
   let newErrors = {}; // Objeto temporal para acumular los errores
 
   requi.forEach((component) => {
@@ -270,7 +297,10 @@ const validateComps = () => {
       case "tn_vxlan":
         return <TnVxlan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "ueransim":
-        return <Ueransim id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        const listUE1=filterVnetOrTnVxlanComponents();
+        const listUE2=filterOpen5GsComponents();
+        const listUE3=filterUeransimComponents();
+        return <Ueransim id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listUE1} list2={listUE2} list3={listUE3}/>;
       case "vm_kvm":
         const listVK=filterVnetOrTnVxlanComponents();
         return <VmKvm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listVK}/>;

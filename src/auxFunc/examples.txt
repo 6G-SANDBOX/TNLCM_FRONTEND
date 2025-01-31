@@ -1,5 +1,10 @@
+---------------ALGUNOS EJEMPLOS DE CASOS ESPECIALES---------------
+
 LoadcoreAgent => Ejemplo de checkbox
 OneKE => Ejemplo de doble checkbox
 NokiaRadio => Ejemplo de Select
 NokiaRadio => Ejemplo de validación y generación de campos
 Stf_UE => Ejemplo de validación sin campos especiales
+Ueransim=> Ejemplo de doble select y checkbox
+Ueransim => Ejemplo de required fields especiales
+Ueransim => Manejo de includes especial.

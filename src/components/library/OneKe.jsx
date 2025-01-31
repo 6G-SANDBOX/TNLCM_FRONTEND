@@ -42,10 +42,8 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2 }) => {
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          //TODO ME MARCA POR DEFECTOTN_VXLAN EN EXTERNAL
-          //TODO PROBAR QUE FUNCIONA BIEN
           // No asignar valor por defecto si el campo es 'one_oneKE_external_vnet o one_oneKE_internal_vnet '
-          if (key !== "one_oneKE_external_vnet" || key !== "one_oneKE_internal_vnet") {
+          if (key !== "one_oneKE_external_vnet" && key !== "one_oneKE_internal_vnet") {
             initialValues[key] = field.default_value || "";
           } else {
             initialValues[key] ="";
