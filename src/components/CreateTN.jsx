@@ -110,7 +110,6 @@ const CreateTN = () => {
 
 const validateComps = () => {
   const requi = getRequiredFields();
-  console.log(requi);
   //TODO VALIDAR QUE LOS VALORES TENGAN SENTIDO EN CADA COMPONENTE
   //NO QUE SOLO SEAN NO VACIOS
   let newErrors = {}; // Objeto temporal para acumular los errores
@@ -247,7 +246,7 @@ const validateComps = () => {
         };
       }),
     };
-  
+    //TODO CONVERTIR A YAML Y MANDAR LA PETICION
     const fileData = JSON.stringify(networkData, null, 2);
     const blob = new Blob([fileData], { type: "application/json" });
     const link = document.createElement("a");
@@ -339,6 +338,7 @@ const validateComps = () => {
             <label htmlFor="deployment-site" className="block text-gray-700 font-medium">
               DEPLOYMENT SITE
             </label>
+            {/* TODO ¿Hacer como select? */}
             <input
               id="deployment-site"
               name="deploymentSite"

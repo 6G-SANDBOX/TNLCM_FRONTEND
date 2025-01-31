@@ -25,7 +25,6 @@ const fetchData = async () => {
   }
   return null;
 };
-//TODO UERANSIM  ENTERO YA QUE TODO CAMBIA INCLUIDO EL REQUIRED
 const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3 }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
