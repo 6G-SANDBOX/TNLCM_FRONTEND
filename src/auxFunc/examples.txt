@@ -15,4 +15,4 @@ Ks8500Runner, OCF => Valid URL example
 OneKE => Valid IP list, IP range and boolean value.
 Open5GS => Valid IP, number length, addition check
 STF_UE (almost everyone) => Integer Validation
-Tn_Init,Tn_Vxlan (Equals???) => Validation of IP and IP lists
+Tn_Init, Tn_Vxlan, Vnet (Equals???) => Validation of IP and IP lists

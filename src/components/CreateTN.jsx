@@ -225,17 +225,24 @@ const validateComps = () => {
     });
   }, []);
 
+  const isChildErrorEmpty = (childError) => {
+    return Object.keys(childError).length === 0 ||
+           Object.values(childError).every(value =>
+             value && Object.values(value).every(v => v === null)
+           );
+  };
+  
   const validateFields = () => {
     const v1= !validateComps();
     const v2= !validateForm();
-    //TODO CONTROLAR QUE NO HAYA ERRORES EN OTROS CAMPOS DE childError
-    if (v1 || v2) {
+    const v3= !isChildErrorEmpty(childError);
+    if (v1 || v2 || v3) {
       window.scrollTo({
           top: 0,
           behavior: "smooth"
       });
     }
-    return (v1 || v2)
+    return (v1 || v2 || v3)
   }
 
   const handleDownload = () => {
