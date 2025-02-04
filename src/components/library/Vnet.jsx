@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const Vnet = ({ id, removeComponent, onChange }) => {
+const Vnet = ({ id, removeComponent, onChange, whenError }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -77,12 +77,14 @@ const Vnet = ({ id, removeComponent, onChange }) => {
         ...prevState,
         [key]: `${key.replace(/_/g, " ")} must be an integer.`,
       }));
+      whenError(id, key, `${key.replace(/_/g, " ")} must be an integer.`);
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
         delete newState[key]; // Eliminar mensaje de error si es un número entero
         return newState;
       });
+      whenError(id, key, null);
     }
   };
 
@@ -113,7 +115,61 @@ const Vnet = ({ id, removeComponent, onChange }) => {
         });
       }
     }
+
+    if (name === "one_vnet_gw" || name === "one_vnet_netmask" || name === "one_vnet_first_ip") {
+      if(!isValidIPv4(value)){
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Invalid IP`,
+        }));
+        whenError(id,name,`Invalid IP`);
+      }else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+        whenError(id,name,null);
+      }
+    }
+
+    if (name === "one_vnet_dns"){
+      if(!isValidIPv4List(value)){
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Invalid IP list format`,
+        }));
+        whenError(id,name,`Invalid IP list format`);
+      }else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+        whenError(id,name,null);
+      }
+    }
   };
+
+  const isValidIPv4 = (ip) => {
+    const ipv4Pattern =
+      /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
+    
+    return ipv4Pattern.test(ip.trim());
+  };
+  
+  const isValidIPv4List = (str) => {
+    // Expresión regular para validar una sola dirección IPv4
+    const ipv4Pattern =
+      /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
+  
+    // Dividir el string en una lista de IPs separadas por espacios
+    const ipList = str.trim().split(/\s+/);
+  
+    // Verificar que cada elemento de la lista sea una IP válida
+    return ipList.every((ip) => ipv4Pattern.test(ip));
+  };
+
 
   // Mostrar mensaje si data es null
   if (data === null) {

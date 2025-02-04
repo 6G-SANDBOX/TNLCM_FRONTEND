@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const OneKe = ({ id, removeComponent, onChange, list1, list2 }) => {
+const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -149,7 +149,93 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2 }) => {
         });
       }
     }
+
+    // Validate special case such as IP RANGE
+    if (name === "one_oneKE_metallb_range" || name === "one_oneKE_cilium_range") {
+      if(!isValidIPv4Range(value)){
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Invalid IP RANGE format`,
+        }));
+        whenError(id,name,`Invalid IP RANGE format`);
+      }else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+        whenError(id,name,null);
+      }
+    }
+
+    if (name === "one_oneKE_dns"){
+      if(!isValidIPv4List(value)){
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Invalid IP list format`,
+        }));
+        whenError(id,name,`Invalid IP list format`);
+      }else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+        whenError(id,name,null);
+      }
+    }
+
+    if (name === "one_oneKE_nginx_passthough"){
+      if(!isBooleanString(value)){
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Invalid boolean format`,
+        }));
+        whenError(id,name,`Invalid boolean format`);
+      }else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+        whenError(id,name,null);
+      }
+    }
   };
+
+  const isValidIPv4Range = (str) => {
+    const ipv4Pattern =
+      /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
+  
+    const rangePattern = /^(\d{1,3}(\.\d{1,3}){3})-(\d{1,3}(\.\d{1,3}){3})$/;
+    const match = str.match(rangePattern);
+  
+    if (!match) return false; // No coincide con el patrón general
+  
+    const [, ip1, , ip2] = match;
+  
+    if (!ipv4Pattern.test(ip1) || !ipv4Pattern.test(ip2)) return false; // Validar IPs individuales
+  
+    // Convertir IPs a números para comparar
+    const ipToNumber = (ip) =>
+      ip.split(".").reduce((acc, octet) => acc * 256 + Number(octet), 0);
+  
+    return ipToNumber(ip1) <= ipToNumber(ip2); // min_IPv4 debe ser <= max_IPv4
+  };
+
+  const isValidIPv4List = (str) => {
+    // Expresión regular para validar una sola dirección IPv4
+    const ipv4Pattern =
+      /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
+  
+    // Dividir el string en una lista de IPs separadas por espacios
+    const ipList = str.trim().split(/\s+/);
+  
+    // Verificar que cada elemento de la lista sea una IP válida
+    return ipList.every((ip) => ipv4Pattern.test(ip));
+  };
+
+  const isBooleanString = (str) => /^(true|false)$/i.test(str.trim());
 
   const validateInteger = (value) => {
     return Number.isInteger(Number(value));
@@ -168,12 +254,14 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2 }) => {
         ...prevState,
         [key]: `${key.replace(/_/g, " ")} must be an integer.`,
       }));
+      whenError(id, key, `${key.replace(/_/g, " ")} must be an integer.`);
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
         delete newState[key]; // Eliminar mensaje de error si es un número entero
         return newState;
       });
+      whenError(id, key, null);
     }
   };
 

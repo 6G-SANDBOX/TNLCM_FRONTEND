@@ -25,7 +25,7 @@ const fetchData = async () => {
   }
   return null;
 };
-const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3 }) => {
+const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenError }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});

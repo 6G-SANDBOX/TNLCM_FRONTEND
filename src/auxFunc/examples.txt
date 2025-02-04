@@ -1,10 +1,18 @@
----------------ALGUNOS EJEMPLOS DE CASOS ESPECIALES---------------
+---------------SOME EXAMPLES OF SPECIAL CASES--------------------------
 
-LoadcoreAgent => Ejemplo de checkbox
-OneKE => Ejemplo de doble checkbox
-NokiaRadio => Ejemplo de Select
-NokiaRadio => Ejemplo de validación y generación de campos
-Stf_UE => Ejemplo de validación sin campos especiales
-Ueransim=> Ejemplo de doble select y checkbox
-Ueransim => Ejemplo de required fields especiales
-Ueransim => Manejo de includes especial.
+LoadcoreAgent => Checkbox example
+OneKE => Double checkbox example
+NokiaRadio => Select example
+NokiaRadio => Example of validation and field generation
+Stf_UE => Validation example without special fields
+Ueransim=> Example of double select and checkbox
+Ueransim => Example of special required fields
+Ueransim => Special includes handling.
+
+
+-------------EXAMPLES OF ERROR VALDIATION--------------------------
+Ks8500Runner, OCF => Valid URL example
+OneKE => Valid IP list, IP range and boolean value.
+Open5GS => Valid IP, number length, addition check
+STF_UE (almost everyone) => Integer Validation
+Tn_Init,Tn_Vxlan (Equals???) => Validation of IP and IP lists

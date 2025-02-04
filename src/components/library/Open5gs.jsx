@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const Open5gs = ({ id, removeComponent, onChange,list }) => {
+const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -139,6 +139,134 @@ const Open5gs = ({ id, removeComponent, onChange,list }) => {
         });
       }
     }
+
+    if (name === "one_open5gs_upf_ip" || name === "one_open5gs_amf_ip") {
+      if(!isValidIPv4(value)){
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Invalid IP`,
+        }));
+        whenError(id,name,`Invalid IP`);
+      }else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+        whenError(id,name,null);
+      }
+    }
+    if (name === "one_open5gs_mcc") {
+      if (!isValidMCC(value)) {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Must be only 3 digits`,
+        }));
+        whenError(id, name, `Must be only 3 digits`);
+      } else if (
+        (value.replace(/"/g, "").length +
+          formValues.one_open5gs_mnc.replace(/"/g, "").length +
+          formValues.one_open5gs_msin.replace(/"/g, "").length) !== 15
+      ) {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `MCC + MNC + MSIN must add to exactly 15 digits`,
+        }));
+        whenError(id, name, `MCC + MNC + MSIN must add to exactly 15 digits`);
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name];
+          return newState;
+        });
+        whenError(id, name, null);
+      }
+    }
+    
+    if (name === "one_open5gs_mnc") {
+      if (!isValidMNC(value)) {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Must be 2 or 3 digits`,
+        }));
+        whenError(id, name, `Must be 2 or 3 digits`);
+      } else if (
+        (formValues.one_open5gs_mcc.replace(/"/g, "").length +
+          value.replace(/"/g, "").length +
+          formValues.one_open5gs_msin.replace(/"/g, "").length) !== 15
+      ) {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `MCC + MNC + MSIN must add to exactly 15 digits`,
+        }));
+        whenError(id, name, `MCC + MNC + MSIN must add to exactly 15 digits`);
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name];
+          return newState;
+        });
+        whenError(id, name, null);
+      }
+    }
+    
+    if (name === "one_open5gs_msin") {
+      if (!isValidMSIN(value)) {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Must be 9 or 10 digits`,
+        }));
+        whenError(id, name, `Must be 9 or 10 digits`);
+      } else if (
+        (formValues.one_open5gs_mcc.replace(/"/g, "").length +
+          formValues.one_open5gs_mnc.replace(/"/g, "").length +
+          value.replace(/"/g, "").length) !== 15
+      ) {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `MCC + MNC + MSIN must add to exactly 15 digits`,
+        }));
+        whenError(id, name, `MCC + MNC + MSIN must add to exactly 15 digits`);
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name];
+          return newState;
+        });
+        whenError(id, name, null);
+      }
+    }
+
+    if (name === "one_open5gs_s_nssai_sd"){
+      if (!isValidNSSD(value)) {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Must be 6 or more digits`,
+        }));
+        whenError(id, name, `Must be 6 or more digits`);
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name];
+          return newState;
+        });
+        whenError(id, name, null);
+      }
+    }
+
+  };
+
+  const isValidMCC = (mcc) => /^\d{3}$/.test(mcc);  // 3 dígitos
+  const isValidMNC = (mnc) => /^\d{2,3}$/.test(mnc); // 2 o 3 dígitos
+  const isValidMSIN = (msin) => /^\d{9,10}$/.test(msin); // 9 o 10 dígitos
+  const isValidNSSD = (nssd) => /^\d{6,}$/.test(nssd); // 6 o mas digitos
+
+
+  const isValidIPv4 = (ip) => {
+    const ipv4Pattern =
+      /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
+    
+    return ipv4Pattern.test(ip.trim());
   };
 
   const validateInteger = (value) => {
@@ -158,12 +286,14 @@ const Open5gs = ({ id, removeComponent, onChange,list }) => {
         ...prevState,
         [key]: `${key.replace(/_/g, " ")} must be an integer.`,
       }));
+      whenError(id, key, `${key.replace(/_/g, " ")} must be an integer.`);
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
         delete newState[key]; // Eliminar mensaje de error si es un número entero
         return newState;
       });
+      whenError(id, key, null);
     }
   };
 

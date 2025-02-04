@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const Ocf = ({ id, removeComponent, onChange,list }) => {
+const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -139,6 +139,33 @@ const Ocf = ({ id, removeComponent, onChange,list }) => {
         });
       }
     }
+
+    // Validate special case such as URL input
+    if (name === "ocf_any_repo"){
+      if(!isValidURL(value)){
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Invalid URL format`,
+        }));
+        whenError(id,name,`Invalid URL format`);
+      }else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+        whenError(id,name,null);
+      }
+    }
+  };
+
+  const isValidURL = (str) => {
+    try {
+      new URL(str);
+      return true;
+    } catch (e) {
+      return false;
+    }
   };
 
   const validateInteger = (value) => {
@@ -158,12 +185,14 @@ const Ocf = ({ id, removeComponent, onChange,list }) => {
         ...prevState,
         [key]: `${key.replace(/_/g, " ")} must be an integer.`,
       }));
+      whenError(id, key, `${key.replace(/_/g, " ")} must be an integer.`);
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
         delete newState[key]; // Eliminar mensaje de error si es un número entero
         return newState;
       });
+      whenError(id, key, null);
     }
   };
 

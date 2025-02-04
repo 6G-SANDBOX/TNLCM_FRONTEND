@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const NokiaRadio = ({ id, removeComponent, onChange,list }) => {
+const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -161,12 +161,14 @@ const NokiaRadio = ({ id, removeComponent, onChange,list }) => {
         ...prevState,
         [key]: `${key.replace(/_/g, " ")} must be an integer.`,
       }));
+      whenError(id, key, `${key.replace(/_/g, " ")} must be an integer.`);
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
         delete newState[key]; // Eliminar mensaje de error si es un número entero
         return newState;
       });
+      whenError(id, key, null);
     }
   };
 

@@ -35,6 +35,7 @@ const CreateTN = () => {
   const [componentForms, setComponentForms] = useState({});
   const [errors, setErrors] = useState({});
   const [Cerrors,SetCerrors] = useState({});
+  const [childError,setChildError] = useState({});
 
   const filterVnetOrTnVxlanComponents = useCallback(() => {
     const filteredComponents = selectedComponent.filter((component) =>
@@ -200,6 +201,17 @@ const validateComps = () => {
     });
   };
 
+  const handleChildError = useCallback((id, field, message) => {
+    setChildError((prevErrors) => ({
+      ...prevErrors,
+      [id]: {
+        ...prevErrors[id],
+        [field]: message,
+      },
+    }));
+  }, []);
+
+
   const handleComponentFormChange = useCallback((id, fieldName, value) => {
     setComponentForms((prevForms) => {
       const updatedForm = {
@@ -256,33 +268,33 @@ const validateComps = () => {
   };
   
 
-  const switchComponent = (component, removeComponent, handleComponentFormChange) => {
+  const switchComponent = (component, removeComponent, handleComponentFormChange, handleChildError) => {
     switch (component.label) {
       case "tn_init":
-        return <TnInit id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        return <TnInit id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
       case "tsn":
         return <Tsn id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "elcm":
         return <Elcm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "ks8500_runner":
         const listKS8 =filterVnetOrTnVxlanComponents(); // Aquí puedes generar la lista de manera dinámica
-        return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listKS8} />;
+        return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listKS8} whenError={handleChildError}/>;
       case "loadcore_agent":
         const listLCA= filterVnetOrTnVxlanComponents();
-        return <LoadcoreAgent id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listLCA}/>;
+        return <LoadcoreAgent id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listLCA} whenError={handleChildError}/>;
       case "nokia_radio":
         const listNokia=filterOneKEComponents();
-        return <NokiaRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listNokia}/>;
+        return <NokiaRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listNokia} whenError={handleChildError}/>;
       case "ocf":
         const listOCF=filterOneKEComponents();
-        return <Ocf id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOCF}/>;
+        return <Ocf id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOCF} whenError={handleChildError}/>;
       case "oneKE":
         const listO1=filterVnetOrTnVxlanComponents();
         const listO2=filterVnetComponents();
-        return <OneKe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO1} list2={listO2}/>;
+        return <OneKe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO1} list2={listO2} whenError={handleChildError}/>;
       case "open5gs":
         const listO5=filterOneKEComponents();
-        return <Open5gs id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange}  list={listO5}/>;
+        return <Open5gs id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange}  list={listO5} whenError={handleChildError}/>;
       case "opensand_gw":
         return <OpensandGw id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "opensand_sat":
@@ -290,21 +302,21 @@ const validateComps = () => {
       case "opensand_st":
         return <OpensandSt id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "stf_ue":
-        return <StfUe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        return <StfUe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
       case "tn_bastion":
         return <TnBastion id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "tn_vxlan":
-        return <TnVxlan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        return <TnVxlan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
       case "ueransim":
         const listUE1=filterVnetOrTnVxlanComponents();
         const listUE2=filterOpen5GsComponents();
         const listUE3=filterUeransimComponents();
-        return <Ueransim id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listUE1} list2={listUE2} list3={listUE3}/>;
+        return <Ueransim id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listUE1} list2={listUE2} list3={listUE3} whenError={handleChildError}/>;
       case "vm_kvm":
         const listVK=filterVnetOrTnVxlanComponents();
         return <VmKvm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listVK}/>;
       case "vnet":
-        return <Vnet id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        return <Vnet id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
       case "xrext":
         const listXR=filterVnetOrTnVxlanComponents();
         return <Xrext id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listXR}/>;
@@ -464,7 +476,7 @@ const validateComps = () => {
       <div className="p-4">
         {selectedComponent.map((component) => (
           <div key={component.id} className="border rounded p-4 mb-4">
-            {switchComponent(component, handleRemoveComponent, handleComponentFormChange)}
+            {switchComponent(component, handleRemoveComponent, handleComponentFormChange, handleChildError)}
           </div>
         ))}
       </div>

@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const Ks8500Runner = ({ id, removeComponent, onChange, list }) => {
+const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -136,7 +136,34 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list }) => {
         });
       }
     }
+    // Validate special case such as URL input
+    if (name === "ks8500runner_backend_url"){
+      if(!isValidURL(value)){
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Invalid URL format`,
+        }));
+        whenError(id,name,`Invalid URL format`);
+      }else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+        whenError(id,name,null);
+      }
+    }
   };
+
+  const isValidURL = (str) => {
+    try {
+      new URL(str);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+  
 
 
   // Muestra el mensaje de éxito si data es null
