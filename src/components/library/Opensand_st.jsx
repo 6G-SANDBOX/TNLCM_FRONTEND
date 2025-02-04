@@ -33,30 +33,30 @@ const OpensandSt = ({ id, removeComponent, onChange }) => {
   const [requiredFields, setRequiredFields] = useState({});
 
   useEffect(() => {
-        const loadData = async () => {
-          const result = await fetchData();
-          if (result) {
-            setData(result.component_input);
-            const initialValues = {};
-            const required = [];
-            for (const key in result.component_input) {
-              initialValues[key] = result.component_input[key].default_value || "";
-            }
-            // Agregar el campo 'name' con un valor inicial vacío
-            required.push("name");
-            initialValues['name'] = '';
-            initialValues['required']=required;
-            setFormValues(initialValues);
-            setRequiredFields(required);
-    
-            // Llamamos a onChange para enviar los valores iniciales al componente principal
-            for (const key in initialValues) {
-              onChange(id, key, initialValues[key]);
-            }
-          }
-        };
-        loadData();
-      }, [id, onChange]);
+    const loadData = async () => {
+      const result = await fetchData();
+      if (result) {
+        setData(result.component_input);
+        const initialValues = {};
+        const required = [];
+        for (const key in result.component_input) {
+          initialValues[key] = result.component_input[key].default_value || "";
+        }
+        // Agregar el campo 'name' con un valor inicial vacío
+        required.push("name");
+        initialValues['name'] = '';
+        initialValues['required']=required;
+        setFormValues(initialValues);
+        setRequiredFields(required);
+
+        // Llamamos a onChange para enviar los valores iniciales al componente principal
+        for (const key in initialValues) {
+          onChange(id, key, initialValues[key]);
+        }
+      }
+    };
+    loadData();
+  }, [id, onChange]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
