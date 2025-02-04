@@ -111,8 +111,6 @@ const CreateTN = () => {
 
 const validateComps = () => {
   const requi = getRequiredFields();
-  //TODO VALIDAR QUE LOS VALORES TENGAN SENTIDO EN CADA COMPONENTE
-  //NO QUE SOLO SEAN NO VACIOS
   let newErrors = {}; // Objeto temporal para acumular los errores
 
   requi.forEach((component) => {
