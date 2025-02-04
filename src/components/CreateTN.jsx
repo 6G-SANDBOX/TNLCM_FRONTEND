@@ -228,6 +228,7 @@ const validateComps = () => {
   const validateFields = () => {
     const v1= !validateComps();
     const v2= !validateForm();
+    //TODO CONTROLAR QUE NO HAYA ERRORES EN OTROS CAMPOS DE childError
     if (v1 || v2) {
       window.scrollTo({
           top: 0,

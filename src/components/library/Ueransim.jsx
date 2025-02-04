@@ -30,7 +30,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
   const [requiredFields, setRequiredFields] = useState({});
-
+  //TODO ERRORS HANDLING
   useEffect(() => {
     const loadData = async () => {
       const result = await fetchData();
