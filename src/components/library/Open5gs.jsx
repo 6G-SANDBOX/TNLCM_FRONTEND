@@ -265,7 +265,6 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
   const isValidIPv4 = (ip) => {
     const ipv4Pattern =
       /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
-    
     return ipv4Pattern.test(ip.trim());
   };
 
