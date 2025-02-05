@@ -6,6 +6,7 @@
   [![Forks][forks-shield]][forks-url]
   [![Stargazers][stars-shield]][stars-url]
   [![Issues][issues-shield]][issues-url]
+  [![CodeFactor](https://www.codefactor.io/repository/github/6g-sandbox/tnlcm_frontend/badge/main)](https://www.codefactor.io/repository/github/6g-sandbox/tnlcm_frontend/overview/main)
   <!-- [![MIT License][license-shield]][license-url] -->
   <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
