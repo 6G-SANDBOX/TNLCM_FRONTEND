@@ -82,7 +82,7 @@ const TopNavigator = () => {
               className="w-full text-left px-4 py-2 text-sm text-red-500 hover:bg-gray-100 hover:rounded-lg"
               onClick={handleLogout}
             >
-              Close Session
+              Log out
             </button>
           </div>
         )}

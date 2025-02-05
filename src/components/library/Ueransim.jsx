@@ -30,7 +30,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
   const [requiredFields, setRequiredFields] = useState({});
-  //TODO ERRORS HANDLING
+
   useEffect(() => {
     const loadData = async () => {
       const result = await fetchData();
@@ -147,87 +147,87 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
 
   const prevListRef2 = useRef();
   const prevListRef3 = useRef();
-    useEffect(() => {
-      if (prevListRef2.current?.length !== list2.length) {
-        // Realizar actualización solo si list cambia
-        if (list2.length === 0 && formValues['one_ueransim_gnb_linked_open5gs'] !== "") {
-          onChange(id, 'one_ueransim_gnb_linked_open5gs', "");  // Enviar valor vacío
-        }
+  useEffect(() => {
+    if (prevListRef2.current?.length !== list2.length) {
+      // Realizar actualización solo si list cambia
+      if (list2.length === 0 && formValues['one_ueransim_gnb_linked_open5gs'] !== "") {
+        onChange(id, 'one_ueransim_gnb_linked_open5gs', "");  // Enviar valor vacío
       }
-      prevListRef2.current = list2;  // Actualizar el valor de referencia para la próxima comparación
-      
-      if (prevListRef3.current?.length !== list3.length) {
-        // Realizar actualización solo si list cambia
-        if (list3.length === 0 && formValues['one_ueransim_ue_linked_gnb'] !== "") {
-          onChange(id, 'one_ueransim_ue_linked_gnb', "");  // Enviar valor vacío
-        }
+    }
+    prevListRef2.current = list2;  // Actualizar el valor de referencia para la próxima comparación
+    
+    if (prevListRef3.current?.length !== list3.length) {
+      // Realizar actualización solo si list cambia
+      if (list3.length === 0 && formValues['one_ueransim_ue_linked_gnb'] !== "") {
+        onChange(id, 'one_ueransim_ue_linked_gnb', "");  // Enviar valor vacío
       }
-      prevListRef3.current = list3
-    }, [list2, formValues, onChange, id, list3]);
+    }
+    prevListRef3.current = list3
+  }, [list2, formValues, onChange, id, list3]);
 
-    const handleSelectChange2 = (event, key) => {
-      const { name, value } = event.target;
-      setFormValues((prevState) => ({
-        ...prevState,
-        [key]: value,
-      }));
-      // Si la opción seleccionada desaparece de la lista (es decir, la opción ya no está disponible)
-      if (!list2.includes(value)) {
-        // Aquí actualizamos el estado del componente padre para reflejar el cambio
-        onChange(id, key, "");  // Enviamos un valor vacío o nulo al componente padre para indicar que la selección fue eliminada
+  const handleSelectChange2 = (event, key) => {
+    const { name, value } = event.target;
+    setFormValues((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+    // Si la opción seleccionada desaparece de la lista (es decir, la opción ya no está disponible)
+    if (!list2.includes(value)) {
+      // Aquí actualizamos el estado del componente padre para reflejar el cambio
+      onChange(id, key, "");  // Enviamos un valor vacío o nulo al componente padre para indicar que la selección fue eliminada
+    } else {
+      // Si la opción sigue disponible, actualizamos normalmente el valor
+      onChange(id, key, value);
+    }
+    
+    // Validación de campo
+    if (Object.values(requiredFields).includes(name)) {
+      if (value.trim() === "") {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `${name} cannot be empty.`,
+        }));
       } else {
-        // Si la opción sigue disponible, actualizamos normalmente el valor
-        onChange(id, key, value);
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
       }
-      
-      // Validación de campo
-      if (Object.values(requiredFields).includes(name)) {
-        if (value.trim() === "") {
-          setErrorMessages((prevState) => ({
-            ...prevState,
-            [name]: `${name} cannot be empty.`,
-          }));
-        } else {
-          setErrorMessages((prevState) => {
-            const newState = { ...prevState };
-            delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
-            return newState;
-          });
-        }
-      }
-    };
+    }
+  };
 
-    const handleSelectChange3 = (event, key) => {
-      const { name, value } = event.target;
-      setFormValues((prevState) => ({
-        ...prevState,
-        [key]: value,
-      }));
-      // Si la opción seleccionada desaparece de la lista (es decir, la opción ya no está disponible)
-      if (!list3.includes(value)) {
-        // Aquí actualizamos el estado del componente padre para reflejar el cambio
-        onChange(id, key, "");  // Enviamos un valor vacío o nulo al componente padre para indicar que la selección fue eliminada
+  const handleSelectChange3 = (event, key) => {
+    const { name, value } = event.target;
+    setFormValues((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+    // Si la opción seleccionada desaparece de la lista (es decir, la opción ya no está disponible)
+    if (!list3.includes(value)) {
+      // Aquí actualizamos el estado del componente padre para reflejar el cambio
+      onChange(id, key, "");  // Enviamos un valor vacío o nulo al componente padre para indicar que la selección fue eliminada
+    } else {
+      // Si la opción sigue disponible, actualizamos normalmente el valor
+      onChange(id, key, value);
+    }
+    
+    // Validación de campo
+    if (Object.values(requiredFields).includes(name)) {
+      if (value.trim() === "") {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `${name} cannot be empty.`,
+        }));
       } else {
-        // Si la opción sigue disponible, actualizamos normalmente el valor
-        onChange(id, key, value);
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
       }
-      
-      // Validación de campo
-      if (Object.values(requiredFields).includes(name)) {
-        if (value.trim() === "") {
-          setErrorMessages((prevState) => ({
-            ...prevState,
-            [name]: `${name} cannot be empty.`,
-          }));
-        } else {
-          setErrorMessages((prevState) => {
-            const newState = { ...prevState };
-            delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
-            return newState;
-          });
-        }
-      }
-    };
+    }
+  };
     
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -255,6 +255,106 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
         });
       }
     }
+
+    if (name === "one_ueransim_gnb_proxy" || name === "one_ueransim_gnb_amf_address"
+      || name === "one_ueransim_ue_gnbSearchList"
+    ) {
+      if(!isValidIPv4(value)){
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Invalid IP`,
+        }));
+        whenError(id,name,`Invalid IP`);
+      }else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          return newState;
+        });
+        whenError(id,name,null);
+      }
+    }
+    if (name === "one_ueransim_gnb_mcc" || name === "one_ueransim_ue_mcc") {
+      if (!isValidMCC(value)) {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Must be only 3 digits`,
+        }));
+        whenError(id, name, `Must be only 3 digits`);
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name];
+          return newState;
+        });
+        whenError(id, name, null);
+      }
+    }
+    
+    if (name === "one_ueransim_gnb_mnc") {
+      if (!isValidMNC(value)) {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Must be 2 or 3 digits`,
+        }));
+        whenError(id, name, `Must be 2 or 3 digits`);
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name];
+          return newState;
+        });
+        whenError(id, name, null);
+      }
+    }
+
+    if (name === "one_ueransim_ue_mnc") {
+      if (!isValidMNC2(value)) {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Must be 2 digits`,
+        }));
+        whenError(id, name, `Must be 2 digits`);
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name];
+          return newState;
+        });
+        whenError(id, name, null);
+      }
+    }
+
+    if (name === "one_ueransim_gnb_slices_sd" || name === "one_ueransim_ue_default_nssai_sd"
+      || name === "one_ueransim_ue_configured_nssai_sd" || name === "one_ueransim_ue_session_sd"
+    ) {
+      if (!isValidNSSD(value)) {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Must be 6 or more digits`,
+        }));
+        whenError(id, name, `Must be 6 or more digits`);
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name];
+          return newState;
+        });
+        whenError(id, name, null);
+      }
+    }
+  };
+
+  const isValidMCC = (mcc) => /^\d{3}$/.test(mcc);  // 3 dígitos
+  const isValidMNC = (mnc) => /^\d{2,3}$/.test(mnc); // 2 o 3 dígitos
+  const isValidMNC2 = (mnc) => /^\d{2}$/.test(mnc); // 2 dígitos
+  const isValidNSSD = (nssd) => /^\d{6,}$/.test(nssd); // 6 o mas digitos
+
+  const isValidIPv4 = (ip) => {
+    const ipv4Pattern =
+      /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
+    
+    return ipv4Pattern.test(ip.trim());
   };
   
   const validateInteger = (value) => {
