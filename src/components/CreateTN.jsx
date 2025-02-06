@@ -224,23 +224,41 @@ const validateComps = () => {
   }, []);
 
   const isChildErrorEmpty = (childError) => {
-    return Object.keys(childError).length === 0 ||
-           Object.values(childError).every(value =>
-             value && Object.values(value).every(v => v === null)
-           );
+    const valid= Object.keys(childError).length === 0 ||
+    Object.values(childError).every(value =>
+      value && Object.values(value).every(v => v === null)
+    );
+    if (!valid){
+      return Object.keys(childError)[0];
+    } else {
+      return  valid;
+    }
   };
   
   const validateFields = () => {
+    const isBoolean = (value) => typeof value === 'boolean';
     const v1= !validateComps();
     const v2= !validateForm();
-    const v3= !isChildErrorEmpty(childError);
-    if (v1 || v2 || v3) {
+    const v3 = isBoolean(isChildErrorEmpty(childError))
+              ? !isChildErrorEmpty(childError)
+              : isChildErrorEmpty(childError);
+
+    if (v1 || v2 ) {
       window.scrollTo({
           top: 0,
           behavior: "smooth"
       });
+      return true;
+    } else if (!isBoolean(v3)){
+        const scroll=document.getElementById(v3);
+        window.scrollTo({
+          top: scroll.offsetTop,
+          behavior: "smooth"
+        });
+        return true;
+    } else{
+      return false;
     }
-    return (v1 || v2 || v3)
   }
 
   const handleDownload = () => {
@@ -481,7 +499,7 @@ const validateComps = () => {
 
       <div className="p-4">
         {selectedComponent.map((component) => (
-          <div key={component.id} className="border rounded p-4 mb-4">
+          <div id={component.id}  key={component.id} className="border rounded p-4 mb-4">
             {switchComponent(component, handleRemoveComponent, handleComponentFormChange, handleChildError)}
           </div>
         ))}
