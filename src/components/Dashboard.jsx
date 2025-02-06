@@ -574,7 +574,7 @@ const Dashboard = () => {
           </div>
           <table className="w-full text-left border-collapse ">
             <thead>
-              <tr className="text-gray-500 text-sm border-b">
+              <tr className=" text-gray-500 text-sm border-b">
                 <th className="py-2">Select</th>
                 <th className="py-2">Trial Network ID</th>
                 <th className="py-2">Date Created UTC </th>

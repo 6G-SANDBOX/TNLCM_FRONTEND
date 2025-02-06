@@ -64,8 +64,8 @@ const Login = () => {
     <div className="bg-white font-sans min-h-screen flex flex-col relative">
       <TopNavigator />
 
-      <div className="flex-grow flex flex-col items-center justify-center">
-        <div className="flex flex-col md:flex-row items-center justify-center w-full max-w-4xl">
+      <div className="flex-grow flex flex-col items-center justify-center p-4">
+        <div className="flex flex-col md:flex-row items-center justify-center w-full max-w-4xl p-4">
           <div className="flex flex-col items-center w-full max-w-md">
             <form onSubmit={handleLogin} className="w-full space-y-4">
               {/* Input de email */}
@@ -131,7 +131,7 @@ const Login = () => {
           </div>
 
           {/* Logo */}
-          <div className="mt-8 md:mt-0 md:ml-60 flex justify-center">
+          <div className="mt-8 md:mt-0 md:ml-40 flex justify-center">
             <img src="/6gSandboxLogo.png" alt="Sandbox logo" className="w-80" />
           </div>
         </div>

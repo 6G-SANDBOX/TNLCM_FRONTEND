@@ -4,7 +4,7 @@ import React from 'react';
 
 const Footer = () => {
   return (
-    <div className="w-full bg-white">
+    <div className="w-full bg-white p-4">
       <div className="flex justify-center space-x-16 py-8">
         {/* Email */}
         <div className="text-center">
