@@ -38,12 +38,12 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
       if (result) {
         setData(result.component_input);
         const required = [];
-        // Inicializar los valores del formulario con los valores predeterminados de la API
+        // Initialize form values with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          // No asignar valor por defecto si el campo es 'one_ks8500runner_networks'
+          //No default values if the field is 'one_ks8500runner_networks'
           if (key !== "ocf_one_oneKE") {
             initialValues[key] = field.default_value || "";
           } else {
@@ -54,13 +54,12 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
             required.push(key);
           }
         }
-        // Agregar el campo 'name' con un valor inicial vacío
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
         setFormValues(initialValues);
         setRequiredFields(required);
-        // Llamar a onChange para pasar los valores iniciales al componente principal
+        // call onChange to send initial values to parent component
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
         }
@@ -72,12 +71,12 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
   const prevListRef = useRef();
     useEffect(() => {
       if (prevListRef.current?.length !== list.length) {
-        // Realizar actualización solo si list cambia
+        // Only update the form value if the list has changed
         if (list.length === 0 && formValues['ocf_one_oneKE'] !== "") {
-          onChange(id, 'ocf_one_oneKE', "");  // Enviar valor vacío
+          onChange(id, 'ocf_one_oneKE', "");
         }
       }
-      prevListRef.current = list;  // Actualizar el valor de referencia para la próxima comparación
+      prevListRef.current = list;  // Update the reference
     }, [list, formValues, onChange, id]);
 
   const handleSelectChange = (event, key) => {
@@ -86,16 +85,16 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
       ...prevState,
       [key]: value,
     }));
-    // Si la opción seleccionada desaparece de la lista (es decir, la opción ya no está disponible)
+    // If the option is not available, we update the state of the parent component to reflect the change
     if (!list.includes(value)) {
-      // Aquí actualizamos el estado del componente padre para reflejar el cambio
-      onChange(id, key, "");  // Enviamos un valor vacío o nulo al componente padre para indicar que la selección fue eliminada
+      // Here we send an empty string to the parent component to indicate that the selection was removed
+      onChange(id, key, "");  // Send empty string to parent component
     } else {
-      // Si la opción sigue disponible, actualizamos normalmente el valor
+      // If the option is available, we update the state of the parent component to reflect the change
       onChange(id, key, value);
     }
     
-    // Validación de campo
+    // Field validation
     if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -105,7 +104,7 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
       }
@@ -115,16 +114,16 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Actualiza los valores del formulario con el valor ingresado por el usuario
+    // Update the form values with the new value entered by the user
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
+      [name]: value,  // Update the value of the field
     }));
 
-    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
+    // Call the parent component to update the state with the new value
     onChange(id, name, value);
 
-    // Validación de campo
+    // field validation
     if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -134,7 +133,7 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
       }
@@ -151,7 +150,7 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
         whenError(id,name,null);
@@ -179,7 +178,7 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
       [key]: value,
     }));
 
-    // Validar si el valor es un número entero
+    // Validate integer
     if (!validateInteger(value)) {
       setErrorMessages((prevState) => ({
         ...prevState,
@@ -189,14 +188,14 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[key]; // Eliminar mensaje de error si es un número entero
+        delete newState[key];
         return newState;
       });
       whenError(id, key, null);
     }
   };
 
-  // Mostrar mensaje si data es null
+  // If no data is returned from the API, we display a message indicating that the component was added successfully
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">
@@ -216,7 +215,7 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
 
   return (
     <div className="bg-gray-100 p-6">
-      {/* Encabezado con botón de eliminación */}
+      {/* Header with delete button */}
       <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
         <button
           onClick={() => removeComponent(id)}
@@ -230,7 +229,7 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
 
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
         <form>
-           {/* Campo adicional 'name' */}
+           {/* Additional field 'name' */}
            <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-semibold">
               Name:
@@ -239,8 +238,8 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
               type="text"
               id={`name-${id}`}
               name="name"
-              value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
-              onChange={handleChange}  // Llama a handleChange para actualizar el valor
+              value={formValues.name || ""}
+              onChange={handleChange}
               className="w-full border border-gray-300 rounded-md p-2 mt-1"
             />
             {errorMessages.name && (
@@ -286,7 +285,7 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
                   {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
 
-                {/* Condicional para renderizar un input o select dependiendo de si hay "choices" */}
+                {/* Input or select if there are a 'choices' type */}
                 {field.choices ? (
                   <select
                     id={key}
@@ -310,9 +309,9 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
                     value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                     onChange={(event) => {
                       if (field.type === "int") {
-                        handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                        handleIntegerValidation(event, key);
                       } else {
-                        handleChange(event); // Para otros tipos de campos
+                        handleChange(event);
                       }
                     }}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
