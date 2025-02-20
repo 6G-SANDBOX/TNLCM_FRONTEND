@@ -459,7 +459,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
                   ))}
                  <small className="block mt-1 text-gray-500">
                   {list1.length === 0 || list1 === ""
-                    ? "Create news vnetsm or tn_vxlan to be able to select"
+                    ? "Create news vnets or tn_vxlan to be able to select"
                     : "Select one or more networks to include"
                   }
                 </small>

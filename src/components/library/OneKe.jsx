@@ -38,11 +38,11 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
       if (result) {
         setData(result.component_input);
         const required = [];
-        // Inicializamos el estado formValues con los valores predeterminados de los campos.
+        // Initialize form values with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          // No asignar valor por defecto si el campo es 'one_oneKE_external_vnet o one_oneKE_internal_vnet '
+          // No default value if the field is 'one_oneKE_external_vnet or one_oneKE_internal_vnet '
           if (key !== "one_oneKE_external_vnet" && key !== "one_oneKE_internal_vnet") {
             initialValues[key] = field.default_value || "";
           } else {
@@ -53,13 +53,13 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
             required.push(key);
           }
         }
-        // Agregar el campo 'name' con un valor inicial vacío
+        // Add 'name' field to required fields
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
         setFormValues(initialValues);
         setRequiredFields(required);
-        // Llamamos a onChange para enviar los valores iniciales al componente principal
+        // Call onChange to update the state in the parent component
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
         }
@@ -69,22 +69,22 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
   }, [id, onChange]);
 
   useEffect(() => {
-    // Asegúrate de que "one_loadcore_agent_networks" sea un array, incluso si no está inicializado
+    // Make sure that "one_loadcore_agent_networks" is an array
     const networks1 = Array.isArray(formValues["one_oneKE_external_vnet"])
       ? formValues["one_oneKE_external_vnet"]
       : [];
   
-    // Filtrar las redes seleccionadas que aún están en la lista
+    // Filter out any networks that are not in the list of available networks
     const validNetworks1 = networks1.filter((network) => list1.includes(network));
   
-    // Si las redes válidas han cambiado, actualiza los valores del formulario
+    // If the length of validNetworks is different from the length of networks, update the formValues
     if (validNetworks1.length !== networks1.length) {
       setFormValues((prevState) => ({
         ...prevState,
-        "one_oneKE_external_vnet": validNetworks1,  // Actualiza el estado de las redes seleccionadas
+        "one_oneKE_external_vnet": validNetworks1,  // Update the selected networks state
       }));
   
-      // Llama a onChange para actualizar el estado en el componente principal
+      // Call onChange to update the state in the parent component
       onChange(id, "one_oneKE_external_vnet", validNetworks1);
     }
 
@@ -95,46 +95,46 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
     if (validNetworks2.length !== networks2.length) {
       setFormValues((prevState) => ({
         ...prevState,
-        "one_oneKE_internal_vnet": validNetworks2,  // Actualiza el estado de las redes seleccionadas
+        "one_oneKE_internal_vnet": validNetworks2,  // Update the selected networks state
       }));
   
-      // Llama a onChange para actualizar el estado en el componente principal
+      // Call onChange to update the state in the parent component
       onChange(id, "one_oneKE_internal_vnet", validNetworks2);
     }
 
-  }, [list1,list2,formValues,id,onChange]);  // Dependencia de `list`
+  }, [list1,list2,formValues,id,onChange]);
 
   const handleCheckboxChange = (event, key, network) => {
-    // Asegúrate de que formValues[key] sea un arreglo antes de intentar usar filter
+    // Make sure that the value of the field is an array
     const currentValue = Array.isArray(formValues[key]) ? formValues[key] : [];
 
     const updatedNetworks = event.target.checked
-    ? [...currentValue, network] // Si está seleccionado, agrega la red
-    : currentValue.filter((n) => n !== network); // Si no está seleccionado, la elimina
+    ? [...currentValue, network] // If it is selected, add it to the list
+    : currentValue.filter((n) => n !== network);
 
-    // Actualiza los valores del formulario
+    // Update the formValues with the updated networks
     setFormValues((prevState) => ({
       ...prevState,
       [key]: updatedNetworks,
     }));
   
-    // Llama a onChange para actualizar el estado en el componente principal
+    // Call onChange to update the state in the parent component
     onChange(id, key, updatedNetworks);
   };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Actualiza los valores del formulario con el valor ingresado por el usuario
+    // Update the formValues with the new value
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
+      [name]: value,
     }));
 
-    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
+    // call onChange to update the state in the parent component
     onChange(id, name, value);
 
-    // Validación de campo
+    // Field validation
     if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -144,7 +144,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
       }
@@ -157,14 +157,15 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
           ...prevState,
           [name]: `Invalid IP RANGE format`,
         }));
-        whenError(id,name,`Invalid IP RANGE format`);
+        whenError(id,name,`Invalid IP RANGE format in ${name}`);
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
-        whenError(id,name,null);
+        console.log("clearing error");
+        whenError(id,name,"");
       }
     }
 
@@ -178,7 +179,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
         whenError(id,name,null);
@@ -195,7 +196,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
         whenError(id,name,null);
@@ -210,28 +211,28 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
     const rangePattern = /^(\d{1,3}(\.\d{1,3}){3})-(\d{1,3}(\.\d{1,3}){3})$/;
     const match = str.match(rangePattern);
   
-    if (!match) return false; // No coincide con el patrón general
+    if (!match) return false; // Does not match the range pattern
   
     const [, ip1, , ip2] = match;
   
-    if (!ipv4Pattern.test(ip1) || !ipv4Pattern.test(ip2)) return false; // Validar IPs individuales
+    if (!ipv4Pattern.test(ip1) || !ipv4Pattern.test(ip2)) return false; // Validating IPs
   
-    // Convertir IPs a números para comparar
+    // Make sure that min_IPv4 <= max_IPv4
     const ipToNumber = (ip) =>
       ip.split(".").reduce((acc, octet) => acc * 256 + Number(octet), 0);
   
-    return ipToNumber(ip1) <= ipToNumber(ip2); // min_IPv4 debe ser <= max_IPv4
+    return ipToNumber(ip1) <= ipToNumber(ip2); 
   };
 
   const isValidIPv4List = (str) => {
-    // Expresión regular para validar una sola dirección IPv4
+    // Regular expression to validate an IPv4 address
     const ipv4Pattern =
       /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
   
-    // Dividir el string en una lista de IPs separadas por espacios
+    // Split the string into a list of IPs
     const ipList = str.trim().split(/\s+/);
   
-    // Verificar que cada elemento de la lista sea una IP válida
+    // Verify that all IPs in the list are valid
     return ipList.every((ip) => ipv4Pattern.test(ip));
   };
 
@@ -248,7 +249,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
       [key]: value,
     }));
 
-    // Validar si el valor es un número entero
+    // Validate the integer value
     if (!validateInteger(value)) {
       setErrorMessages((prevState) => ({
         ...prevState,
@@ -258,14 +259,14 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[key]; // Eliminar mensaje de error si es un número entero
+        delete newState[key];
         return newState;
       });
       whenError(id, key, null);
     }
   };
 
-  // Mostrar mensaje si data es null
+  // If the data is null, show a message indicating that the component has been added
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">
@@ -285,7 +286,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
 
   return (
     <div className="bg-gray-100 p-6">
-      {/* Encabezado con botón de eliminación */}
+      {/* Header with delete button */}
       <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
         <button
           onClick={() => removeComponent(id)}
@@ -299,7 +300,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
 
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
         <form>
-           {/* Campo adicional 'name' */}
+           {/* Additional field 'name' */}
            <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-semibold">
               Name:
@@ -308,8 +309,8 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
               type="text"
               id={`name-${id}`}
               name="name"
-              value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
-              onChange={handleChange}  // Llama a handleChange para actualizar el valor
+              value={formValues.name || ""}
+              onChange={handleChange}
               className="w-full border border-gray-300 rounded-md p-2 mt-1"
             />
             {errorMessages.name && (
@@ -343,7 +344,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
                   ))}
                  <small className="block mt-1 text-gray-500">
                   {list1.length === 0 || list1 === ""
-                    ? "Create news vnets or txlan to be able to select"
+                    ? "Create news vnets or tn_vxlan to be able to select"
                     : "Select one or more networks to include"
                   }
                 </small>
@@ -386,14 +387,14 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
                   {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
-
-                {/* Condicional para renderizar un input o select dependiendo de si hay "choices" */}
+            
+                {/* Select if 'choices' exist or type is 'bool' */}
                 {field.choices ? (
                   <select
                     id={key}
                     name={key}
                     value={formValues[key] || ""}
-                    onChange={(event) => handleChange(event)} // Usar handleChange para actualizar el valor
+                    onChange={(event) => handleChange(event)}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   >
                     <option disabled value="">Select an option</option>
@@ -403,6 +404,18 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
                       </option>
                     ))}
                   </select>
+                ) : field.type === "bool" ? (
+                  <select
+                    id={key}
+                    name={key}
+                    value={formValues[key] !== undefined ? String(formValues[key]) : ""}
+                    onChange={(event) => handleChange({ target: { name: key, value: event.target.value === "true" } })}
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  >
+                    <option disabled value="">Select true or false</option>
+                    <option value="true">True</option>
+                    <option value="false">False</option>
+                  </select>
                 ) : (
                   <input
                     type="text"
@@ -411,18 +424,16 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
                     value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                     onChange={(event) => {
                       if (field.type === "int") {
-                        handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                        handleIntegerValidation(event, key);
                       } else {
-                        handleChange(event); // Para otros tipos de campos
+                        handleChange(event);
                       }
                     }}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   />
                 )}
-
-                {errorMessages[key] && (
-                  <small className="block mt-1 text-red-500">{errorMessages[key]}</small>
-                )}
+            
+                {errorMessages[key] && <small className="block mt-1 text-red-500">{errorMessages[key]}</small>}
                 <small className="block mt-1 text-gray-500">{field.description}</small>
               </div>
             );

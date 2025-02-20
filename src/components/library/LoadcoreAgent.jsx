@@ -239,7 +239,7 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
                   ))}
                  <small className="block mt-1 text-gray-500">
                   {list.length === 0 || list === ""
-                    ? "Create news vnets to be able to select"
+                    ? "Create news vnets or tn_vxlans to be able to select"
                     : "Select one or more networks to include"
                   }
                 </small>

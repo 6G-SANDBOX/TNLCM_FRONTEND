@@ -37,13 +37,13 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-        // Inicializamos el estado formValues con los valores predeterminados de los campos.
+        // Initialize form values with default values
         const initialValues = {};
         const required = [];
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          // No asignar valor por defecto si el campo es 'one_ks8500runner_networks'
+          // No default values if the field is 'one_ks8500runner_networks'
           if (key !== "one_open5gs_oneKE") {
             initialValues[key] = field.default_value || "";
           } else {
@@ -54,13 +54,13 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
             required.push(key);
           }
         }
-        // Agregar el campo 'name' con un valor inicial vacío
+        // Add 'name' field to the required fields
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
         setFormValues(initialValues);
         setRequiredFields(required);
-        // Llamamos a onChange para enviar los valores iniciales al componente principal
+        // call onChange to update the state in the parent component with the initial values
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
         }
@@ -72,12 +72,12 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
   const prevListRef = useRef();
     useEffect(() => {
       if (prevListRef.current?.length !== list.length) {
-        // Realizar actualización solo si list cambia
+        // Update the value of the field in the parent component if the list changes
         if (list.length === 0 && formValues['one_open5gs_oneKE'] !== "") {
-          onChange(id, 'one_open5gs_oneKE', "");  // Enviar valor vacío
+          onChange(id, 'one_open5gs_oneKE', "");
         }
       }
-      prevListRef.current = list;  // Actualizar el valor de referencia para la próxima comparación
+      prevListRef.current = list;
     }, [list, formValues, onChange, id]);
 
     const handleSelectChange = (event, key) => {
@@ -86,16 +86,15 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
       ...prevState,
       [key]: value,
     }));
-    // Si la opción seleccionada desaparece de la lista (es decir, la opción ya no está disponible)
+    // If the option is no longer available, update the state of the parent component to reflect the change
     if (!list.includes(value)) {
-      // Aquí actualizamos el estado del componente padre para reflejar el cambio
-      onChange(id, key, "");  // Enviamos un valor vacío o nulo al componente padre para indicar que la selección fue eliminada
+      onChange(id, key, "");  // Set the value to an empty string
     } else {
-      // Si la opción sigue disponible, actualizamos normalmente el valor
+      // If the option is available, update the state of the parent component with the new value
       onChange(id, key, value);
     }
     
-    // Validación de campo
+    // Field validation
     if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -105,7 +104,7 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
       }
@@ -115,16 +114,16 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Actualiza los valores del formulario con el valor ingresado por el usuario
+    // Update the form values with the new value entered by the user
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
+      [name]: value,  // Update the value of the field that has changed
     }));
 
-    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
+    // Call onChange to update the state in the parent component with the new values
     onChange(id, name, value);
 
-    // Validación de campo
+    // Field validation
     if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -134,7 +133,7 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
       }
@@ -150,7 +149,7 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
         whenError(id,name,null);
@@ -256,10 +255,10 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
 
   };
 
-  const isValidMCC = (mcc) => /^\d{3}$/.test(mcc);  // 3 dígitos
-  const isValidMNC = (mnc) => /^\d{2,3}$/.test(mnc); // 2 o 3 dígitos
-  const isValidMSIN = (msin) => /^\d{9,10}$/.test(msin); // 9 o 10 dígitos
-  const isValidNSSD = (nssd) => /^\d{6,}$/.test(nssd); // 6 o mas digitos
+  const isValidMCC = (mcc) => /^\d{3}$/.test(mcc);  // 3 digits
+  const isValidMNC = (mnc) => /^\d{2,3}$/.test(mnc); // 2 or 3 digits
+  const isValidMSIN = (msin) => /^\d{9,10}$/.test(msin); // 9 or 10 digits
+  const isValidNSSD = (nssd) => /^\d{6,}$/.test(nssd); // 6 or more digits
 
 
   const isValidIPv4 = (ip) => {
@@ -279,7 +278,7 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
       [key]: value,
     }));
 
-    // Validar si el valor es un número entero
+    // Check if the value is an integer
     if (!validateInteger(value)) {
       setErrorMessages((prevState) => ({
         ...prevState,
@@ -289,14 +288,14 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[key]; // Eliminar mensaje de error si es un número entero
+        delete newState[key];
         return newState;
       });
       whenError(id, key, null);
     }
   };
 
-  // Mostrar mensaje si data es null
+  // If no fields are loaded, show a message indicating that the component has been added
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">
@@ -316,7 +315,7 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
 
   return (
     <div className="bg-gray-100 p-6">
-      {/* Encabezado con botón de eliminación */}
+      {/* Header with delete button */}
       <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
         <button
           onClick={() => removeComponent(id)}
@@ -330,7 +329,7 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
 
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
         <form>
-           {/* Campo adicional 'name' */}
+           {/* Additional field 'name' */}
            <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-semibold">
               Name:
@@ -339,8 +338,8 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
               type="text"
               id={`name-${id}`}
               name="name"
-              value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
-              onChange={handleChange}  // Llama a handleChange para actualizar el valor
+              value={formValues.name || ""}
+              onChange={handleChange}
               className="w-full border border-gray-300 rounded-md p-2 mt-1"
             />
             {errorMessages.name && (
@@ -386,13 +385,13 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
                   {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
 
-                {/* Condicional para renderizar un input o select dependiendo de si hay "choices" */}
+                {/* Input or select if there are a 'choices' type */}
                 {field.choices ? (
                   <select
                     id={key}
                     name={key}
                     value={formValues[key] || ""}
-                    onChange={(event) => handleChange(event)} // Usar handleChange para actualizar el valor
+                    onChange={(event) => handleChange(event)}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   >
                     <option disabled value="">Select an option</option>
@@ -410,9 +409,9 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
                     value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                     onChange={(event) => {
                       if (field.type === "int") {
-                        handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                        handleIntegerValidation(event, key);
                       } else {
-                        handleChange(event); // Para otros tipos de campos
+                        handleChange(event);
                       }
                     }}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"

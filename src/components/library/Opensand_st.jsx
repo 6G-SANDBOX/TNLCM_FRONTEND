@@ -42,14 +42,14 @@ const OpensandSt = ({ id, removeComponent, onChange }) => {
         for (const key in result.component_input) {
           initialValues[key] = result.component_input[key].default_value || "";
         }
-        // Agregar el campo 'name' con un valor inicial vacío
+        // Add 'name' field to the form
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
         setFormValues(initialValues);
         setRequiredFields(required);
 
-        // Llamamos a onChange para enviar los valores iniciales al componente principal
+        // Call onChange to update the state in the parent component with the initial values
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
         }
@@ -61,16 +61,16 @@ const OpensandSt = ({ id, removeComponent, onChange }) => {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Actualiza los valores del formulario con el valor ingresado por el usuario
+    // Update the form values
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
+      [name]: value,  // Update the value of the field
     }));
 
-    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
+    // Call onChange to update the state in the parent component
     onChange(id, name, value);
 
-    // Validación de campo
+    // Field validation
     if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -80,7 +80,7 @@ const OpensandSt = ({ id, removeComponent, onChange }) => {
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name]; // Delete the error message if the field is not empty
           return newState;
         });
       }
@@ -88,7 +88,7 @@ const OpensandSt = ({ id, removeComponent, onChange }) => {
 
   };
 
-  // Mostrar mensaje si data es null
+  // Data should be always null owing to the fact that the component has no fields to display
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">
@@ -104,7 +104,7 @@ const OpensandSt = ({ id, removeComponent, onChange }) => {
         </header>
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
       <form>
-          {/* Campo adicional 'name' */}
+          {/* Additional field 'name' */}
           <div className="mb-4">
           <label htmlFor="name" className="block text-gray-700 font-semibold">
             Name:
@@ -113,8 +113,8 @@ const OpensandSt = ({ id, removeComponent, onChange }) => {
             type="text"
             id={`name-${id}`}
             name="name"
-            value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
-            onChange={handleChange}  // Llama a handleChange para actualizar el valor
+            value={formValues.name || ""}
+            onChange={handleChange}
             className="w-full border border-gray-300 rounded-md p-2 mt-1"
           />
           {errorMessages.name && (

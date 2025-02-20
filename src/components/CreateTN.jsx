@@ -39,7 +39,7 @@ const CreateTN = () => {
 
   const filterVnetOrTnVxlanComponents = useCallback(() => {
     const filteredComponents = selectedComponent.filter((component) =>
-      component.label.toLowerCase().includes('vnet') || component.label.toLowerCase().includes('tn_vxlan')
+      component.label.toLowerCase().includes('vnet') || component.label.toLowerCase().includes('tn_vxlan') || component.label.toLowerCase().includes('tn_init')
     );
   
     // Return a list in format "label-name"
@@ -200,14 +200,29 @@ const validateComps = () => {
   };
 
   const handleChildError = useCallback((id, field, message) => {
-    setChildError((prevErrors) => ({
-      ...prevErrors,
-      [id]: {
-        ...prevErrors[id],
-        [field]: message,
-      },
-    }));
+    setChildError((prevErrors) => {
+      const newErrors = {
+        ...prevErrors,
+        [id]: {
+          ...prevErrors[id],
+          [field]: message,
+        },
+      };
+  
+      // If the message is empty, remove the field from the object
+      if (!message) {
+        delete newErrors[id][field];
+  
+        // If the object is empty, remove the component from the object
+        if (Object.keys(newErrors[id]).length === 0) {
+          delete newErrors[id];
+        }
+      }
+  
+      return newErrors;
+    });
   }, []);
+  
 
 
   const handleComponentFormChange = useCallback((id, fieldName, value) => {
@@ -242,7 +257,6 @@ const validateComps = () => {
     const v3 = isBoolean(isChildErrorEmpty(childError))
               ? !isChildErrorEmpty(childError)
               : isChildErrorEmpty(childError);
-
     if (v1 || v2 ) {
       window.scrollTo({
           top: 0,
@@ -251,10 +265,11 @@ const validateComps = () => {
       return true;
     } else if (!isBoolean(v3)){
         const scroll=document.getElementById(v3);
-        window.scrollTo({
+        if (scroll!== null){window.scrollTo({
           top: scroll.offsetTop,
           behavior: "smooth"
         });
+      }
         return true;
     } else{
       return false;
@@ -495,6 +510,25 @@ const validateComps = () => {
             </ul>
           </div>
         )}
+
+        {Object.keys(childError).length > 0 && (
+          <div  id="ChError" className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg">
+            <h3 className="font-bold text-lg">Childs errors:</h3>
+            <ul className="list-disc pl-5">
+              {Object.entries(childError).map(([componentId, fields]) => (
+                <li key={componentId}>
+                  <strong>Component {componentId}:</strong>
+                  <ul className="list-disc pl-5">
+                    {Object.entries(fields).map(([field, message]) => (
+                      <li key={field} className="text-sm">{message}</li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
 
 
       <div className="p-4">
