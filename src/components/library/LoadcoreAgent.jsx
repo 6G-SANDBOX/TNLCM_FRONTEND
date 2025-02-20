@@ -37,13 +37,13 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-        const required = [];  // Para almacenar los campos obligatorios
+        const required = [];  // Array to store the required fields
         // Initialize form values with default values from the API
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          // No asignar valor por defecto si el campo es 'one_ks8500runner_networks'
+          // No default values if the field is 'one_ks8500runner_networks'
           if (key !== "one_loadcore_agent_networks") {
             initialValues[key] = field.default_value || "";
           } else {
@@ -54,7 +54,6 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
             required.push(key);
           }
         }
-        // Agregar el campo 'name' con un valor inicial vacío
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
@@ -70,54 +69,54 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
   }, [id, onChange]);
 
   useEffect(() => {
-      // Asegúrate de que "one_loadcore_agent_networks" sea un array, incluso si no está inicializado
+      // Make sure that "one_loadcore_agent_networks" is an array
       const networks = Array.isArray(formValues["one_loadcore_agent_networks"])
         ? formValues["one_loadcore_agent_networks"]
         : [];
     
-      // Filtrar las redes seleccionadas que aún están en la lista
+      // Filter the selected networks to keep only the valid ones
       const validNetworks = networks.filter((network) => list.includes(network));
     
-      // Si las redes válidas han cambiado, actualiza los valores del formulario
+      // If the number of valid networks is different from the number of selected networks
       if (validNetworks.length !== networks.length) {
         setFormValues((prevState) => ({
           ...prevState,
-          "one_loadcore_agent_networks": validNetworks,  // Actualiza el estado de las redes seleccionadas
+          "one_loadcore_agent_networks": validNetworks,  // Update the form values
         }));
     
-        // Llama a onChange para actualizar el estado en el componente principal
+        // Call onChange to update the state in the parent component
         onChange(id, "one_loadcore_agent_networks", validNetworks);
       }
-    }, [list,formValues,id,onChange]);  // Dependencia de `list`
+    }, [list,formValues,id,onChange]);
 
     const handleCheckboxChange = (event, key, network) => {
       const updatedNetworks = event.target.checked
-        ? [...formValues[key], network] // Si está seleccionado, agrega la red
-        : formValues[key].filter((n) => n !== network); // Si no está seleccionado, la elimina
+        ? [...formValues[key], network] // If it is selected, add it to the list
+        : formValues[key].filter((n) => n !== network);
     
-      // Actualiza los valores del formulario
+      // Update the form values with the new list of networks
       setFormValues((prevState) => ({
         ...prevState,
         [key]: updatedNetworks,
       }));
     
-      // Llama a onChange para actualizar el estado en el componente principal
+      // Call onChange to update the state in the parent component
       onChange(id, key, updatedNetworks);
     };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Actualiza los valores del formulario con el valor ingresado por el usuario
+    // Update the form values with the new value
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
+      [name]: value,  // Update the value for the field
     }));
 
-    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
+    // call onChange to send the new value to the parent component
     onChange(id, name, value);
 
-    // Validación de campo
+    // Field validation
     if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -127,7 +126,7 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
       }
@@ -145,7 +144,7 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
       [key]: value,
     }));
 
-    // Validar si el valor es un número entero
+    // Validate if the value is an integer
     if (!validateInteger(value)) {
       setErrorMessages((prevState) => ({
         ...prevState,
@@ -155,7 +154,7 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[key]; // Eliminar mensaje de error si es un número entero
+        delete newState[key];
         return newState;
       });
       whenError(id, key, null);
@@ -196,7 +195,7 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
 
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
         <form>
-          {/* Campo adicional 'name' */}
+          {/* Additional field 'name' */}
           <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-semibold">
               Name:
@@ -205,8 +204,8 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
               type="text"
               id={`name-${id}`}
               name="name"
-              value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
-              onChange={handleChange}  // Llama a handleChange para actualizar el valor
+              value={formValues.name || ""}
+              onChange={handleChange}
               className="w-full border border-gray-300 rounded-md p-2 mt-1"
             />
             {errorMessages.name && (
@@ -254,13 +253,13 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
                   {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
 
-                {/* Condicional para renderizar un input o select dependiendo de si hay "choices" */}
+                {/* Input or select if there are a 'choices' type */}
                 {field.choices ? (
                   <select
                     id={key}
                     name={key}
                     value={formValues[key] || ""}
-                    onChange={(event) => handleChange(event)} // Usar handleChange para actualizar el valor
+                    onChange={(event) => handleChange(event)}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   >
                     <option disabled value="">Select an option</option>
@@ -278,9 +277,9 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
                     value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                     onChange={(event) => {
                       if (field.type === "int") {
-                        handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                        handleIntegerValidation(event, key);
                       } else {
-                        handleChange(event); // Para otros tipos de campos
+                        handleChange(event);
                       }
                     }}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"

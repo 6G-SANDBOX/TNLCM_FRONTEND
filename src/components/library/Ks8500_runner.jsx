@@ -37,13 +37,13 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError }) => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-        const required = [];  // Para almacenar los campos obligatorios
-        // Inicializa los valores del formulario con los valores predeterminados de la API
+        const required = [];
+        // Initialize the form with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          // No asignar valor por defecto si el campo es 'one_ks8500runner_networks'
+          // No default values if the field is 'one_ks8500runner_networks'
           if (key !== "one_ks8500runner_networks") {
             initialValues[key] = field.default_value || "";
           } else {
@@ -55,15 +55,15 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError }) => {
           }
         }
         
-        // Agregar el campo 'name' con un valor inicial vacío
+        // Add the 'name' field as required
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
         setFormValues(initialValues);
         setRequiredFields(required);
-        // Llama a onChange para enviar los valores predeterminados
+        // Call onChange to send the default values to the parent component
         for (const key in initialValues) {
-          onChange(id, key, initialValues[key]); // Envía los valores predeterminados al componente principal
+          onChange(id, key, initialValues[key]); // Send the default values to the parent component
         }
       }
     };
@@ -71,40 +71,40 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError }) => {
   }, [id, onChange,]);
 
   useEffect(() => {
-    // Asegúrate de que "one_ks8500runner_networks" sea un array, incluso si no está inicializado
+    // Make sure that "one_ks8500runner_networks" is an array
     const networks = Array.isArray(formValues["one_ks8500runner_networks"])
       ? formValues["one_ks8500runner_networks"]
       : [];
   
-    // Filtrar las redes seleccionadas que aún están en la lista
+    // Filter the networks to keep only the valid ones
     const validNetworks = networks.filter((network) => list.includes(network));
   
-    // Si las redes válidas han cambiado, actualiza los valores del formulario
+    // If the number of valid networks is different from the number of networks, update the state
     if (validNetworks.length !== networks.length) {
       setFormValues((prevState) => ({
         ...prevState,
-        "one_ks8500runner_networks": validNetworks,  // Actualiza el estado de las redes seleccionadas
+        "one_ks8500runner_networks": validNetworks,  // Update the list of networks
       }));
   
-      // Llama a onChange para actualizar el estado en el componente principal
+      // call onChange to update the parent component
       onChange(id, "one_ks8500runner_networks", validNetworks);
     }
-  }, [list,formValues,id,onChange]);  // Dependencia de `list`
+  }, [list,formValues,id,onChange]);
   
 
   
   const handleCheckboxChange = (event, key, network) => {
     const updatedNetworks = event.target.checked
-      ? [...formValues[key], network] // Si está seleccionado, agrega la red
-      : formValues[key].filter((n) => n !== network); // Si no está seleccionado, la elimina
+      ? [...formValues[key], network] // If it is selected, add it to the list
+      : formValues[key].filter((n) => n !== network);
   
-    // Actualiza los valores del formulario
+    // Update the state with the new list of networks
     setFormValues((prevState) => ({
       ...prevState,
       [key]: updatedNetworks,
     }));
   
-    // Llama a onChange para actualizar el estado en el componente principal
+    // call onChange to update the parent component
     onChange(id, key, updatedNetworks);
   };
 
@@ -112,16 +112,16 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError }) => {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Actualiza los valores del formulario con el valor ingresado por el usuario
+    // Update the form values with the new value
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
+      [name]: value,  // Update the value for the field
     }));
 
-    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
+    // Call onChange to send the new value to the parent component
     onChange(id, name, value);
 
-    // Validación de campo
+    // Field validation
     if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -131,7 +131,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError }) => {
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
       }
@@ -147,7 +147,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError }) => {
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name];
           return newState;
         });
         whenError(id,name,null);
@@ -166,7 +166,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError }) => {
   
 
 
-  // Muestra el mensaje de éxito si data es null
+  // If the data is null, show a message that the component has been added
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">
@@ -199,7 +199,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError }) => {
 
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
         <form>
-           {/* Campo adicional 'name' */}
+           {/* Additional field name */}
            <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-semibold">
               Name:
@@ -208,8 +208,8 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError }) => {
               type="text"
               id={`name-${id}`}
               name="name"
-              value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
-              onChange={handleChange}  // Llama a handleChange para actualizar el valor
+              value={formValues.name || ""}
+              onChange={handleChange}
               className="w-full border border-gray-300 rounded-md p-2 mt-1"
             />
             {errorMessages.name && (
