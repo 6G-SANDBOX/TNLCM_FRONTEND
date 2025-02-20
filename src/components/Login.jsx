@@ -15,45 +15,44 @@ const Login = () => {
 
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Evita el comportamiento predeterminado del formulario
+    e.preventDefault(); // Prevents the default form submission behavior
     try {
-      // Configura un timeout de 5 segundos
-      const response = await loginUser(user, password, { timeout: 5000 }); // Timeout en 5 segundos
+      const response = await loginUser(user, password, { timeout: 5000 }); // Five seconds timeout
   
-      // Suponiendo que el servidor devuelve un JSON con access_token y refresh_token
+      // Supposing server sent us a JSON with access_token and refresh_token
       const accessToken = response.data.access_token;
       const refreshToken = response.data.refresh_token;
   
-      // Guarda el access_token en sessionStorage (solo para la sesión actual)
+      // Save access_token in sessionStorage (only for this session)
       sessionStorage.setItem("access_token", accessToken);
-      // Guarda el refresh_token en localStorage (para persistirlo entre sesiones)
+      // Save refresh_token in localStorage (multiple sessions)
       localStorage.setItem("refresh_token", refreshToken);
   
       setSuccess("Login successful!");
-      setError(""); // Limpia los mensajes de error
+      setError(""); // Clean error message
       setTimeout(() => {
         window.location = "/dashboard";
       }, 1002);
     } catch (err) {
-      // Manejo de diferentes tipos de errores
+      // Different error handling
       if (err.response) {
-        // Errores con respuesta del servidor
+        // Server responded with an error status code
         if (err.response.status === 404) {
           setError("The server is not responding.");
         } else {
           setError(err.message || "Login failed. Please try again.");
         }
       } else if (err.code === "ECONNABORTED") {
-        // Errores por timeout
+        // Timeout error
         setError("Can not connect with the server. The request timed out.");
       } else if (err.message === "Network Error") {
-        // Errores de red generales
+        // Network error
         setError("Network error. Please check your internet connection.");
       } else {
-        // Otros errores
+        // Other errors
         setError( "Login failed. Please try again later.");
       }
-      setSuccess(""); // Limpia los mensajes de éxito
+      setSuccess(""); // Clean success message
     }
   };
   
@@ -68,7 +67,7 @@ const Login = () => {
         <div className="flex flex-col md:flex-row items-center justify-center w-full max-w-4xl p-4">
           <div className="flex flex-col items-center w-full max-w-md">
             <form onSubmit={handleLogin} className="w-full space-y-4">
-              {/* Input de email */}
+              {/* Mail input */}
               <div className="w-full mb-4">
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
                   Username
@@ -79,7 +78,7 @@ const Login = () => {
                     id="username"
                     value={user}
                     placeholder="Enter your username"
-                    autoComplete="username" // Correcto para un campo de nombre de usuario
+                    autoComplete="username"
                     onChange={(e) => setUser(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   />
@@ -88,7 +87,7 @@ const Login = () => {
               </div>
 
 
-              {/* Input de password */}
+              {/* Password input */}
               <div className="w-full mb-6">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                   Password
@@ -107,11 +106,11 @@ const Login = () => {
                 </div>
               </div>
 
-              {/* Mensajes de error o éxito */}
+              {/* Error or succesful messages */}
               {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
               {success && <div className="mb-4 text-green-500 text-sm">{success}</div>}
 
-              {/* Botones */}
+              {/* Buttons */}
               <div className="flex space-x-4">
                 <button
                   type="submit"
@@ -139,7 +138,7 @@ const Login = () => {
 
       <Footer />
 
-      {/* Modal de crear cuenta */}
+      {/* Create Account modal */}
       {showCreateAccount && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <CreateAccount onClose={() => setShowCreateAccount(false)} />
@@ -152,32 +151,29 @@ const Login = () => {
 export default Login;
 
 export async function loginUser(username, password, config = {}) {
-  // Construir la cadena de autenticación básica
   const authString = `${username}:${password}`;
-  const encodedAuth = window.btoa(unescape(encodeURIComponent(authString))); // Soporta caracteres especiales
+  const encodedAuth = window.btoa(unescape(encodeURIComponent(authString))); // Special encoding for base64
   const basicAuthHeader = `Basic ${encodedAuth}`;
 
   try {
-    // Leer la URL base desde las variables de entorno
     const url = process.env.REACT_APP_ENDPOINT;
-
-    // Realizar la solicitud POST al endpoint de login
+    // Make the POST request to the login endpoint
     const response = await axios.post(
       `${url}/tnlcm/user/login`,
-      {}, // No hay cuerpo, ya que la autenticación está en los headers
+      {},
       {
         headers: {
-          Authorization: basicAuthHeader, // Header de autenticación básica
+          Authorization: basicAuthHeader, // Authorization header with basic auth
           "Content-Type": "application/json",
         },
-        ...config, // Incluye configuraciones adicionales como timeout
+        ...config, // Add any other configuration
       }
     );
 
-    // Devolver la respuesta si es exitosa
+    // Return the response
     return response;
   } catch (error) {
-    // Lanzar el error para que el manejo ocurra en el lugar donde se llama esta función
+    // Make sure to return the error
     throw error;
   }
 }

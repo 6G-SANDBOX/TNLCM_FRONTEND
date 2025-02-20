@@ -7,12 +7,12 @@ import TerminalModal from './TerminalModal';
 import TopNavigator from './TopNavigator';
 
 const Dashboard = () => {
-  const [data, setData] = useState({ trial_networks: [] }); // Para almacenar los datos de la API
-  const [loading, setLoading] = useState(true); // Para manejar el estado de carga
-  const [error, setError] = useState(null); // Para manejar errores
-  const [currentPage, setCurrentPage] = useState(1); // Página actual
-  const [itemsPerPage] = useState(8); // Número de elementos por página
-  const [alturaRestante, setAlturaRestante] = useState(0); // Para almacenar la altura restante calculada
+  const [data, setData] = useState({ trial_networks: [] }); // Api data storing
+  const [loading, setLoading] = useState(true); // Loading state handler
+  const [error, setError] = useState(null); // Error state handler
+  const [currentPage, setCurrentPage] = useState(1); // Actual page
+  const [itemsPerPage] = useState(8); // Nuember of items per page
+  const [alturaRestante, setAlturaRestante] = useState(0); // Height of the table
   const [activeCount, setActiveCount] = useState(0);
   const fileInputRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,13 +25,13 @@ const Dashboard = () => {
   const [selectedNetworkId, setSelectedNetworkId] = useState(null);
 
   const handleOpenLogs = (tn_id) => {
-    setSelectedNetworkId(tn_id); // Establece el ID de la red seleccionada
-    setModalOpen2(true); // Abre el modal
+    setSelectedNetworkId(tn_id); // Set the selected network ID
+    setModalOpen2(true); // Open the modal
   };
 
   const handlePurgeClick = async () => {
     try {
-      // Separar IDs válidos e inválidos
+      // Filter valid and invalid IDs
       const validIds = [];
       const invalidIds = [];
       
@@ -44,22 +44,22 @@ const Dashboard = () => {
         }
       });
   
-      // Mostrar alerta si hay IDs no válidos
+      // Show an alert if there are invalid IDs
       if (invalidIds.length > 0) {
         alert(`No se pueden purgar los siguientes IDs porque su estado no es "destroyed" o "validated": ${invalidIds.join(", ")}`);
       }
   
-      // Actualizar los estados antes de realizar las peticiones
+      // Update the state before making the requests
       setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
       setChangingStatesIdS((prevState) => [...prevState, ...validIds]);
   
-      // Generar las promesas para los IDs válidos
+      // Generate the PURGE requests for each ID
       const deleteRequests = validIds.map(async (id) => {
         const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/purge/${id}`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
   
-        // Realizar la petición PURGE
+        // Make the PURGE request
         return axios.delete(url, {
           headers: {
             Authorization: auth,
@@ -68,14 +68,14 @@ const Dashboard = () => {
         });
       });
   
-      // Ejecutar todas las promesas con Promise.allSettled
+      // Make all with Promise.allSettled
        await Promise.allSettled(deleteRequests);
   
-      // Actualizar el estado después de que se completen todas las peticiones
+      // Set the state after all requests are completed
       setChangingStatesIdS((prevState) => prevState.filter((id) => !validIds.includes(id)));
   
     } catch (error) {
-      alert("Error al realizar el proceso de purge:", error);
+      alert("Error while purging:", error);
     }
   };
   
@@ -84,32 +84,29 @@ const Dashboard = () => {
 
   const handleDestroyClick = async () => {
     try {
-      // Actualiza los estados fuera del bucle, antes de realizar las peticiones
+      // Set the states before making the requests
       setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
       setChangingStatesIdS((prevState) => [...prevState, ...selectedIds]);
   
-      // Generar las promesas para cada id en el array
+      // Make a DELETE request for each ID
       const deleteRequests = selectedIds.map(async (id) => {
         const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/${id}`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
   
-        // Realizar la petición DELETE
+        // Make the DELETE request
         await axios.delete(url, {
           headers: {
             Authorization: auth,
             "Content-Type": "application/json",
           },
         });
-  
-        // Una vez que la petición se ha realizado, puedes manejar el cambio de estado.
-        // Esto es opcional, dependiendo de cómo quieras hacerlo.
       });
   
-      // Esperar que todas las promesas se resuelvan
+      // Wait for all requests to complete
       await Promise.all(deleteRequests);
   
-      // Después de que todas las solicitudes se hayan completado, elimina los elementos de changingStatesIdS
+      // After all requests are completed, update the state
       setChangingStatesIdS((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
     } catch (error) {
       alert("Error deleting networks: " + error);
@@ -119,17 +116,17 @@ const Dashboard = () => {
 
   const handleDeployClick = async () => {
     try {
-      // Actualizar los estados antes de realizar las peticiones
+      // Set the states before making the requests
       setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
       setChangingStatesIdS((prevState) => [...prevState, ...selectedIds]);
   
-      // Crear una lista de promesas para cada solicitud PUT
+      // Create a PUT request for each ID
       const promises = selectedIds.map(async (id) => {
         const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/${id}`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
   
-        // Realizar la petición PUT
+        // Make the PUT request
         try {
           await axios.put(url, {}, {
             headers: {
@@ -138,19 +135,16 @@ const Dashboard = () => {
             },
           });
   
-          // Después de que la petición se haya completado, actualizamos el estado
+          // After the request is completed, update the state
           setChangingStatesIdS((prevState) => prevState.filter((item) => item !== id));
-          return { id, status: 'success' };  // Respuesta exitosa
+          return { id, status: 'success' };
         } catch (error) {
-          return { id, status: 'failed', error };  // Error de la solicitud
+          return { id, status: 'failed', error };
         }
       });
   
       await Promise.allSettled(promises);
-  
-      // Procesar los resultados de las promesas
-     
-  
+
     } catch (error) {
       alert("Error deploying networks: " + error);
     }
@@ -167,27 +161,26 @@ const Dashboard = () => {
   };
 
   const handleButtonClick = () => {
-    // Simula el clic en el input de archivo
+    // Do like a click on the input
     fileInputRef.current.click();
   };
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0]; // Obtén el archivo seleccionado
+    const file = event.target.files[0]; // Get the first file
     if (file) {
-      //  el modal después de seleccionar un archivo
+      // Open the modal
       setIsModalOpen(true);
-    
     }
-
   };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     
   };
 
   const handleSubmitModal = async (event) => {
-    setIsLoading(true); // Mostrar el GIF de cargando
-    // Obtener los valores de los campos del modal
+    setIsLoading(true); // Show the loading spinner
+    // Get the values from the form
     const trialNetworkId = document.getElementById("trial-network-id").value;
     const deploymentSite = document.getElementById("deployment-site").value;
     const libraryReferenceType = selectedOptionL;
@@ -201,7 +194,7 @@ const Dashboard = () => {
   
     let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${trialNetworkId}&deployment_site=${deploymentSite}&library_reference_type=${libraryReferenceType}&library_reference_value=${libraryReferenceValue}&sites_reference_type=${sitesReferenceType}&sites_reference_value=${sitesReferenceValue}`;
   
-    // Enviar la petición
+    // Send the POST request
     const createTrialNetwork = async (formData) => {
       try {
         const access_token = await getAccessTokenFromSessionStorage();
@@ -236,7 +229,7 @@ const Dashboard = () => {
 
 
   useEffect(() => {
-    let timeoutId; // Variable para almacenar el ID del timeout
+    let timeoutId; // Store the ID of the timeout
   
     const fetchData = async () => {
       try {
@@ -273,18 +266,16 @@ const Dashboard = () => {
     };
   
     const scheduleNextFetch = () => {
-      const randomInterval = Math.floor(Math.random() * (6 - 3 + 1) + 3) * 1000; // Genera un intervalo entre 3 y 6 segundos
+      const randomInterval = Math.floor(Math.random() * (6 - 3 + 1) + 3) * 1000; // Make a random interval between 3 and 6 seconds
       timeoutId = setTimeout(() => {
         fetchData();
-        scheduleNextFetch(); // Programa la próxima ejecución
+        scheduleNextFetch(); // Set the next fetch
       }, randomInterval);
     };
-  
-    // Ejecutar la primera vez y programar las siguientes
     fetchData();
     scheduleNextFetch();
   
-    // Cleanup para evitar múltiples ejecuciones
+    // Cleanup for the next timeout
     return () => {
       clearTimeout(timeoutId);
     };
@@ -297,18 +288,18 @@ const Dashboard = () => {
     const updateAlturaRestante = () => {
       const topNavElement = document.getElementById("topNavigator");
       if (topNavElement) {
-        const height = topNavElement.getBoundingClientRect().height; // Obtener la altura usando getBoundingClientRect
-        setAlturaRestante(window.innerHeight - height - 200); // Calcular la altura restante
+        const height = topNavElement.getBoundingClientRect().height; // Get the height using getBoundingClientRect
+        setAlturaRestante(window.innerHeight - height - 200); // Compute the remaining height
       }
     };
 
-    // Ejecutar inmediatamente la función y luego cada 1 segundo
+    // Execute the function and set the interval
     updateAlturaRestante();
     const intervalId = setInterval(updateAlturaRestante, 100);
 
-    // Limpiar el intervalo al desmontar el componente
+    // Clean the interval
     return () => clearInterval(intervalId);
-  }, []); // Solo se configura una vez al montar el componente
+  }, []); // Only execute once
   
 
   if (loading) {
@@ -325,32 +316,32 @@ const Dashboard = () => {
     </div>
   }
 
-  // Calcular los índices para la paginación
+  // Compute the indexes of the items to show
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = data.trial_networks.slice(indexOfFirstItem, indexOfLastItem);
 
-  // Número total de páginas
+  // Total pages
   const totalPages = Math.ceil(data.trial_networks.length / itemsPerPage);
 
-  // Cambiar de página
+  // Switch the page
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // Formatear la fecha
+  // Format the date
   const formatDate = (isoDate) => {
-    const date = new Date(isoDate); // Convertir el string ISO en un objeto Date
+    const date = new Date(isoDate); // ISO to Date
   
-    // Extraer los componentes de la fecha y hora
-    const day = String(date.getDate()).padStart(2, '0'); // Día con ceros a la izquierda
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Mes con ceros a la izquierda
+    // Extract the date and time
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear(); // Año
-    const hours = String(date.getHours()).padStart(2, '0'); // Horas con ceros a la izquierda
-    const minutes = String(date.getMinutes()).padStart(2, '0'); // Minutos con ceros a la izquierda
-    const seconds = String(date.getSeconds()).padStart(2, '0'); // Segundos con ceros a la izquierda
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
   
-    // Formatear la fecha y hora
+    // Make the new format
     return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
   };
 
@@ -411,7 +402,7 @@ const Dashboard = () => {
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
-                style={{ display: "none" }} // Oculta el input
+                style={{ display: "none" }} // Hide the input
               />
 
               {/* Modal */}
@@ -519,7 +510,7 @@ const Dashboard = () => {
                       {isLoading ? (
                         <div className="flex justify-center items-center">
                           <img
-                            src="loading.gif" // Cambia por la URL de tu GIF de carga
+                            src="loading.gif"
                             alt="validating..."
                             className="h-8 w-8"
                           />
@@ -548,7 +539,7 @@ const Dashboard = () => {
             )}
           </div>
           <div className="flex space-x-4 mb-4">
-            {/* Botón para desplegar redes */}
+            {/* Deploy button */}
             <button
               className="bg-blue-800 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-blue-500"
               onClick={handleDeployClick}
@@ -556,7 +547,7 @@ const Dashboard = () => {
               Deploy Networks
             </button>
 
-            {/* Botón para detener redes */}
+            {/* Destroy button*/}
             <button
               className="bg-yellow-700 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-yellow-500"
               onClick={handleDestroyClick}
@@ -564,7 +555,7 @@ const Dashboard = () => {
               Destroy Networks
             </button>
 
-            {/* Botón para purgar redes */}
+            {/* Purge button */}
             <button
               className="bg-red-800 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-red-500"
               onClick={handlePurgeClick}
@@ -604,7 +595,7 @@ const Dashboard = () => {
                   <span
                     className={[
                       changingStatesIdS.includes(network.tn_id)
-                        ? "" // No aplicamos fondo cuando se está cargando
+                        ? "" // No background color when changing state
                         : network.state === "failed" || network.state === "destroyed"
                         ? "bg-red-100 text-red-500"
                         : network.state === "validated"
@@ -627,15 +618,15 @@ const Dashboard = () => {
               ))}
             </tbody>
           </table>
-            {/* Modal para mostrar los logs */}
+            {/* Modal for logs */}
         {isModalOpen2 && (
           <TerminalModal
             isOpen={isModalOpen2}
-            onClose={() => setModalOpen2(false)} // Cierra el modal
-            vmId={selectedNetworkId} // Pasa el ID de la red al modal
+            onClose={() => setModalOpen2(false)}
+            vmId={selectedNetworkId}
           />
         )}
-          {/* Paginación */}
+          {/* Page */}
           <div className={`flex  justify-between items-center mt-4 text-sm text-gray-500`}>
             <p>Showing data {data.trial_networks.length>0? indexOfFirstItem+1 : 0 } to {indexOfLastItem<data.trial_networks.length ? indexOfLastItem : data.trial_networks.length} of {data.trial_networks.length} entries</p>
             <div className="flex space-x-2">

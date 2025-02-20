@@ -8,7 +8,7 @@ const TerminalModal = ({ isOpen, onClose, vmId }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Función para obtener los logs, envolviendo en useCallback
+  // Get logs from the server
   const fetchLogs = useCallback(async () => {
     if (!vmId) return;
 
@@ -26,49 +26,49 @@ const TerminalModal = ({ isOpen, onClose, vmId }) => {
         }
       );
 
-      // Si el log es un string, lo dividimos por líneas
+      // If the response contains a log string, split it by new lines
       if (typeof response.data.log === "string") {
-        const logLines = response.data.log.split("\n"); // Divide el string por saltos de línea
+        const logLines = response.data.log.split("\n");
         setLogs(logLines);
       } else {
-        setLogs([]); // Si no es un string, manejamos el caso como vacío
+        setLogs([]);
       }
     } catch (err) {
-      setError("Error al obtener los logs de la máquina virtual: " + err);
+      setError("Error while retrieving the logs from the server: " + err);
     } finally {
       setLoading(false);
     }
-  }, [vmId]); // Solo se vuelve a crear si cambia vmId
+  }, [vmId]); // Only re-run the effect if vmId changes
 
   useEffect(() => {
     if (isOpen) {
-      // Llamar inicialmente para obtener los logs cuando se abre el modal
+      // Call fetchLogs when the modal is opened
       fetchLogs();
     }
-  }, [isOpen, vmId, fetchLogs]); // Agregamos fetchLogs como dependencia
+  }, [isOpen, vmId, fetchLogs]);
 
-  if (!isOpen) return null; // Si el modal no está abierto, no se renderiza
+  if (!isOpen) return null;
 
-  // Función para aplicar estilos dependiendo del tipo de log
+  // Make the log text colorful based on the log type
   const getLogStyle = (log) => {
     if (log.includes("[ERROR]")) {
-      return "text-red-500"; // Color rojo para errores
+      return "text-red-500"; // Red color for errors
     } else if (log.includes("[INFO]")) {
-      return "text-blue-500"; // Color azul para info
+      return "text-blue-500"; // Blue color for info logs
     }
-    return "text-green-400"; // Color verde para otros logs
+    return "text-green-400"; // Green color for other logs
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-gray-900 text-white rounded-lg shadow-lg w-11/12 max-w-4xl">
-        {/* Encabezado */}
+        {/* Header */}
         <div className="flex justify-between items-center border-b border-gray-700 px-4 py-2">
           <h2 className="text-lg font-semibold">Terminal Logs - VM: {vmId}</h2>
           <div className="flex space-x-2">
             <button
               className="text-yellow-400 hover:text-yellow-500"
-              onClick={fetchLogs} // Llamar a la función fetchLogs cuando se presione el botón
+              onClick={fetchLogs}
             >
             <FontAwesomeIcon icon={faArrowsRotate}/>
             </button>
@@ -81,7 +81,7 @@ const TerminalModal = ({ isOpen, onClose, vmId }) => {
           </div>
         </div>
 
-        {/* Contenido de la terminal */}
+        {/* Terminal logs */}
         <div
           className="p-4 overflow-y-auto h-96 font-mono bg-black rounded-b-lg"
           style={{ whiteSpace: "pre-wrap" }}

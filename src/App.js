@@ -6,7 +6,7 @@ import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(null); // Usar null para representar estado de carga
+  const [isAuthenticated, setIsAuthenticated] = useState(null); // Use null to indicate that we are still checking authentication status
 
   useEffect(() => {
     const checkAuthentication = async () => {
@@ -20,7 +20,7 @@ function App() {
     checkAuthentication();
   }, []);
 
-  // Mientras el estado se esté cargando, mostramos el gif de carga
+  // While loading authentication status, show a loading spinner
   if (isAuthenticated === null) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -32,17 +32,17 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Ruta para Login */}
+        {/* Route for initializing */}
         <Route
           path="/"
           element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login />}
         />
-        {/* Ruta para Dashboard */}
+        {/* Route for dashboard */}
         <Route
           path="/dashboard"
           element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />}
         />
-        {/* Ruta para crearTN */}
+        {/* Route for create trial network */}
          <Route
           path="/dashboard/createTN"
           element={isAuthenticated ? <CreateTN /> : <Navigate to="/" />}

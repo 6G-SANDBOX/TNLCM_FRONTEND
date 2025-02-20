@@ -7,7 +7,7 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios"; // Importa axios
+import axios from "axios";
 import React, { useState } from "react";
   
   const CreateAccount = ({ onClose }) => {
@@ -20,10 +20,9 @@ import React, { useState } from "react";
   
     const handleSubmit = async (e) => {
       e.preventDefault();
-      //Coger la URL de la página
       const url =process.env.REACT_APP_ENDPOINT;
-      // Validación de contraseña
-      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/; // al menos 1 mayúscula, 1 minúscula y 1 número
+      // Password validation
+      const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/; // At least one uppercase, one lowercase, and one number
       if (password !== confirmPassword) {
         setErrorMessage("Passwords do not match");
         return;
@@ -36,9 +35,9 @@ import React, { useState } from "react";
         return;
       }
   
-      setErrorMessage(""); // Limpiar mensaje de error si todo es correcto
+      setErrorMessage(""); // Clean error message
   
-      // Crear el objeto JSON con los datos del formulario
+      // Create  json object with account data
       const accountData = {
         "email": email,
         "username": username,
@@ -52,7 +51,7 @@ import React, { useState } from "react";
           accountData
         );
         console.log("Account created successfully:", response.data);
-        onClose(); // Cerrar el modal
+        onClose(); // Close modal after account creation
       } catch (error) {
         if (error.response) {
           if (error.response.status === 409) {

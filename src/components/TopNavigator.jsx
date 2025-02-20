@@ -4,17 +4,17 @@ import React, { useEffect, useState } from 'react';
 import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
 
 const TopNavigator = () => {
-  const [menuVisible, setMenuVisible] = useState(false); // Estado para manejar la visibilidad del menú
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Estado para manejar la autenticación
+  const [menuVisible, setMenuVisible] = useState(false); // State to manage the visibility of the menu
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // State to manage the authentication status
 
 
   useEffect(() => {
-    // Función asincrónica para verificar el token
+    // Check if the user is authenticated
     const checkAuthentication = async () => {
       const accessToken = await getAccessTokenFromSessionStorage();
       const refreshToken = localStorage.getItem("refresh_token");
 
-      // Verificar si ambos tokens están presentes
+      // Check if the tokens exist
       if (accessToken && refreshToken) {
         setIsAuthenticated(true);
       } else {
@@ -22,16 +22,16 @@ const TopNavigator = () => {
       }
     };
 
-    checkAuthentication(); // Llamar la función de verificación
-  }, []); // Solo se ejecuta una vez cuando el componente se monta
+    checkAuthentication(); // Call the function to check authentication
+  }, []);
 
-  // Función para manejar el clic en el botón de perfil
+  // Function to handle the profile click
   const handleProfileClick = () => {
-    // Solo permitir mostrar el menú si está autenticado
+    // Only show the menu if the user is authenticated
     if (!isAuthenticated) {
-      return; // Si no está autenticado, no hacer nada
+      return;
     }
-    setMenuVisible(!menuVisible); // Alternar la visibilidad del menú
+    setMenuVisible(!menuVisible); // Alternates the visibility of the menu
   };
 
   const handleListClick= () => {
@@ -41,15 +41,16 @@ const TopNavigator = () => {
     }
     window.location = '/dashboard'
   }
-  // Función para cerrar sesión y eliminar los tokens
+
+  // Function to handle the logout
   const handleLogout = () => {
-    // Eliminar los tokens de sessionStorage y localStorage
+    // Delete the tokens from the session and local
     sessionStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
   
-    // Cambiar los estados de autenticación y visibilidad del menú
+    // Switch the authentication status to false
     setIsAuthenticated(false);
-    setMenuVisible(false); // Ocultar el menú después de cerrar sesión
+    setMenuVisible(false);
     setTimeout(() => {
       window.location = '/';
     } , 1001);
@@ -59,18 +60,18 @@ const TopNavigator = () => {
 
   return (
     <div id="topNavigator" className="bg-purple-600 h-16 flex items-center justify-between px-4 shadow-md">
-      {/* Boton para ir  a dashboard */}
+      {/* Dashboard button */}
       <button className="text-white text-lg focus:outline-none" onClick={handleListClick}>
         <FontAwesomeIcon icon={faBars} />
       </button>
 
       
-      {/* Botón para perfil y logout siempre visible */}
+      {/* Profile and logout buttons */}
       <div className="relative">
         <button className="text-white text-lg focus:outline-none" onClick={handleProfileClick}>
           <FontAwesomeIcon icon={faUserCircle} />
         </button>
-        {/* Menú desplegable */}
+        {/* Deployable menu */}
         {menuVisible && isAuthenticated && (
           <div className="absolute right-0 mt-2 w-48 bg-white shadow-lg rounded-lg">
             <button

@@ -42,7 +42,7 @@ const CreateTN = () => {
       component.label.toLowerCase().includes('vnet') || component.label.toLowerCase().includes('tn_vxlan')
     );
   
-    // Devuelve una lista en formato "label-name"
+    // Return a list in format "label-name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
       return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
@@ -54,7 +54,7 @@ const CreateTN = () => {
       component.label.toLowerCase().includes('vnet')
     );
   
-    // Devuelve una lista en formato "label-name"
+    // Return a list in format "label-name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
       return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
@@ -66,7 +66,7 @@ const CreateTN = () => {
       component.label.toLowerCase().includes('oneke')
     );
   
-    // Devuelve una lista en formato "label-name"
+    // Return a list in format "label-name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
       return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
@@ -78,7 +78,7 @@ const CreateTN = () => {
       component.label.toLowerCase().includes('open5gs')
     );
   
-    // Devuelve una lista en formato "label-name"
+    // Return a list in format "label-name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
       return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
@@ -90,7 +90,7 @@ const CreateTN = () => {
       component.label.toLowerCase().includes('ueransim')
     );
   
-    // Devuelve una lista en formato "label-name"
+    // Return a list in format "label-name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
       return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
@@ -111,7 +111,7 @@ const CreateTN = () => {
 
 const validateComps = () => {
   const requi = getRequiredFields();
-  let newErrors = {}; // Objeto temporal para acumular los errores
+  let newErrors = {}; // Temporal object to store the new errors
 
   requi.forEach((component) => {
     const matchedComponent = selectedComponent.find(
@@ -124,13 +124,13 @@ const validateComps = () => {
 
       component.requiredFields.forEach((field) => {
         if (
-          !componentData.hasOwnProperty(field) || // No existe el campo
-          componentData[field] === "" ||         // Está vacío
+          !componentData.hasOwnProperty(field) || // The error doesnt exist
+          componentData[field] === "" ||         // Is empty
           componentData[field] === null||
           (Array.isArray(componentData[field]) && componentData[field].length === 0)
-          // Es null
+          // Or is null
         ) {
-          // Agregar el error al objeto de errores
+          // Add to new errors
           if (!newErrors[matchedComponent.id]) {
             newErrors[matchedComponent.id] = {};
           }
@@ -140,7 +140,7 @@ const validateComps = () => {
     }
   });
 
-  SetCerrors(newErrors); // Actualizar el estado de errores con los nuevos errores
+  SetCerrors(newErrors); // Update the errors
   return Object.keys(newErrors).length === 0;
 };
 
@@ -151,7 +151,7 @@ const validateComps = () => {
       return {
         label: component.label,
         name: componentData.name,
-        requiredFields: componentData.required || [], // Obtiene los campos requeridos para el componente
+        requiredFields: componentData.required || [], // Get the required fields from the component form
       };
     });
   };
@@ -301,7 +301,7 @@ const validateComps = () => {
       case "elcm":
         return <Elcm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "ks8500_runner":
-        const listKS8 =filterVnetOrTnVxlanComponents(); // Aquí puedes generar la lista de manera dinámica
+        const listKS8 =filterVnetOrTnVxlanComponents();
         return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listKS8} whenError={handleChildError}/>;
       case "loadcore_agent":
         const listLCA= filterVnetOrTnVxlanComponents();
