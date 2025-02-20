@@ -41,7 +41,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          // No asignar valor por defecto si el campo es 'one_ks8500runner_networks'
+          // No default value if the field is :
           if (key !== "one_ueransim_networks" && key !== "one_ueransim_gnb_linked_open5gs"  && key !== "one_ueransim_ue_linked_gnb") {
             initialValues[key] = field.default_value || "";
           } else {
@@ -51,79 +51,78 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
             required.push(key);
           }
         }
-        // Agregar el campo 'name' con un valor inicial vacío
+        // Add 'name' field to the form
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
         setFormValues(initialValues);
         setRequiredFields(required);
-        // Llamar a onChange para pasar los valores iniciales al componente principal
+        // Call onChange to update the state in the parent component with the initial values
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
         }
       } else {
-        setData(null);  // Si no hay datos, establecer data como null
+        setData(null);  // If no data due to no fields put it into null
       }
     };
     loadData();
   }, [id, onChange]);
 
   useEffect(() => {
-    // Asegúrate de que "one_ueransim_networks" sea un array, incluso si no está inicializado
+    // Make sure that "one_ueransim_networks" is an array
     const networks = Array.isArray(formValues["one_ueransim_networks"])
       ? formValues["one_ueransim_networks"]
       : [];
   
-    // Filtrar las redes seleccionadas que aún están en la lista
+    // Filter out the networks that are not in the list
     const validNetworks = networks.filter((network) => list1.includes(network));
   
-    // Si las redes válidas han cambiado, actualiza los valores del formulario
+    // If  the length of the valid networks is different from the length of the original networks
     if (validNetworks.length !== networks.length) {
       setFormValues((prevState) => ({
         ...prevState,
-        "one_ueransim_networks": validNetworks,  // Actualiza el estado de las redes seleccionadas
+        "one_ueransim_networks": validNetworks,  // Update the form values with the valid networks
       }));
   
-      // Llama a onChange para actualizar el estado en el componente principal
+      // call onChange to update the state in the parent component with the valid networks
       onChange(id, "one_ueransim_networks", validNetworks);
     }
-  }, [list1,formValues,id,onChange]);  // Dependencia de `list`
+  }, [list1,formValues,id,onChange]);
 
-  // UseEffect para manejar las requiredFields especiales
+  // UseEffect for specific fields
   useEffect(() => {
     setRequiredFields((prevState) => {
       let newRequiredFields = { ...prevState };
   
-      // Comprobar cuando es requerido one_ueransim_gnb_linked_open5gs
+      // Check when is mandatory one_ueransim_gnb_linked_open5gs
       if (formValues["one_ueransim_run_gnb"] === "YES") {
         if (!Object.values(newRequiredFields).includes("one_ueransim_gnb_linked_open5gs")) {
           newRequiredFields[Object.keys(newRequiredFields).length] = "one_ueransim_gnb_linked_open5gs";
         }
       } else {
-        // Si la condición ya no se cumple, eliminarlo de requiredFields
+        // if the condition is not met, remove it from requiredFields
         newRequiredFields = Object.fromEntries(
           Object.entries(newRequiredFields).filter(([_, value]) => value !== "one_ueransim_gnb_linked_open5gs")
         );
       }
   
-      // Comprobar cuando es requerido one_ueransim_ue_linked_gnb
+      // Check when is mandatory one_ueransim_ue_linked_gnb
       if (formValues["one_ueransim_run_gnb"] === "NO" && formValues["one_ueransim_run_ue"] === "YES") {
         if (!Object.values(newRequiredFields).includes("one_ueransim_ue_linked_gnb")) {
           newRequiredFields[Object.keys(newRequiredFields).length] = "one_ueransim_ue_linked_gnb";
         }
       } else {
-        // Si la condición ya no se cumple, eliminarlo de requiredFields
+        // If the condition is not met, remove it from requiredFields
         newRequiredFields = Object.fromEntries(
           Object.entries(newRequiredFields).filter(([_, value]) => value !== "one_ueransim_ue_linked_gnb")
         );
       }
   
-      // Evitar actualización innecesaria
       return JSON.stringify(prevState) !== JSON.stringify(newRequiredFields) ? newRequiredFields : prevState;
     });
   }, [formValues]);
   
-  // **useEffect para llamar a onChange solo cuando requiredFields cambie**
+  // **useEffect for calling onChange  only when requiredFields change**
   useEffect(() => {
     onChange(id, "required", Object.values(requiredFields));
   }, [requiredFields, id, onChange]);
@@ -132,16 +131,16 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
 
   const handleCheckboxChange = (event, key, network) => {
     const updatedNetworks = event.target.checked
-      ? [...formValues[key], network] // Si está seleccionado, agrega la red
-      : formValues[key].filter((n) => n !== network); // Si no está seleccionado, la elimina
+      ? [...formValues[key], network] // If selected, add it to the list
+      : formValues[key].filter((n) => n !== network); // If not selected, remove it from the list
   
-    // Actualiza los valores del formulario
+    // Update the form values with the updated networks
     setFormValues((prevState) => ({
       ...prevState,
       [key]: updatedNetworks,
     }));
   
-    // Llama a onChange para actualizar el estado en el componente principal
+    // Call onChange to update the state in the parent component with the updated networks
     onChange(id, key, updatedNetworks);
   };
 
@@ -149,17 +148,16 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
   const prevListRef3 = useRef();
   useEffect(() => {
     if (prevListRef2.current?.length !== list2.length) {
-      // Realizar actualización solo si list cambia
+      // Do the update only if list changes
       if (list2.length === 0 && formValues['one_ueransim_gnb_linked_open5gs'] !== "") {
-        onChange(id, 'one_ueransim_gnb_linked_open5gs', "");  // Enviar valor vacío
+        onChange(id, 'one_ueransim_gnb_linked_open5gs', "");
       }
     }
-    prevListRef2.current = list2;  // Actualizar el valor de referencia para la próxima comparación
-    
+    prevListRef2.current = list2;  // Update the reference
     if (prevListRef3.current?.length !== list3.length) {
-      // Realizar actualización solo si list cambia
+      // Do the update only if list changes
       if (list3.length === 0 && formValues['one_ueransim_ue_linked_gnb'] !== "") {
-        onChange(id, 'one_ueransim_ue_linked_gnb', "");  // Enviar valor vacío
+        onChange(id, 'one_ueransim_ue_linked_gnb', "");
       }
     }
     prevListRef3.current = list3
@@ -171,16 +169,16 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       ...prevState,
       [key]: value,
     }));
-    // Si la opción seleccionada desaparece de la lista (es decir, la opción ya no está disponible)
+    // If the selected option disappears from the list (i.e., the option is no longer available)
     if (!list2.includes(value)) {
-      // Aquí actualizamos el estado del componente padre para reflejar el cambio
-      onChange(id, key, "");  // Enviamos un valor vacío o nulo al componente padre para indicar que la selección fue eliminada
+      // Here we update the state of the parent component to reflect the change
+      onChange(id, key, "");  // Send an empty or null value to the parent component to indicate that the selection was removed
     } else {
-      // Si la opción sigue disponible, actualizamos normalmente el valor
+      // If the option is still available, we update the value normally
       onChange(id, key, value);
     }
     
-    // Validación de campo
+    // Field validation
     if (Object.values(requiredFields).includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -190,7 +188,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name]; // Delete the error message if the field is not empty
           return newState;
         });
       }
@@ -203,12 +201,12 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       ...prevState,
       [key]: value,
     }));
-    // Si la opción seleccionada desaparece de la lista (es decir, la opción ya no está disponible)
+    // If the selected option disappears from the list (i.e., the option is no longer available)
     if (!list3.includes(value)) {
-      // Aquí actualizamos el estado del componente padre para reflejar el cambio
-      onChange(id, key, "");  // Enviamos un valor vacío o nulo al componente padre para indicar que la selección fue eliminada
+      // Here we update the state of the parent component to reflect the change
+      onChange(id, key, "");  // Send an empty or null value to the parent component to indicate that the selection was removed
     } else {
-      // Si la opción sigue disponible, actualizamos normalmente el valor
+      // If the option is still available, we update the value normally
       onChange(id, key, value);
     }
     
@@ -222,7 +220,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name]; // Delete the error message if the field is not empty
           return newState;
         });
       }
@@ -232,15 +230,15 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
   const handleChange = (event) => {
     const { name, value } = event.target;
     
-    // Actualiza los valores del formulario con el valor ingresado por el usuario
+    // Update the form values with the new value entered by the user
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
+      [name]: value,  // Update the value of the field
     }));
 
-    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
+    // Call onChange to update the state in the parent component
     onChange(id, name, value);
-    // Validación de campo
+    // Field validation
     if (Object.values(requiredFields).includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -250,7 +248,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name]; // Delete the error message if the field is not empty
           return newState;
         });
       }
@@ -262,13 +260,13 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       if(!isValidIPv4(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Invalid IP`,
+          [name]: `Invalid IP in ${name}`,
         }));
-        whenError(id,name,`Invalid IP`);
+        whenError(id,name,`Invalid IP in ${name}`);
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name]; // Delete the error message if the field is not empty
           return newState;
         });
         whenError(id,name,null);
@@ -278,9 +276,9 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       if (!isValidMCC(value)) {
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Must be only 3 digits`,
+          [name]: `Must be only 3 digits in ${name}`,
         }));
-        whenError(id, name, `Must be only 3 digits`);
+        whenError(id, name, `Must be only 3 digits in ${name}`);
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
@@ -295,9 +293,9 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       if (!isValidMNC(value)) {
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Must be 2 or 3 digits`,
+          [name]: `Must be 2 or 3 digits in ${name}`,
         }));
-        whenError(id, name, `Must be 2 or 3 digits`);
+        whenError(id, name, `Must be 2 or 3 digits in ${name}`);
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
@@ -312,9 +310,9 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       if (!isValidMNC2(value)) {
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Must be 2 digits`,
+          [name]: `Must be 2 digits in ${name}`,
         }));
-        whenError(id, name, `Must be 2 digits`);
+        whenError(id, name, `Must be 2 digits in ${name}`);
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
@@ -331,9 +329,9 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       if (!isValidNSSD(value)) {
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Must be 6 or more digits`,
+          [name]: `Must be 6 or more digits in ${name}`,
         }));
-        whenError(id, name, `Must be 6 or more digits`);
+        whenError(id, name, `Must be 6 or more digits in ${name}`);
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
@@ -345,10 +343,10 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
     }
   };
 
-  const isValidMCC = (mcc) => /^\d{3}$/.test(mcc);  // 3 dígitos
-  const isValidMNC = (mnc) => /^\d{2,3}$/.test(mnc); // 2 o 3 dígitos
-  const isValidMNC2 = (mnc) => /^\d{2}$/.test(mnc); // 2 dígitos
-  const isValidNSSD = (nssd) => /^\d{6,}$/.test(nssd); // 6 o mas digitos
+  const isValidMCC = (mcc) => /^\d{3}$/.test(mcc);  // 3 digits
+  const isValidMNC = (mnc) => /^\d{2,3}$/.test(mnc); // 2 or 3 digits
+  const isValidMNC2 = (mnc) => /^\d{2}$/.test(mnc); // 2 digits
+  const isValidNSSD = (nssd) => /^\d{6,}$/.test(nssd); // 6 or more digits
 
   const isValidIPv4 = (ip) => {
     const ipv4Pattern =
@@ -382,7 +380,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
     }
   };
 
-  // Mostrar mensaje si data es null
+  // If null data, show a message indicating that the component has been added
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">
@@ -402,7 +400,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
 
   return (
     <div className="bg-gray-100 p-6">
-      {/* Encabezado con el ícono de eliminación */}
+      {/* Header with delete button */}
       <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
         <button
           onClick={() => removeComponent(id)}
@@ -416,7 +414,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
 
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
         <form>
-           {/* Campo adicional 'name' */}
+           {/* Additional field 'name' */}
            <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-semibold">
               Name:
@@ -425,8 +423,8 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
               type="text"
               id="name"
               name="name"
-              value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
-              onChange={handleChange}  // Llama a handleChange para actualizar el valor
+              value={formValues.name || ""}
+              onChange={handleChange}
               className="w-full border border-gray-300 rounded-md p-2 mt-1"
             />
             {errorMessages.name && (
@@ -496,7 +494,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
                 </div>
               );
             }
-            //TODO SE LINKEA A SI MISMO
+            //TODO IT LINK ITSELF , Dont  know if it is correct
             if (key === "one_ueransim_ue_linked_gnb") {
               return (
                 <div key={key} className="mb-4">
@@ -533,13 +531,13 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
                   {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
 
-                {/* Condicional para renderizar un input o select dependiendo de si hay "choices" */}
+                {/* Input or select if there are a 'choices' type */}
                 {field.choices ? (
                   <select
                     id={key}
                     name={key}
                     value={formValues[key] || ""}
-                    onChange={(event) => handleChange(event)} // Usar handleChange para actualizar el valor
+                    onChange={(event) => handleChange(event)}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   >
                     <option disabled value="">Select an option</option>
@@ -557,9 +555,9 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
                     value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                     onChange={(event) => {
                       if (field.type === "int") {
-                        handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                        handleIntegerValidation(event, key);
                       } else {
-                        handleChange(event); // Para otros tipos de campos
+                        handleChange(event);
                       }
                     }}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"

@@ -43,7 +43,7 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          // No default values if the field is 'one_ks8500runner_networks'
+          // No default values if the field is 'one_open5gs_oneKE'
           if (key !== "one_open5gs_oneKE") {
             initialValues[key] = field.default_value || "";
           } else {
@@ -143,9 +143,9 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
       if(!isValidIPv4(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Invalid IP`,
+          [name]: `Invalid IP in ${name}`,
         }));
-        whenError(id,name,`Invalid IP`);
+        whenError(id,name,`Invalid IP in ${name}`);
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
@@ -159,9 +159,9 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
       if (!isValidMCC(value)) {
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Must be only 3 digits`,
+          [name]: `Must be only 3 digits in ${name}`,
         }));
-        whenError(id, name, `Must be only 3 digits`);
+        whenError(id, name, `Must be only 3 digits in ${name}`);
       } else if (
         (value.replace(/"/g, "").length +
           formValues.one_open5gs_mnc.replace(/"/g, "").length +
@@ -186,9 +186,9 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
       if (!isValidMNC(value)) {
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Must be 2 or 3 digits`,
+          [name]: `Must be 2 or 3 digits in ${name}`,
         }));
-        whenError(id, name, `Must be 2 or 3 digits`);
+        whenError(id, name, `Must be 2 or 3 digits in ${name}`);
       } else if (
         (formValues.one_open5gs_mcc.replace(/"/g, "").length +
           value.replace(/"/g, "").length +
@@ -213,9 +213,9 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
       if (!isValidMSIN(value)) {
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Must be 9 or 10 digits`,
+          [name]: `Must be 9 or 10 digits in ${name}`,
         }));
-        whenError(id, name, `Must be 9 or 10 digits`);
+        whenError(id, name, `Must be 9 or 10 digits in ${name}`);
       } else if (
         (formValues.one_open5gs_mcc.replace(/"/g, "").length +
           formValues.one_open5gs_mnc.replace(/"/g, "").length +
@@ -240,9 +240,9 @@ const Open5gs = ({ id, removeComponent, onChange, list, whenError }) => {
       if (!isValidNSSD(value)) {
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Must be 6 or more digits`,
+          [name]: `Must be 6 or more digits in ${name}`,
         }));
-        whenError(id, name, `Must be 6 or more digits`);
+        whenError(id, name, `Must be 6 or more digits in ${name}`);
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };

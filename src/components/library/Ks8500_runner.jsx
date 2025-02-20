@@ -141,9 +141,9 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError }) => {
       if(!isValidURL(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Invalid URL format`,
+          [name]: `Invalid URL format in ${name}`,
         }));
-        whenError(id,name,`Invalid URL format`);
+        whenError(id,name,`Invalid URL format in ${name}`);
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };

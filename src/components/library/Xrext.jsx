@@ -37,13 +37,13 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-        const required = [];  // Para almacenar los campos obligatorios
+        const required = [];
         // Initialize form values with default values from the API
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          // No asignar valor por defecto si el campo es 'one_ks8500runner_networks'
+          // No default values if the field is 'one_xrext_networks'
           if (key !== "one_xrext_networks") {
             initialValues[key] = field.default_value || "";
           } else {
@@ -54,13 +54,13 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
             required.push(key);
           }
         }
-        // Agregar el campo 'name' con un valor inicial vacío
+        // Add 'name' field to required fields
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
         setFormValues(initialValues);
         setRequiredFields(required);
-        // Llamar a onChange para pasar los valores iniciales al componente principal
+        // Call onChange for each initial value
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
         }
@@ -70,54 +70,54 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
   }, [id, onChange]);
 
   useEffect(() => {
-        // Asegúrate de que "one_xrext_networks" sea un array, incluso si no está inicializado
+        // Make sure that "one_xrext_networks" is an array
         const networks = Array.isArray(formValues["one_xrext_networks"])
           ? formValues["one_xrext_networks"]
           : [];
       
-        // Filtrar las redes seleccionadas que aún están en la lista
+        // Filter the networks that are included in the list
         const validNetworks = networks.filter((network) => list.includes(network));
       
-        // Si las redes válidas han cambiado, actualiza los valores del formulario
+        // If the length of the filtered networks is different from the original length
         if (validNetworks.length !== networks.length) {
           setFormValues((prevState) => ({
             ...prevState,
-            "one_xrext_networks": validNetworks,  // Actualiza el estado de las redes seleccionadas
+            "one_xrext_networks": validNetworks,
           }));
       
-          // Llama a onChange para actualizar el estado en el componente principal
+          // Call onChange to update the state in the parent component
           onChange(id, "one_xrext_networks", validNetworks);
         }
-      }, [list,formValues,id,onChange]);  // Dependencia de `list`
+      }, [list,formValues,id,onChange]);
 
     const handleCheckboxChange = (event, key, network) => {
       const updatedNetworks = event.target.checked
-        ? [...formValues[key], network] // Si está seleccionado, agrega la red
-        : formValues[key].filter((n) => n !== network); // Si no está seleccionado, la elimina
+        ? [...formValues[key], network]
+        : formValues[key].filter((n) => n !== network);
     
-      // Actualiza los valores del formulario
+      // Update the form values with the new list of networks
       setFormValues((prevState) => ({
         ...prevState,
         [key]: updatedNetworks,
       }));
     
-      // Llama a onChange para actualizar el estado en el componente principal
+      // call onChange to update the state in the parent component
       onChange(id, key, updatedNetworks);
     };
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Actualiza los valores del formulario con el valor ingresado por el usuario
+    // Update the form values with the user input
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
+      [name]: value,
     }));
 
-    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
+    // Call the onChange function to update the parent state
     onChange(id, name, value);
 
-    // Validación de campo
+    // Field validation
     if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -127,7 +127,7 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name]; // Delete the error message if the field is not empty
           return newState;
         });
       }
@@ -144,7 +144,6 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
       [key]: value,
     }));
 
-    // Validar si el valor es un número entero
     if (!validateInteger(value)) {
       setErrorMessages((prevState) => ({
         ...prevState,
@@ -153,13 +152,13 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[key]; // Eliminar mensaje de error si es un número entero
+        delete newState[key]; // Delete the error message if the field is valid
         return newState;
       });
     }
   };
 
-  // Mostrar mensaje si data es null
+  // If the data is null, show a message indicating that the component has been added
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">
@@ -179,7 +178,7 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
 
   return (
     <div className="bg-gray-100 p-6">
-      {/* Encabezado con el ícono de eliminación */}
+      {/* Header with delete button */}
       <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
         <button
           onClick={() => removeComponent(id)}
@@ -193,7 +192,7 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
 
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
         <form>
-            {/* Campo adicional 'name' */}
+            {/* Additional field 'name' */}
             <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-semibold">
               Name:
@@ -202,8 +201,8 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
               type="text"
               id={`name-${id}`}
               name="name"
-              value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
-              onChange={handleChange}  // Llama a handleChange para actualizar el valor
+              value={formValues.name || ""}
+              onChange={handleChange}
               className="w-full border border-gray-300 rounded-md p-2 mt-1"
             />
             {errorMessages.name && (
@@ -249,13 +248,13 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
                   {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
 
-                {/* Condicional para renderizar un input o select dependiendo de si hay "choices" */}
+                {/* Input or select if there are a 'choices' type */}
                 {field.choices ? (
                   <select
                     id={key}
                     name={key}
                     value={formValues[key] || ""}
-                    onChange={(event) => handleChange(event)} // Usar handleChange para actualizar el valor
+                    onChange={(event) => handleChange(event)}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   >
                     <option disabled value="">Select an option</option>
@@ -273,9 +272,9 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
                     value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                     onChange={(event) => {
                       if (field.type === "int") {
-                        handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                        handleIntegerValidation(event, key);
                       } else {
-                        handleChange(event); // Para otros tipos de campos
+                        handleChange(event);
                       }
                     }}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"

@@ -43,7 +43,7 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          //No default values if the field is 'one_ks8500runner_networks'
+          //No default values if the field is 'ocf_one_oneKE'
           if (key !== "ocf_one_oneKE") {
             initialValues[key] = field.default_value || "";
           } else {
@@ -144,9 +144,9 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
       if(!isValidURL(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Invalid URL format`,
+          [name]: `Invalid URL format in ${name}`,
         }));
-        whenError(id,name,`Invalid URL format`);
+        whenError(id,name,`Invalid URL format in ${name}`);
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };

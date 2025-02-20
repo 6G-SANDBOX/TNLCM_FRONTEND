@@ -43,7 +43,7 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          // No default values if the field is 'one_ks8500runner_networks'
+          // No default values if the field is 'nokia_radio_one_oneKE'
           if (key !== "nokia_radio_one_oneKE") {
             initialValues[key] = field.default_value || "";
           } else {

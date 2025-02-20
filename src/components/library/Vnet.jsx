@@ -46,13 +46,13 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
             required.push(key);
           }
         }
-        // Agregar el campo 'name' con un valor inicial vacío
+        // Add 'name' field to required fields
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
         setFormValues(initialValues);
         setRequiredFields(required);
-        // Llamar a onChange para pasar los valores iniciales al componente principal
+        // Call onChange for each initial value
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
         }
@@ -71,7 +71,7 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
       [key]: value,
     }));
 
-    // Validar si el valor es un número entero
+    // Check if the value is an integer
     if (!validateInteger(value)) {
       setErrorMessages((prevState) => ({
         ...prevState,
@@ -81,7 +81,7 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
     } else {
       setErrorMessages((prevState) => {
         const newState = { ...prevState };
-        delete newState[key]; // Eliminar mensaje de error si es un número entero
+        delete newState[key]; // Delete the error message if the field is valid
         return newState;
       });
       whenError(id, key, null);
@@ -91,16 +91,16 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Actualiza los valores del formulario con el valor ingresado por el usuario
+    // Update the form values with the user input
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
+      [name]: value,
     }));
 
-    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
+    // Call the onChange function to update the parent state
     onChange(id, name, value);
 
-    // Validación de campo
+    // Field validation
     if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -110,7 +110,7 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name]; // Delete the error message if the field is not empty
           return newState;
         });
       }
@@ -120,9 +120,9 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
       if(!isValidIPv4(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Invalid IP`,
+          [name]: `Invalid IP in ${name}`,
         }));
-        whenError(id,name,`Invalid IP`);
+        whenError(id,name,`Invalid IP in ${name}`);
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
@@ -137,9 +137,9 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
       if(!isValidIPv4List(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Invalid IP list format`,
+          [name]: `Invalid IP list format in ${name}`,
         }));
-        whenError(id,name,`Invalid IP list format`);
+        whenError(id,name,`Invalid IP list format in ${name}`);
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
@@ -159,19 +159,19 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
   };
   
   const isValidIPv4List = (str) => {
-    // Expresión regular para validar una sola dirección IPv4
+    // Regular expression for an IPv4 address
     const ipv4Pattern =
       /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
   
-    // Dividir el string en una lista de IPs separadas por espacios
+    // Split the string into a list of IPs
     const ipList = str.trim().split(/\s+/);
   
-    // Verificar que cada elemento de la lista sea una IP válida
+    // Check if all IPs are valid
     return ipList.every((ip) => ipv4Pattern.test(ip));
   };
 
 
-  // Mostrar mensaje si data es null
+  // If the data is null, show a message indicating that the component was added successfully
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">
@@ -191,7 +191,7 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
 
   return (
     <div className="bg-gray-100 p-6">
-      {/* Encabezado con el ícono de eliminación */}
+      {/* Header with a delete button */}
       <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
         <button
           onClick={() => removeComponent(id)}
@@ -205,7 +205,7 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
 
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
         <form>
-           {/* Campo adicional 'name' */}
+           {/* Additional field 'name' */}
            <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-semibold">
               Name:
@@ -214,8 +214,8 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
               type="text"
               id={`name-${id}`}
               name="name"
-              value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
-              onChange={handleChange}  // Llama a handleChange para actualizar el valor
+              value={formValues.name || ""}
+              onChange={handleChange}
               className="w-full border border-gray-300 rounded-md p-2 mt-1"
             />
             {errorMessages.name && (
@@ -230,13 +230,13 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
                   {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
 
-                {/* Condicional para renderizar un input o select dependiendo de si hay "choices" */}
+                {/* Input or select if there are a 'choices' type */}
                 {field.choices ? (
                   <select
                     id={key}
                     name={key}
                     value={formValues[key] || ""}
-                    onChange={(event) => handleChange(event)} // Usar handleChange para actualizar el valor
+                    onChange={(event) => handleChange(event)}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   >
                     <option disabled value="">Select an option</option>
@@ -254,9 +254,9 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
                     value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                     onChange={(event) => {
                       if (field.type === "int") {
-                        handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                        handleIntegerValidation(event, key);
                       } else {
-                        handleChange(event); // Para otros tipos de campos
+                        handleChange(event);
                       }
                     }}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"

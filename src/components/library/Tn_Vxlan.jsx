@@ -39,7 +39,7 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
       if (result) {
         setData(result.component_input);
 
-        // Inicializar los valores del formulario con los valores predeterminados de la API
+        // Initial values for the form
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
@@ -53,7 +53,7 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
         setRequiredFields(required);
 
 
-        // Llamamos a onChange para enviar los valores iniciales al componente principal
+        // Call onChange to update the state in the parent component with the initial values
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
         }
@@ -96,7 +96,7 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
       [name]: value,
     }));
 
-    // Llamamos a onChange para actualizar el estado en el componente principal
+    // Call onChange to update the state in the parent component with the new values
     onChange(id, name, value);
 
     if (requiredFields.includes(name)) {
@@ -108,7 +108,7 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name]; // Delete the error message if the field is not empty
           return newState;
         });
       }
@@ -117,13 +117,13 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
       if(!isValidIPv4(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Invalid IP`,
+          [name]: `Invalid IP in ${name}`,
         }));
-        whenError(id,name,`Invalid IP`);
+        whenError(id,name,`Invalid IP in ${name}`);
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name]; // Delete the error message if the field is not empty
           return newState;
         });
         whenError(id,name,null);
@@ -134,13 +134,13 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
       if(!isValidIPv4List(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Invalid IP list format`,
+          [name]: `Invalid IP list forma in ${name}`,
         }));
-        whenError(id,name,`Invalid IP list format`);
+        whenError(id,name,`Invalid IP list format in ${name}`);
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name]; // Delete the error message if the field is not empty
           return newState;
         });
         whenError(id,name,null);
@@ -156,18 +156,18 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
   };
   
   const isValidIPv4List = (str) => {
-    // Expresión regular para validar una sola dirección IPv4
+    // Regular expression for an IPv4 address
     const ipv4Pattern =
       /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
   
-    // Dividir el string en una lista de IPs separadas por espacios
+    // Split the string into a list of IPs
     const ipList = str.trim().split(/\s+/);
   
-    // Verificar que cada elemento de la lista sea una IP válida
+    // Check if all the IPs are valid
     return ipList.every((ip) => ipv4Pattern.test(ip));
   };
 
-  // Mostrar mensaje si data es null
+  // If data is null, show a message indicating that the component has been added
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">
@@ -187,7 +187,7 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
 
   return (
     <div className="bg-gray-100 p-6">
-      {/* Encabezado con el ícono de eliminación */}
+      {/* Header with delete button */}
       <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
         <button
           onClick={() => removeComponent(id)}
@@ -209,13 +209,13 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
                   {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
                 </label>
 
-                {/* Condicional para renderizar un input o select dependiendo de si hay "choices" */}
+                {/* Input or select if there are a 'choices' type */}
                 {field.choices ? (
                   <select
                     id={key}
                     name={key}
                     value={formValues[key] || ""}
-                    onChange={(event) => handleChange(event)} // Usar handleChange para actualizar el valor
+                    onChange={(event) => handleChange(event)}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   >
                     <option disabled value="">Select an option</option>
@@ -233,9 +233,9 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
                     value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
                     onChange={(event) => {
                       if (field.type === "int") {
-                        handleIntegerValidation(event, key); // Validación para campos de tipo entero
+                        handleIntegerValidation(event, key);
                       } else {
-                        handleChange(event); // Para otros tipos de campos
+                        handleChange(event);
                       }
                     }}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"

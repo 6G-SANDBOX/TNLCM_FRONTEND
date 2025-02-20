@@ -35,25 +35,25 @@ const Tsn = ({ id, removeComponent, onChange }) => {
       if (result) {
         setData(result.component_input);
 
-        // Inicializamos los valores del formulario con los valores predeterminados de la API
+        // Initial values for the form
         const initialValues = {};
         for (const key in result.component_input) {
           initialValues[key] = result.component_input[key].default_value || "";
         }
 
-        // Llamamos a onChange para enviar los valores iniciales al componente principal
+        // call onChange to update the state in the parent component with the initial values
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
         }
       } else {
-        setData(null); // Si no hay datos, establecer data como null
+        setData(null); // If there is no data due to no fields put it into null
       }
     };
     loadData();
   }, [id, onChange]);
 
 
-  // Mostrar mensaje si data es null
+  // if there is no data, return a message
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">

@@ -155,7 +155,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
       if(!isValidIPv4Range(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Invalid IP RANGE format`,
+          [name]: `Invalid IP RANGE format in ${name}`,
         }));
         whenError(id,name,`Invalid IP RANGE format in ${name}`);
       }else {
@@ -173,26 +173,9 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
       if(!isValidIPv4List(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
-          [name]: `Invalid IP list format`,
+          [name]: `Invalid IP list format in ${name}`,
         }));
-        whenError(id,name,`Invalid IP list format`);
-      }else {
-        setErrorMessages((prevState) => {
-          const newState = { ...prevState };
-          delete newState[name];
-          return newState;
-        });
-        whenError(id,name,null);
-      }
-    }
-
-    if (name === "one_oneKE_nginx_passthough"){
-      if(!isBooleanString(value)){
-        setErrorMessages((prevState) => ({
-          ...prevState,
-          [name]: `Invalid boolean format`,
-        }));
-        whenError(id,name,`Invalid boolean format`);
+        whenError(id,name,`Invalid IP list format in ${name}`);
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
@@ -235,8 +218,6 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
     // Verify that all IPs in the list are valid
     return ipList.every((ip) => ipv4Pattern.test(ip));
   };
-
-  const isBooleanString = (str) => /^(true|false)$/i.test(str.trim());
 
   const validateInteger = (value) => {
     return Number.isInteger(Number(value));
