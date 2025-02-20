@@ -4,7 +4,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { getAccessTokenFromSessionStorage } from "../../auxFunc/jwt.js";
 
-// Función para obtener los datos de la API
+// Function to fetch data from the API
 const fetchData = async () => {
   const access_token = await getAccessTokenFromSessionStorage();
   if (access_token) {
@@ -32,53 +32,53 @@ const Elcm = ({ id, removeComponent, onChange }) => {
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
   const [requiredFields, setRequiredFields] = useState({});
-  // useEffect para cargar los datos una vez que el componente se monta
+  // UseEffect to fetch data from the API
   useEffect(() => {
     const loadData = async () => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-        const required = [];  // Para almacenar los campos obligatorios
-        // Inicializa los valores del formulario con los valores predeterminados de la API
+        const required = [];
+        // Initialize the form with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          initialValues[key] = field.default_value || "";  // Establece el valor por defecto
+          initialValues[key] = field.default_value || "";  // Default value for the field
           if (field.required_when) {
             required.push(key);
           }
         }
 
-        // Agregar el campo 'name' con un valor inicial vacío
+        // Add the 'name' field as required
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
         
-        setRequiredFields(required);  // Actualiza la lista de campos obligatorios
-        setFormValues(initialValues); // Establece los valores por defecto en el estado
-        // Llama a onChange para enviar los valores predeterminados
+        setRequiredFields(required);  // Set the required fields
+        setFormValues(initialValues); // Put the default values in the form
+        // Call onChange to send the default values to the parent component
         for (const key in initialValues) {
-          onChange(id, key, initialValues[key]); // Envia los valores al componente principal
+          onChange(id, key, initialValues[key]);
         }
         
       }
     };
     loadData();
-  }, [id, onChange]); // Solo depende de 'id', no de 'onChange'
+  }, [id, onChange]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Actualiza los valores del formulario con el valor ingresado por el usuario
+    // Update the form values with the new value
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,  // Actualiza el campo con el valor ingresado por el usuario
+      [name]: value,  // Update the value for the field
     }));
 
-    // Llama a onChange para actualizar el estado en el componente principal con el valor modificado
+    // Call onChange to send the new value to the parent component
     onChange(id, name, value);
 
-    // Actualiza los errores para el campo correspondiente
+    // Update the error messages
     if (requiredFields.includes(name)) {
       if (value.trim() === "") {
         setErrorMessages((prevState) => ({
@@ -88,14 +88,14 @@ const Elcm = ({ id, removeComponent, onChange }) => {
       } else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
-          delete newState[name]; // Elimina el mensaje de error si el campo no está vacío
+          delete newState[name]; // Delete the error message if the field is not empty
           return newState;
         });
       }
     }
   };
 
-  // Si data es null, muestra mensaje de éxito
+  // If null, show a message that the component has been added
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">
@@ -128,7 +128,7 @@ const Elcm = ({ id, removeComponent, onChange }) => {
 
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
         <form>
-           {/* Campo adicional 'name' */}
+           {/* Additional 'name' */}
            <div className="mb-4">
             <label htmlFor="name" className="block text-gray-700 font-semibold">
               Name:
@@ -137,15 +137,15 @@ const Elcm = ({ id, removeComponent, onChange }) => {
               type="text"
               id={`name-${id}`}
               name="name"
-              value={formValues.name || ""}  // Asegura que 'name' esté correctamente ligado al estado
-              onChange={handleChange}  // Llama a handleChange para actualizar el valor
+              value={formValues.name || ""}  // Make the input controlled
+              onChange={handleChange}  // Call handleChange to update the value
               className="w-full border border-gray-300 rounded-md p-2 mt-1"
             />
             {errorMessages.name && (
               <small className="block mt-1 text-red-500">{errorMessages.name}</small>
             )}
           </div>
-          {/* Renderiza los campos de la API */}
+          {/* Render the api fields */}
           {data && Object.keys(data).map((key) => {
             const field = data[key];
             return (
@@ -158,7 +158,7 @@ const Elcm = ({ id, removeComponent, onChange }) => {
                   id={key}
                   name={key}
                   value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
-                  onChange={handleChange}  // Llama a handleChange para actualizar el valor
+                  onChange={handleChange}
                   className="w-full border border-gray-300 rounded-md p-2 mt-1"
                 />
                 {errorMessages[key] && (
