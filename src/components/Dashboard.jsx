@@ -46,7 +46,7 @@ const Dashboard = () => {
   
       // Show an alert if there are invalid IDs
       if (invalidIds.length > 0) {
-        alert(`No se pueden purgar los siguientes IDs porque su estado no es "destroyed" o "validated": ${invalidIds.join(", ")}`);
+        alert(`Can not be purged the nexts TNs becouse their state is not "validated" or "destroyed": ${invalidIds.join(", ")}`);
       }
   
       // Update the state before making the requests
@@ -84,12 +84,30 @@ const Dashboard = () => {
 
   const handleDestroyClick = async () => {
     try {
+      // Filter valid and invalid IDs
+      const validIds = [];
+      const invalidIds = [];
+      
+      selectedIds.forEach((id) => {
+        const network = data.trial_networks.find((network) => network.tn_id === id);
+        if (network && (network.state === "activated")) {
+          validIds.push(id);
+        } else {
+          invalidIds.push(id);
+        }
+      });
+
+      // Show an alert if there are invalid IDs
+      if (invalidIds.length > 0) {
+        alert(`Can not destroy the nexts TNs becouse their state is not "activated": ${invalidIds.join(", ")}`);
+      }
+
       // Set the states before making the requests
       setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
-      setChangingStatesIdS((prevState) => [...prevState, ...selectedIds]);
+      setChangingStatesIdS((prevState) => [...prevState, ...validIds]);
   
       // Make a DELETE request for each ID
-      const deleteRequests = selectedIds.map(async (id) => {
+      const deleteRequests = validIds.map(async (id) => {
         const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/${id}`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
@@ -107,7 +125,7 @@ const Dashboard = () => {
       await Promise.all(deleteRequests);
   
       // After all requests are completed, update the state
-      setChangingStatesIdS((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
+      setChangingStatesIdS((prevState) => prevState.filter((id) => !validIds.includes(id)));
     } catch (error) {
       alert("Error deleting networks: " + error);
     }
