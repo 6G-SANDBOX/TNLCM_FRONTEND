@@ -1,4 +1,4 @@
-import { faDesktop, faNetworkWired, faSearch, faTerminal } from '@fortawesome/free-solid-svg-icons';
+import { faDesktop, faNetworkWired, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -377,13 +377,6 @@ const Dashboard = () => {
         <div id="tabla" style={{ height: `${alturaRestante}px` }} className="bg-white shadow-md rounded-lg p-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold">All Networks</h2>
-            <div className="flex items-center space-x-4">
-              {/* Search Input */}
-              <div className="relative">
-                <input type="text" placeholder="Search" className="border rounded-lg py-2 px-4 text-sm w-64" />
-                <FontAwesomeIcon icon={faSearch} className="absolute top-3 right-4 text-gray-400" />
-              </div>
-            </div>
           </div>
           <div className="flex space-x-4 mb-4">
               <button
