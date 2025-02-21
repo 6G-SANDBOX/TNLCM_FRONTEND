@@ -618,14 +618,14 @@ const Dashboard = () => {
               ))}
             </tbody>
           </table>
-            {/* Modal for logs */}
-        {isModalOpen2 && (
-          <TerminalModal
-            isOpen={isModalOpen2}
-            onClose={() => setModalOpen2(false)}
-            vmId={selectedNetworkId}
-          />
-        )}
+          {/* Modal for logs */}
+          {isModalOpen2 && (
+            <TerminalModal
+              isOpen={isModalOpen2}
+              onClose={() => setModalOpen2(false)}
+              vmId={selectedNetworkId}
+            />
+          )}
           {/* Page */}
           <div className={`flex  justify-between items-center mt-4 text-sm text-gray-500`}>
             <p>Showing data {data.trial_networks.length>0? indexOfFirstItem+1 : 0 } to {indexOfLastItem<data.trial_networks.length ? indexOfLastItem : data.trial_networks.length} of {data.trial_networks.length} entries</p>
