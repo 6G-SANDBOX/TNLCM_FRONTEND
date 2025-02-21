@@ -7,7 +7,12 @@ import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
 const ProfileModal = ({ isOpen, onClose, userInfo }) => {
   // Conditionally render the modal
   const [newPassword, setNewPassword] = useState("");
-
+  // Reset the password when the modal is closed
+  useEffect(() => {
+    if (!isOpen) {
+      setNewPassword("");
+    }
+  }, [isOpen]);
   // If the user info is not loaded yet, show "Loading..."
   const username = userInfo ? userInfo.username : 'Loading...';
   const organization = userInfo ? userInfo.org : 'Loading...';
