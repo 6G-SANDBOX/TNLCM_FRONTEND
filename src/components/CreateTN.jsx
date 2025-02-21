@@ -1,4 +1,5 @@
 import React, { useCallback, useState } from "react";
+import convertJsonToYaml from '../auxFunc/yamlHandler';
 import TopNavigator from "./TopNavigator";
 import Elcm from "./library/Elcm";
 import Ks8500Runner from "./library/Ks8500_runner";
@@ -285,19 +286,15 @@ const validateComps = () => {
       formData,
       components: selectedComponent.map((component) => {
         const componentData = componentForms[component.id] || {};
-        
-        // Concatenate label and name when generating the file
-        const labelWithName = componentForms[component.id]?.name
-          ? `${component.label}-${componentForms[component.id]?.name}`
-          : component.label;
   
         return {
-          label: labelWithName, // Use label-name format for the download
+          label: component.label, // Use label-name format for the download
           data: componentData,
         };
       }),
     };
     //TODO CONVERTIR A YAML Y MANDAR LA PETICION
+    convertJsonToYaml(networkData);
     const fileData = JSON.stringify(networkData, null, 2);
     const blob = new Blob([fileData], { type: "application/json" });
     const link = document.createElement("a");
@@ -389,16 +386,19 @@ const validateComps = () => {
             <label htmlFor="deployment-site" className="block text-gray-700 font-medium">
               DEPLOYMENT SITE
             </label>
-            {/* TODO ¿Hacer como select? */}
-            <input
+            <select
               id="deployment-site"
               name="deploymentSite"
-              type="text"
-              placeholder="UMA / ATHENS / BERLIN / OULU..."
               className={`w-full border p-2 mt-1 rounded-md ${errors.deploymentSite ? "border-red-500" : "border-gray-300"}`}
               value={formData.deploymentSite}
               onChange={handleInputChange}
-            />
+            >
+              <option value="" disabled>--Select a site--</option>
+              <option value="UMA">UMA</option>
+              <option value="ATHENS">ATHENS</option>
+              <option value="BERLIN">BERLIN</option>
+              <option value="OULU">OULU</option>
+            </select>
             {errors.deploymentSite && <p className="text-red-500 text-sm mt-1">{errors.deploymentSite}</p>}
           </div>
 
