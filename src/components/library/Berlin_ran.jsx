@@ -11,7 +11,7 @@ const fetchData = async () => {
     const bearerJwt = `Bearer ${access_token}`;
 
     try {
-      const response = await axios.get(`${url}/tnlcm/library/components/nokia_radio`, {
+      const response = await axios.get(`${url}/tnlcm/library/components/berlin_ran`, {
         headers: {
           Authorization: bearerJwt,
           "Content-Type": "application/json",
@@ -19,14 +19,14 @@ const fetchData = async () => {
       });
       return response.data;
     } catch (error) {
-      alert(`Error fetching data for nokia_radio:`, error);
+      alert(`Error fetching data for berlin_ran:`, error);
       return null;
     }
   }
   return null;
 };
 
-const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
+const BerlinRan = ({ id, removeComponent, onChange, list, list2, whenError }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -38,17 +38,18 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
       if (result) {
         setData(result.component_input);
         const required = [];
+        const deps={};
         // Initialize form values with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
           // No default values if the field is 'one_nokia_radio_open5gs'
-          //TODO - Change this to a more generic solution
-          if (key !== "one_nokia_radio_open5gs") {
+          if (field.type !== "str" && field.type !== "int" && field.type !== "bool") {
             initialValues[key] = field.default_value || "";
           } else {
             initialValues[key] ="";
+            deps[key]="";
           }
           
           if (field.required_when) {
@@ -58,6 +59,7 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
+        initialValues['dependencies']=deps;
         setFormValues(initialValues);
         setRequiredFields(required);
         // Call onChange to send initial values to parent component
@@ -69,17 +71,26 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
     loadData();
   }, [id, onChange]);
 
-  // Make sure the list of Open5gs is updated before updating the form value
+  // Make sure the list of oneKEs is updated before updating the form value
   const prevListRef = useRef();
+  const prevListRef2 = useRef();
   useEffect(() => {
     if (prevListRef.current?.length !== list.length) {
-      // Only update the form value if the list of Open5gs has changed
-      if (list.length === 0 && formValues['one_nokia_radio_open5gs'] !== "") {
-        onChange(id, 'one_nokia_radio_open5gs', "");
+      // Only update the form value if the list of oneKEs has changed
+      if (list.length === 0 && formValues['berlin_ran_one_oneKE'] !== "") {
+        onChange(id, 'berlin_ran_one_oneKE', "");
       }
     }
     prevListRef.current = list;  // Save the list for the next render
-  }, [list, formValues, onChange, id]);
+
+    if (prevListRef2.current?.length !== list2.length) {
+        // Do the update only if list changes
+        if (list2.length === 0 && formValues['berlin_ran_one_linked_open5g'] !== "") {
+          onChange(id, 'berlin_ran_one_linked_open5g', "");
+        }
+      }
+      prevListRef2.current = list2
+  }, [list, list2, formValues, onChange, id]);
   
   
 
@@ -109,6 +120,38 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
           delete newState[name];
+          return newState;
+        });
+      }
+    }
+  };
+
+  const handleSelectChange2 = (event, key) => {
+    const { name, value } = event.target;
+    setFormValues((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+    // If the selected option disappears from the list (i.e., the option is no longer available)
+    if (!list2.includes(value)) {
+      // Here we update the state of the parent component to reflect the change
+      onChange(id, key, "");  // Send an empty or null value to the parent component to indicate that the selection was removed
+    } else {
+      // If the option is still available, we update the value normally
+      onChange(id, key, value);
+    }
+    
+    // Field validation
+    if (Object.values(requiredFields).includes(name)) {
+      if (value.trim() === "") {
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `${name} cannot be empty.`,
+        }));
+      } else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name]; // Delete the error message if the field is not empty
           return newState;
         });
       }
@@ -183,8 +226,8 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>
-          <h1 className="text-3xl font-bold">NOKIA_RADIO Added</h1>
-          <p className="mt-2">The NOKIA_RADIO component has been added successfully.</p>
+          <h1 className="text-3xl font-bold">BERLIN_RAN Added</h1>
+          <p className="mt-2">The BERLIN_RAN component has been added successfully.</p>
         </header>
       </div>
     );
@@ -200,7 +243,7 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
         >
           <FontAwesomeIcon icon={faTrash} />
         </button>
-        <h1 className="text-3xl font-bold">Nokia Radio Config</h1>
+        <h1 className="text-3xl font-bold">BERLIN_RAN Config</h1>
         <p className="mt-2">Please fill in the fields below to configure the system</p>
       </header>
 
@@ -226,7 +269,7 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
           
           {Object.keys(data).map((key) => {
             const field = data[key];
-            if (key === "one_nokia_radio_open5gs") {
+            if (key === "berlin_ran_one_oneKE") {
               return (
                 <div key={key} className="mb-4">
                   <label htmlFor={key} className="block text-gray-700 font-semibold">
@@ -248,13 +291,43 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
                   </select>
                   <small className="block mt-1 text-gray-500">
                   {list.length === 0 || list === ""
-                    ? "Create news Open5gs to be able to select"
+                    ? "Create news oneKEs to be able to select"
                     : field.description
                   }
                 </small>
                 </div>
               );
             }
+            if (key === "berlin_ran_one_linked_open5g") {
+                return (
+                    <div key={key} className="mb-4">
+                    <label htmlFor={key} className="block text-gray-700 font-semibold">
+                        {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
+                    </label>
+                    <select
+                        id={key}
+                        name={key}
+                        value={formValues[key] || ""}
+                        onChange={(e) => handleSelectChange2(e, key)}
+                        className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                    >
+                        <option disabled value="">Select an option</option>
+                        {list && list.map((option, index) => (
+                        <option key={index} value={option}>
+                            {option}
+                        </option>
+                        ))}
+                    </select>
+                    <small className="block mt-1 text-gray-500">
+                    {list.length === 0 || list === ""
+                        ? "Create news Open5gs to be able to select"
+                        : field.description
+                    }
+                    </small>
+                    </div>
+                );
+            }
+
             return (
               <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
@@ -307,4 +380,4 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
   );
 };
 
-export default NokiaRadio;
+export default BerlinRan;

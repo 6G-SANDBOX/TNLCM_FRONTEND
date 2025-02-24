@@ -13,10 +13,24 @@ const convertJsonToYaml = (json) => {
             yamlString += `    name: ${component.data.name}\n`;
         }
         //Dependencies of the component
+        //TODO Iterate over the dependencies array and add them to the yaml string
         yamlString += `    dependencies: []\n`
         //Input of the component from the form data
-        yamlString += `    input: {}\n`;
-        
+        yamlString += `    input:`;
+        //If the component has data, then it will be added to the yaml string
+        if (component.data){
+            yamlString += `\n`
+            Object.entries(component.data).forEach( ([key,value]) => {
+                //Only add the real input and not the name or required field that are used for other things internally
+                if (key!=="required" && key!=="name"){
+                    yamlString += `      ${key}: ${value}\n`
+                }
+            });
+        } else {
+            //If the component has no data, then it will be added an empty input
+            yamlString += `{}\n`
+        }
+      
     });
     console.log(yamlString);
     return yamlString;

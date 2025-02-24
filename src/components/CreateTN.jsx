@@ -1,6 +1,7 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import convertJsonToYaml from '../auxFunc/yamlHandler';
 import TopNavigator from "./TopNavigator";
+import BerlinRan from "./library/Berlin_ran";
 import Elcm from "./library/Elcm";
 import Ks8500Runner from "./library/Ks8500_runner";
 import LoadcoreAgent from "./library/LoadcoreAgent";
@@ -20,7 +21,7 @@ import Ueransim from "./library/Ueransim";
 import VmKvm from "./library/Vm_Kvm";
 import Vnet from "./library/Vnet";
 import Xrext from "./library/Xrext";
-
+import NvoModal from "./nvoModal";
 
 const CreateTN = () => {
   const [selectedComponent, setSelectedComponent] = useState([]);
@@ -32,11 +33,32 @@ const CreateTN = () => {
     sitesReferenceType: "",
     sitesReferenceValue: "",
   });
-
+  const [allComp, setAllComp] = useState([]);
   const [componentForms, setComponentForms] = useState({});
   const [errors, setErrors] = useState({});
   const [Cerrors,SetCerrors] = useState({});
   const [childError,setChildError] = useState({});
+
+  useEffect(() => {
+    const fetchData = async () => {
+        const urlBase =process.env.REACT_APP_ENDPOINT;
+        const endpoint = "/tnlcm/library/components/";
+
+        try {
+            const response = await fetch(`${urlBase}${endpoint}`);
+            if (!response.ok) {
+                throw new Error(`Error while retrieving all components: ${response.status}`);
+            }
+            const result = await response.json();
+            setAllComp(result.components);
+            console.log(result)
+        } catch (error) {
+            console.error("Error doing the fetch:", error);
+        }
+    };
+
+    fetchData();
+}, []);
 
   const filterVnetOrTnVxlanComponents = useCallback(() => {
     const filteredComponents = selectedComponent.filter((component) =>
@@ -79,6 +101,29 @@ const CreateTN = () => {
       component.label.toLowerCase().includes('open5gs')
     );
   
+    // Return a list in format "label-name"
+    return filteredComponents.map((component) => {
+      const componentForm = componentForms[component.id] || {};
+      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
+    });
+  }, [selectedComponent, componentForms]);
+
+  const filterO5gsVMorK8SComponents = useCallback(() => {
+    const filteredComponents = selectedComponent.filter((component) =>
+      component.label.toLowerCase().includes('open5gs_vm') || component.label.toLowerCase().includes('open5gs_k8s')
+    );
+    // Return a list in format "label-name"
+    return filteredComponents.map((component) => {
+      const componentForm = componentForms[component.id] || {};
+      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
+    });
+  }, [selectedComponent, componentForms]);
+
+  const filterO5All = useCallback(() => {
+    const filteredComponents = selectedComponent.filter((component) =>
+      component.label.toLowerCase().includes('open5gs_vm') || component.label.toLowerCase().includes('open5gs_k8s') ||
+      component.label.toLowerCase().includes("open5gcore_vm")
+    );
     // Return a list in format "label-name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
@@ -306,10 +351,10 @@ const validateComps = () => {
 
   const switchComponent = (component, removeComponent, handleComponentFormChange, handleChildError) => {
     switch (component.label) {
-      case "tn_init":
-        return <TnInit id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
-      case "tsn":
-        return <Tsn id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+      case "berlin_ran":
+        const lbrOKE=filterOneKEComponents();
+        const lbrO5=filterO5All();
+        return <BerlinRan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lbrOKE} list2={lbrO5} whenError={handleChildError}/>;
       case "elcm":
         return <Elcm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "ks8500_runner":
@@ -319,7 +364,7 @@ const validateComps = () => {
         const listLCA= filterVnetOrTnVxlanComponents();
         return <LoadcoreAgent id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listLCA} whenError={handleChildError}/>;
       case "nokia_radio":
-        const listNokia=filterOneKEComponents();
+        const listNokia=filterO5gsVMorK8SComponents();
         return <NokiaRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listNokia} whenError={handleChildError}/>;
       case "ocf":
         const listOCF=filterOneKEComponents();
@@ -341,8 +386,12 @@ const validateComps = () => {
         return <StfUe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
       case "tn_bastion":
         return <TnBastion id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+      case "tn_init":
+        return <TnInit id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
       case "tn_vxlan":
         return <TnVxlan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
+      case "tsn":
+        return <Tsn id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
       case "ueransim":
         const listUE1=filterVnetOrTnVxlanComponents();
         const listUE2=filterOpen5GsComponents();
@@ -357,7 +406,7 @@ const validateComps = () => {
         const listXR=filterVnetOrTnVxlanComponents();
         return <Xrext id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listXR}/>;
       default:
-        return "No valid option selected: " + component.label;
+        return <NvoModal component={component} removeComponent={removeComponent}/>;
     }
   };
 
@@ -474,7 +523,7 @@ const validateComps = () => {
         </div>
 
         <div className="lg:w-1/2 grid grid-cols-4 gap-4 mt-8 lg:mt-0">
-          {["elcm", "ks8500_runner", "loadcore_agent", "nokia_radio", "ocf", "oneKE", "open5gs", "opensand_gw", "opensand_sat", "opensand_st", "stf_ue", "tn_bastion", "tn_init", "tn_vxlan", "tsn", "ueransim", "vm_kvm", "vnet", "xrext"].map((label, index) => (
+          {allComp.map((label, index) => (
             <button
               key={index}
               type="button"

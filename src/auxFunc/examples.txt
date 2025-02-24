@@ -16,3 +16,4 @@ OneKE => Valid IP list, IP range and boolean value.
 Open5GS => Valid IP, number length, addition check
 STF_UE (almost everyone) => Integer Validation
 Tn_Init, Tn_Vxlan, Vnet (Equals???) => Validation of IP and IP lists
+Berlin_ran => Double select
