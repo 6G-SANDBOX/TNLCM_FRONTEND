@@ -447,6 +447,7 @@ const validateComps = () => {
               <option value="ATHENS">ATHENS</option>
               <option value="BERLIN">BERLIN</option>
               <option value="OULU">OULU</option>
+              <option value="FOKUS">FOKUS</option>
             </select>
             {errors.deploymentSite && <p className="text-red-500 text-sm mt-1">{errors.deploymentSite}</p>}
           </div>
