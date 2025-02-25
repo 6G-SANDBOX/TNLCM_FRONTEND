@@ -38,16 +38,18 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
       if (result) {
         setData(result.component_input);
         const required = [];  // Array to store the required fields
-        // Initialize form values with default values from the API
+        const deps={};
+        // Initialize form values with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          // No default values if the field is 'one_loadcore_agent_networks'
-          if (key !== "one_loadcore_agent_networks") {
+          // No default values if the field is special type
+          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
             initialValues[key] = field.default_value || "";
           } else {
             initialValues[key] ="";
+            deps[key]="";
           }
           
           if (field.required_when) {
@@ -57,6 +59,7 @@ const LoadcoreAgent = ({ id, removeComponent, onChange, list, whenError }) => {
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
+        initialValues['dependencies']=deps;
         setFormValues(initialValues);
         setRequiredFields(required);
         // Call onChange to send default values to the parent component

@@ -35,24 +35,33 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
   useEffect(() => {
     const loadData = async () => {
       const result = await fetchData();
-      const required = [];
       if (result) {
         setData(result.component_input);
-
-        // Initial values for the form
+        const required = [];  // Array to store the required fields
+        const deps={};
+        // Initialize form values with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          initialValues[key] = field.default_value || "";
+          
+          // No default values if the field is special type
+          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
+            initialValues[key] = field.default_value || "";
+          } else {
+            initialValues[key] ="";
+            deps[key]="";
+          }
+          
           if (field.required_when) {
             required.push(key);
           }
         }
+        required.push("name");
+        initialValues['name'] = '';
         initialValues['required']=required;
+        initialValues['dependencies']=deps;
         setFormValues(initialValues);
         setRequiredFields(required);
-
-
         // Call onChange to update the state in the parent component with the initial values
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
@@ -113,30 +122,13 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
         });
       }
     }
-    if (name === "one_vxlan_gw" || name === "one_vxlan_netmask" || name === "one_vxlan_first_ip") {
+    if (name === "one_vxlan_first_ip") {
       if(!isValidIPv4(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
           [name]: `Invalid IP in ${name}`,
         }));
         whenError(id,name,`Invalid IP in ${name}`);
-      }else {
-        setErrorMessages((prevState) => {
-          const newState = { ...prevState };
-          delete newState[name]; // Delete the error message if the field is not empty
-          return newState;
-        });
-        whenError(id,name,null);
-      }
-    }
-
-    if (name === "one_vxlan_dns"){
-      if(!isValidIPv4List(value)){
-        setErrorMessages((prevState) => ({
-          ...prevState,
-          [name]: `Invalid IP list forma in ${name}`,
-        }));
-        whenError(id,name,`Invalid IP list format in ${name}`);
       }else {
         setErrorMessages((prevState) => {
           const newState = { ...prevState };
@@ -155,18 +147,6 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError }) => {
     return ipv4Pattern.test(ip.trim());
   };
   
-  const isValidIPv4List = (str) => {
-    // Regular expression for an IPv4 address
-    const ipv4Pattern =
-      /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
-  
-    // Split the string into a list of IPs
-    const ipList = str.trim().split(/\s+/);
-  
-    // Check if all the IPs are valid
-    return ipList.every((ip) => ipv4Pattern.test(ip));
-  };
-
   // If data is null, show a message indicating that the component has been added
   if (data === null) {
     return (

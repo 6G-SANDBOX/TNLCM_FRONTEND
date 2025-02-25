@@ -38,16 +38,18 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
       if (result) {
         setData(result.component_input);
         const required = [];
+        const deps={};
         // Initialize form values with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          //No default values if the field is 'ocf_one_oneKE'
-          if (key !== "ocf_one_oneKE") {
+          // No default values if the field is special type
+          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
             initialValues[key] = field.default_value || "";
           } else {
             initialValues[key] ="";
+            deps[key]="";
           }
           
           if (field.required_when) {
@@ -57,6 +59,7 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError }) => {
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
+        initialValues['dependencies']=deps;
         setFormValues(initialValues);
         setRequiredFields(required);
         // call onChange to send initial values to parent component

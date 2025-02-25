@@ -38,25 +38,28 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError }) => {
       if (result) {
         setData(result.component_input);
         const required = [];
+        const deps={};
         // Initialize form values with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          // No default value if the field is 'one_oneKE_external_vnet or one_oneKE_internal_vnet '
-          if (key !== "one_oneKE_external_vnet" && key !== "one_oneKE_internal_vnet") {
+          
+          // No default values if the field is special type
+          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
             initialValues[key] = field.default_value || "";
           } else {
             initialValues[key] ="";
+            deps[key]="";
           }
           
           if (field.required_when) {
             required.push(key);
           }
         }
-        // Add 'name' field to required fields
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
+        initialValues['dependencies']=deps;
         setFormValues(initialValues);
         setRequiredFields(required);
         // Call onChange to update the state in the parent component

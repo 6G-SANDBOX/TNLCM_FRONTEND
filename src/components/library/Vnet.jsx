@@ -37,19 +37,29 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
+        const deps={};
+        const required = [];  // Array to store the required fields
+        // Initialize form values with default values
         const initialValues = {};
-        const required = [];
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          initialValues[key] = field.default_value || "";
+          
+          // No default values if the field is special type
+          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
+            initialValues[key] = field.default_value || "";
+          } else {
+            initialValues[key] ="";
+            deps[key]="";
+          }
+          
           if (field.required_when) {
             required.push(key);
           }
         }
-        // Add 'name' field to required fields
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
+        initialValues['dependencies']=deps;
         setFormValues(initialValues);
         setRequiredFields(required);
         // Call onChange for each initial value
@@ -116,7 +126,7 @@ const Vnet = ({ id, removeComponent, onChange, whenError }) => {
       }
     }
 
-    if (name === "one_vnet_gw" || name === "one_vnet_netmask" || name === "one_vnet_first_ip") {
+    if (name === "one_vnet_gw"  || name === "one_vnet_first_ip") {
       if(!isValidIPv4(value)){
         setErrorMessages((prevState) => ({
           ...prevState,

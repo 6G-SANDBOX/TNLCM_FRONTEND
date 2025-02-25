@@ -36,23 +36,33 @@ const TnInit = ({ id, removeComponent, onChange, whenError }) => {
   useEffect(() => {
     const loadData = async () => {
       const result = await fetchData();
-      const required = [];
       if (result) {
         setData(result.component_input);
-
-        // Initial values for the form
+        const required = [];  // Array to store the required fields
+        const deps={};
+        // Initialize form values with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          initialValues[key] = field.default_value || "";
+          
+          // No default values if the field is special type
+          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
+            initialValues[key] = field.default_value || "";
+          } else {
+            initialValues[key] ="";
+            deps[key]="";
+          }
+          
           if (field.required_when) {
             required.push(key);
           }
         }
+        required.push("name");
+        initialValues['name'] = '';
         initialValues['required']=required;
+        initialValues['dependencies']=deps;
         setFormValues(initialValues);
         setRequiredFields(required);
-
         // Call onChange to update the state in the parent component with the initial values
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
@@ -90,7 +100,7 @@ const TnInit = ({ id, removeComponent, onChange, whenError }) => {
       }
     }
 
-    if (name === "one_vxlan_gw" || name === "one_vxlan_netmask" || name === "one_vxlan_first_ip") {
+    if (name === "one_vxlan_first_ip") {
       if(!isValidIPv4(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
@@ -107,7 +117,7 @@ const TnInit = ({ id, removeComponent, onChange, whenError }) => {
       }
     }
 
-    if (name === "one_vxlan_dns"){
+    if (name === "one_bastion_vpn_allowedips"){
       if(!isValidIPv4List(value)){
         setErrorMessages((prevState) => ({
           ...prevState,
@@ -138,7 +148,7 @@ const TnInit = ({ id, removeComponent, onChange, whenError }) => {
       /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
   
     // Split the string into a list of IPs
-    const ipList = str.trim().split(/\s+/);
+    const ipList = str.trim().split(/\s*,\s*/);
   
     // Check if all IPs are valid
     return ipList.every((ip) => ipv4Pattern.test(ip));

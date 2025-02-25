@@ -44,8 +44,8 @@ const BerlinRan = ({ id, removeComponent, onChange, list, list2, whenError }) =>
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          // No default values if the field is 'one_nokia_radio_open5gs'
-          if (field.type !== "str" && field.type !== "int" && field.type !== "bool") {
+          // No default values if the field is special type
+          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
             initialValues[key] = field.default_value || "";
           } else {
             initialValues[key] ="";

@@ -38,17 +38,18 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
       if (result) {
         setData(result.component_input);
         const required = [];
+        const deps={};
         // Initialize form values with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          // No default values if the field is 'one_nokia_radio_open5gs'
-          //TODO - Change this to a more generic solution
-          if (key !== "one_nokia_radio_open5gs") {
+          // No default values if the field is special type
+          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
             initialValues[key] = field.default_value || "";
           } else {
             initialValues[key] ="";
+            deps[key]="";
           }
           
           if (field.required_when) {
@@ -58,6 +59,7 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError }) => {
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
+        initialValues['dependencies']=deps;
         setFormValues(initialValues);
         setRequiredFields(required);
         // Call onChange to send initial values to parent component

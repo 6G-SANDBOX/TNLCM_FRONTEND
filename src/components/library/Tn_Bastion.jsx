@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const TnBastion = ({ id, removeComponent, onChange }) => {
+const TnBastion = ({ id, removeComponent, onChange, whenError}) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -37,37 +37,51 @@ const TnBastion = ({ id, removeComponent, onChange }) => {
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
+        const required = [];  // Array to store the required fields
+        const deps={};
+        // Initialize form values with default values
         const initialValues = {};
-        const required = [];
         for (const key in result.component_input) {
-          initialValues[key] = result.component_input[key].default_value || "";
+          const field = result.component_input[key];
+          
+          // No default values if the field is special type
+          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
+            initialValues[key] = field.default_value || "";
+          } else {
+            initialValues[key] ="";
+            deps[key]="";
+          }
+          
+          if (field.required_when) {
+            required.push(key);
+          }
         }
-        // Add 'name' field to the form
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
+        initialValues['dependencies']=deps;
         setFormValues(initialValues);
         setRequiredFields(required);
-
-        // call onChange to update the state in the parent component with the initial values
+        // Call onChange to send default values to the parent component
         for (const key in initialValues) {
           onChange(id, key, initialValues[key]);
         }
       }
     };
-  loadData();
+    loadData();
   }, [id, onChange]);
+
 
   const handleChange = (event) => {
     const { name, value } = event.target;
 
-    // Update the form values with the new value entered by the user
+    // Update the form values with the new value
     setFormValues((prevState) => ({
       ...prevState,
-      [name]: value,  // Update the value of the field that has changed
+      [name]: value,  // Update the value for the field
     }));
 
-    // Call onChange to update the state in the parent component with the new values
+    // call onChange to send the new value to the parent component
     onChange(id, name, value);
 
     // Field validation
@@ -85,10 +99,65 @@ const TnBastion = ({ id, removeComponent, onChange }) => {
         });
       }
     }
-
+    if (name === "one_bastion_vpn_allowedips"){
+      if(!isValidIPv4List(value)){
+        setErrorMessages((prevState) => ({
+          ...prevState,
+          [name]: `Invalid IP list format in ${name}`,
+        }));
+        whenError(id,name,`Invalid IP list format in ${name}`);
+      }else {
+        setErrorMessages((prevState) => {
+          const newState = { ...prevState };
+          delete newState[name];
+          return newState;
+        });
+        whenError(id,name,null);
+      }
+    }
   };
 
-  // Data should be always null owing to the fact that the component has no fields to display
+  const isValidIPv4List = (str) => {
+    // Regular expression to validate an IPv4 address
+    const ipv4Pattern =
+      /^(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)\.(25[0-5]|2[0-4]\d|1\d\d|\d\d|\d)$/;
+  
+    // Split the string into a list of IPs
+    const ipList = str.trim().split(/\s*,\s*/);
+  
+    // Verify that all IPs in the list are valid
+    return ipList.every((ip) => ipv4Pattern.test(ip));
+  };
+
+  const validateInteger = (value) => {
+    return Number.isInteger(Number(value));
+  };
+
+  const handleIntegerValidation = (event, key) => {
+    const value = event.target.value;
+    setFormValues((prevState) => ({
+      ...prevState,
+      [key]: value,
+    }));
+
+    // Validate if the value is an integer
+    if (!validateInteger(value)) {
+      setErrorMessages((prevState) => ({
+        ...prevState,
+        [key]: `${key.replace(/_/g, " ")} must be an integer.`,
+      }));
+      whenError(id, key, `${key.replace(/_/g, " ")} must be an integer.`);
+    } else {
+      setErrorMessages((prevState) => {
+        const newState = { ...prevState };
+        delete newState[key];
+        return newState;
+      });
+      whenError(id, key, null);
+    }
+  };
+
+  // Show success message if data is null
   if (data === null) {
     return (
       <div className="bg-gray-100 p-6">
@@ -99,33 +168,99 @@ const TnBastion = ({ id, removeComponent, onChange }) => {
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>
-          <h1 className="text-3xl font-bold">Tn_Bastion Added</h1>
-          <p className="mt-2">The Tn_Bastion component has been added successfully.</p>
+          <h1 className="text-3xl font-bold">TN_BASTION Added</h1>
+          <p className="mt-2">The TN_BASTION component has been added successfully.</p>
         </header>
-      <div className="mt-8 bg-white shadow-md rounded-lg p-6">
-      <form>
-          {/* Additional field 'name' */}
-          <div className="mb-4">
-          <label htmlFor="name" className="block text-gray-700 font-semibold">
-            Name:
-          </label>
-          <input
-            type="text"
-            id={`name-${id}`}
-            name="name"
-            value={formValues.name || ""}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md p-2 mt-1"
-          />
-          {errorMessages.name && (
-            <small className="block mt-1 text-red-500">{errorMessages.name}</small>
-          )}
-        </div>
-      </form>
-    </div>
-    </div>
+      </div>
     );
   }
+
+  return (
+    <div className="bg-gray-100 p-6">
+      {/* Header with close button */}
+      <header className="bg-blue-500 text-white text-center p-4 rounded-md shadow-md">
+        <button
+          onClick={() => removeComponent(id)}
+          className="flex text-red-500"
+        >
+          <FontAwesomeIcon icon={faTrash} />
+        </button>
+        <h1 className="text-3xl font-bold">TN_BASTION Configuration</h1>
+        <p className="mt-2">Please fill in the fields below to configure the system</p>
+      </header>
+
+      <div className="mt-8 bg-white shadow-md rounded-lg p-6">
+        <form>
+          {/* Additional field 'name' */}
+          <div className="mb-4">
+            <label htmlFor="name" className="block text-gray-700 font-semibold">
+              Name:
+            </label>
+            <input
+              type="text"
+              id={`name-${id}`}
+              name="name"
+              value={formValues.name || ""}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-md p-2 mt-1"
+            />
+            {errorMessages.name && (
+              <small className="block mt-1 text-red-500">{errorMessages.name}</small>
+            )}
+          </div>
+
+          {Object.keys(data).map((key) => {
+            const field = data[key];
+            return (
+              <div className="mb-4" key={key}>
+                <label htmlFor={key} className="block text-gray-700 font-semibold">
+                  {key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())}:
+                </label>
+
+                {/* Input or select if there are a 'choices' type */}
+                {field.choices ? (
+                  <select
+                    id={key}
+                    name={key}
+                    value={formValues[key] || ""}
+                    onChange={(event) => handleChange(event)}
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  >
+                    <option disabled value="">Select an option</option>
+                    {field.choices.map((choice, index) => (
+                      <option key={index} value={choice}>
+                        {choice}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    id={key}
+                    name={key}
+                    value={Array.isArray(formValues[key]) ? formValues[key].join(", ") : formValues[key] || ""}
+                    onChange={(event) => {
+                      if (field.type === "int") {
+                        handleIntegerValidation(event, key);
+                      } else {
+                        handleChange(event);
+                      }
+                    }}
+                    className="w-full border border-gray-300 rounded-md p-2 mt-1"
+                  />
+                )}
+
+                {errorMessages[key] && (
+                  <small className="block mt-1 text-red-500">{errorMessages[key]}</small>
+                )}
+                <small className="block mt-1 text-gray-500">{field.description}</small>
+              </div>
+            );
+          })}
+        </form>
+      </div>
+    </div>
+  );
 };
 
 export default TnBastion;

@@ -39,20 +39,28 @@ const Elcm = ({ id, removeComponent, onChange }) => {
       if (result) {
         setData(result.component_input);
         const required = [];
-        // Initialize the form with default values
+        const deps={};
+        // Initialize form values with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          initialValues[key] = field.default_value || "";  // Default value for the field
+          
+          // No default values if the field is special type
+          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
+            initialValues[key] = field.default_value || "";
+          } else {
+            initialValues[key] ="";
+            deps[key]="";
+          }
+          
           if (field.required_when) {
             required.push(key);
           }
         }
-
-        // Add the 'name' field as required
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
+        initialValues['dependencies']=deps;
         
         setRequiredFields(required);  // Set the required fields
         setFormValues(initialValues); // Put the default values in the form

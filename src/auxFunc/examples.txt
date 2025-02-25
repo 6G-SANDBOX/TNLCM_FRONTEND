@@ -7,13 +7,17 @@ NokiaRadio => Example of validation and field generation
 Stf_UE => Validation example without special fields
 Ueransim=> Example of double select and checkbox
 Ueransim => Example of special required fields
-Ueransim => Special includes handling.
-
+Ueransim => Special fields includes  special handling
+Berlin_ran => Double select
+Iswireless_radio => Simple select
+Ixc_endpoint => Simple checkbox
+Open5gx_VM => Doubles chechbox
+Open5gs_k8s => Simple select
 
 -------------EXAMPLES OF ERROR VALDIATION--------------------------
 Ks8500Runner, OCF => Valid URL example
-OneKE => Valid IP list, IP range and boolean value.
+OneKE => Valid IP list, IP range and boolean value
 Open5GS => Valid IP, number length, addition check
 STF_UE (almost everyone) => Integer Validation
 Tn_Init, Tn_Vxlan, Vnet (Equals???) => Validation of IP and IP lists
-Berlin_ran => Double select
+Ixc_endpoint => Valid IP

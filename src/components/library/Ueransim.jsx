@@ -36,25 +36,29 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
+        const required = [];  // Array to store the required fields
+        const deps={};
+        // Initialize form values with default values
         const initialValues = {};
-        const required = [];
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
-          // No default value if the field is :
-          if (key !== "one_ueransim_networks" && key !== "one_ueransim_gnb_linked_open5gs"  && key !== "one_ueransim_ue_linked_gnb") {
+          // No default values if the field is special type
+          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
             initialValues[key] = field.default_value || "";
           } else {
             initialValues[key] ="";
+            deps[key]="";
           }
-          if (field.required_when ===  true) {
+          
+          if (field.required_when) {
             required.push(key);
           }
         }
-        // Add 'name' field to the form
         required.push("name");
         initialValues['name'] = '';
         initialValues['required']=required;
+        initialValues['dependencies']=deps;
         setFormValues(initialValues);
         setRequiredFields(required);
         // Call onChange to update the state in the parent component with the initial values

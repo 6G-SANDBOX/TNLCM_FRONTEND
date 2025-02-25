@@ -3,12 +3,15 @@ import convertJsonToYaml from '../auxFunc/yamlHandler';
 import TopNavigator from "./TopNavigator";
 import BerlinRan from "./library/Berlin_ran";
 import Elcm from "./library/Elcm";
+import IswirelessRadio from "./library/Iswireless_radio";
+import IxcEndpoint from "./library/Ixc_endpoint";
 import Ks8500Runner from "./library/Ks8500_runner";
 import LoadcoreAgent from "./library/LoadcoreAgent";
 import NokiaRadio from "./library/NokiaRadio";
 import Ocf from "./library/Ocf";
 import OneKe from "./library/OneKe";
-import Open5gs from "./library/Open5gs";
+import Open5gcoreVM from "./library/Open5gcore_vm";
+import Open5gsK8S from "./library/Open5gs_k8s";
 import OpensandGw from "./library/Opensand_gw";
 import OpensandSat from "./library/Opensand_sat";
 import OpensandSt from "./library/Opensand_st";
@@ -18,6 +21,7 @@ import TnInit from "./library/Tn_Init";
 import TnVxlan from "./library/Tn_Vxlan";
 import Tsn from "./library/Tsn";
 import Ueransim from "./library/Ueransim";
+import UpfP4Sw from "./library/Upf_p4_sw";
 import VmKvm from "./library/Vm_Kvm";
 import Vnet from "./library/Vnet";
 import Xrext from "./library/Xrext";
@@ -51,7 +55,6 @@ const CreateTN = () => {
             }
             const result = await response.json();
             setAllComp(result.components);
-            console.log(result)
         } catch (error) {
             console.error("Error doing the fetch:", error);
         }
@@ -239,11 +242,18 @@ const validateComps = () => {
 
   const handleRemoveComponent = (id) => {
     setSelectedComponent((prevSelected) => prevSelected.filter((component) => component.id !== id));
+
     setComponentForms((prevForms) => {
-      const { [id]: removed, ...rest } = prevForms;
-      return rest;
+        const { [id]: removed, ...rest } = prevForms;
+        return rest;
     });
-  };
+
+    setChildError((prevErrors) => {
+        const { [id]: removed, ...rest } = prevErrors; // Remove all the errors associated to the component
+        return rest;
+    });
+};
+
 
   const handleChildError = useCallback((id, field, message) => {
     setChildError((prevErrors) => {
@@ -338,7 +348,7 @@ const validateComps = () => {
         };
       }),
     };
-    //TODO CONVERTIR A YAML Y MANDAR LA PETICION
+    //TODO FIX THE YAML AND SEND THE POST REQUEST
     convertJsonToYaml(networkData);
     const fileData = JSON.stringify(networkData, null, 2);
     const blob = new Blob([fileData], { type: "application/json" });
@@ -357,6 +367,12 @@ const validateComps = () => {
         return <BerlinRan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lbrOKE} list2={lbrO5} whenError={handleChildError}/>;
       case "elcm":
         return <Elcm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+      case "iswireless_radio":
+        const lIswrO5=filterO5gsVMorK8SComponents();
+        return <IswirelessRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lIswrO5} whenError={handleChildError}/>
+      case "ixc_endpoint":
+        const lIxeTNV=filterVnetOrTnVxlanComponents();
+        return <IxcEndpoint id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lIxeTNV} whenError={handleChildError} />;
       case "ks8500_runner":
         const listKS8 =filterVnetOrTnVxlanComponents();
         return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listKS8} whenError={handleChildError}/>;
@@ -373,30 +389,43 @@ const validateComps = () => {
         const listO1=filterVnetOrTnVxlanComponents();
         const listO2=filterVnetComponents();
         return <OneKe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO1} list2={listO2} whenError={handleChildError}/>;
-      case "open5gs":
-        const listO5=filterOneKEComponents();
-        return <Open5gs id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange}  list={listO5} whenError={handleChildError}/>;
+      case "open5gcore_vm":
+        const listO5C1=filterVnetOrTnVxlanComponents();
+        const listO5C2=filterVnetComponents();
+        return <Open5gcoreVM id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO5C1} list2={listO5C2} whenError={handleChildError}/>;
+      case "open5gs_k8s":
+        const listO5K1=filterOneKEComponents();
+        return <Open5gsK8S id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listO5K1} whenError={handleChildError}/>
+      case "open5gs_vm":
+        const listO5SVM=filterVnetOrTnVxlanComponents();
+        return <Open5gcoreVM id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO5SVM} list2={listO5SVM} whenError={handleChildError}/>;
       case "opensand_gw":
-        return <OpensandGw id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        const listOGW=filterVnetOrTnVxlanComponents();
+        return <OpensandGw id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOGW} whenError={handleChildError} />;
       case "opensand_sat":
-        return <OpensandSat id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        const listOSAT=filterVnetOrTnVxlanComponents();
+        return <OpensandSat id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOSAT} whenError={handleChildError} />;
       case "opensand_st":
-        return <OpensandSt id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        const listOST=filterVnetOrTnVxlanComponents();
+        return <OpensandSt id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOST} whenError={handleChildError}/>;
       case "stf_ue":
         return <StfUe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
       case "tn_bastion":
-        return <TnBastion id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        return <TnBastion id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
       case "tn_init":
         return <TnInit id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
       case "tn_vxlan":
         return <TnVxlan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
       case "tsn":
-        return <Tsn id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} />;
+        return <Tsn id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError}/>;
       case "ueransim":
         const listUE1=filterVnetOrTnVxlanComponents();
         const listUE2=filterOpen5GsComponents();
         const listUE3=filterUeransimComponents();
         return <Ueransim id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listUE1} list2={listUE2} list3={listUE3} whenError={handleChildError}/>;
+      case "upf_p4_sw":
+        const listUPF=filterVnetOrTnVxlanComponents();
+        return <UpfP4Sw id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listUPF} whenError={handleChildError}/>;
       case "vm_kvm":
         const listVK=filterVnetOrTnVxlanComponents();
         return <VmKvm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listVK}/>;
