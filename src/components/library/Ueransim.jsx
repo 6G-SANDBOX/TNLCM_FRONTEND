@@ -37,18 +37,18 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       if (result) {
         setData(result.component_input);
         const required = [];  // Array to store the required fields
-        const deps={};
+        const deps=[];
         // Initialize form values with default values
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
           
           // No default values if the field is special type
-          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
+          if (field.type === "str" || field.type === "int" || field.type === "bool") {
             initialValues[key] = field.default_value || "";
           } else {
             initialValues[key] ="";
-            deps[key]="";
+            deps.push(key);
           }
           
           if (field.required_when) {

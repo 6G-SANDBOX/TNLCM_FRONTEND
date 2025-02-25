@@ -1,4 +1,3 @@
-//TODO WIP - This function is not working yet. It is supposed to convert a JSON object to a YAML string
 const convertJsonToYaml = (json) => {
     let yamlString = "trial_network:\n\n"; // First line and empty line
 
@@ -13,8 +12,17 @@ const convertJsonToYaml = (json) => {
             yamlString += `    name: ${component.data.name}\n`;
         }
         //Dependencies of the component
-        //TODO Iterate over the dependencies array and add them to the yaml string
-        yamlString += `    dependencies: []\n`
+        yamlString += `    dependencies:`
+        if (component.data.dependencies && component.data.dependencies.some(dependency => dependency.trim() !== "")) {
+            yamlString += `\n`
+            component.data.dependencies.forEach((dependency) => {
+                if (dependency.trim() !== "") { // Verifica que no sea vacío ni solo espacios
+                    yamlString += `      - ${dependency}\n`
+                }
+            });
+        } else {
+            yamlString += ` []\n`
+        }
         //Input of the component from the form data
         yamlString += `    input:`;
         //If the component has data, then it will be added to the yaml string
@@ -22,7 +30,7 @@ const convertJsonToYaml = (json) => {
             yamlString += `\n`
             Object.entries(component.data).forEach( ([key,value]) => {
                 //Only add the real input and not the name or required field that are used for other things internally
-                if (key!=="required" && key!=="name"){
+                if ((key !== "required") && (key !== "name") && (key !== "dependencies")){
                     yamlString += `      ${key}: ${value}\n`
                 }
             });
@@ -32,7 +40,6 @@ const convertJsonToYaml = (json) => {
         }
       
     });
-    console.log(yamlString);
     return yamlString;
 };
 

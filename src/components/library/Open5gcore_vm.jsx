@@ -37,7 +37,7 @@ const Open5gcoreVM = ({ id, removeComponent, onChange, list1, list2,  whenError 
       const result = await fetchData();
       if (result) {
         setData(result.component_input);
-        const deps={};
+        const deps=[];
         const required = [];  // Array to store the required fields
         // Initialize form values with default values
         const initialValues = {};
@@ -45,11 +45,11 @@ const Open5gcoreVM = ({ id, removeComponent, onChange, list1, list2,  whenError 
           const field = result.component_input[key];
           
           // No default values if the field is special type
-          if (field.type !== "str" || field.type !== "int" || field.type !== "bool") {
+          if (field.type === "str" || field.type === "int" || field.type === "bool") {
             initialValues[key] = field.default_value || "";
           } else {
             initialValues[key] ="";
-            deps[key]="";
+            deps.push(key);
           }
           
           if (field.required_when) {
