@@ -363,10 +363,7 @@ const CreateTN = () => {
       formData2.append("descriptor", blob2, "descriptor.yaml");
   
       // Build the URL
-      let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${formData.trialNetworkId}
-                  &deployment_site=${formData.deploymentSite}&library_reference_type=${formData.libraryReferenceType}
-                  &library_reference_value=${formData.libraryReferenceValue}&sites_reference_type=${formData.sitesReferenceType}
-                  &sites_reference_value=${formData.sitesReferenceValue}`;
+      let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${formData.trialNetworkId}&deployment_site=${formData.deploymentSite}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&sites_reference_type=${formData.sitesReferenceType}&sites_reference_value=${formData.sitesReferenceValue}`;
   
       const createTrialNetwork = async (formData) => {
         

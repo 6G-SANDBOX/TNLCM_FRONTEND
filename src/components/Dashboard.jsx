@@ -210,9 +210,7 @@ const Dashboard = () => {
     const blob = new Blob([descriptor], { type: "text/yaml" });
     formData.append("descriptor", blob, "descriptor.yaml");
   
-    let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${trialNetworkId}
-    &deployment_site=${deploymentSite}&library_reference_type=${libraryReferenceType}
-    &library_reference_value=${libraryReferenceValue}&sites_reference_type=${sitesReferenceType}&sites_reference_value=${sitesReferenceValue}`;
+    let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${trialNetworkId}&deployment_site=${deploymentSite}&library_reference_type=${libraryReferenceType}&library_reference_value=${libraryReferenceValue}&sites_reference_type=${sitesReferenceType}&sites_reference_value=${sitesReferenceValue}`;
   
     // Send the POST request
     const createTrialNetwork = async (formData) => {
