@@ -1,46 +1,44 @@
 import axios from "axios";
-import { jwtDecode } from 'jwt-decode'; // Asegúrate de que esta librería esté instalada
+import { jwtDecode } from 'jwt-decode';
 
-// Verifica si el token ha expirado
+// Check if the token is expired
 export async function isTokenExpired(token) {
   const decoded = jwtDecode(token);
   return decoded["exp"] < Date.now() / 1000;
 }
 
-// Obtén el token de acceso desde sessionStorage, actualízalo si está expirado
+// Get the access token from the session storage and check if it has expired
 export async function getAccessTokenFromSessionStorage() {
   let accessToken = sessionStorage.getItem("access_token");
   
-  // Si el token existe y ha expirado, intenta obtener un nuevo token
+  // If the token is expired, try to get a new one using the refresh token
   if (accessToken && await isTokenExpired(accessToken)) {
     const data = await setAccessTokenUsingRefreshToken();
-    sessionStorage.setItem("access_token", data["access_token"]); // Guardar en sessionStorage
-    accessToken = data["access_token"]; // Actualiza el token con el nuevo valor
+    sessionStorage.setItem("access_token", data["access_token"]);
+    accessToken = data["access_token"];
   }
   return accessToken;
 }
 
-// Obtiene el refresh token desde localStorage
+// Get the refresh token from the local storage
 export function getRefreshTokenFromLocalStorage() {
   return localStorage.getItem("refresh_token");
 }
 
-// Solicita un nuevo access token usando el refresh token
+// Set the access token using the refresh token
 async function setAccessTokenUsingRefreshToken() {
   const refreshToken = getRefreshTokenFromLocalStorage();
 
-  // Si no existe un refresh token, no podemos proceder
+  // If the refresh token is not found, throw an error
   if (!refreshToken) {
     throw new Error("No refresh token found.");
   }
 
   try {
-    // Solicitar un nuevo token usando el refresh token
-    //Coger la URL de la página
     const url =process.env.REACT_APP_ENDPOINT;
     const response = await axios.post(
       `${url}/tnlcm/user/refresh`,
-      {}, // El cuerpo de la solicitud puede estar vacío
+      {},
       {
         headers: {
           "Accept": "application/json",
@@ -49,13 +47,11 @@ async function setAccessTokenUsingRefreshToken() {
         },
       }
     );
-
-    // Verificar la respuesta
     if (!response.data || !response.data.access_token) {
       throw new Error("Failed to refresh access token.");
     }
 
-    return response.data; // Contiene el nuevo access_token
+    return response.data; // Return the new access token
   } catch (error) {
     throw new Error("Failed to fetch a new access token: " + error.message);
   }

@@ -552,7 +552,7 @@ const CreateTN = () => {
               id="library-reference-value"
               name="libraryReferenceValue"
               type="text"
-              placeholder="github_6g_library_reference_value"
+              placeholder="library_reference_value"
               className={`w-full border p-2 mt-1 rounded-md ${errors.libraryReferenceValue ? "border-red-500" : "border-gray-300"}`}
               value={formData.libraryReferenceValue}
               onChange={handleInputChange}
@@ -587,7 +587,7 @@ const CreateTN = () => {
               id="sites-reference-value"
               name="sitesReferenceValue"
               type="text"
-              placeholder="github_6g_library_reference_value"
+              placeholder="sites_reference_value"
               className={`w-full border p-2 mt-1 rounded-md ${errors.sitesReferenceValue ? "border-red-500" : "border-gray-300"}`}
               value={formData.sitesReferenceValue}
               onChange={handleInputChange}
