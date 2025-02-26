@@ -72,7 +72,7 @@ const CreateTN = () => {
       component.label.toLowerCase().includes('vnet') || component.label.toLowerCase().includes('tn_vxlan') || component.label.toLowerCase().includes('tn_init')
     );
   
-    // Return a list in format "label-name"
+    // Return a list in format "label-name" or just "name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
       return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
@@ -84,7 +84,7 @@ const CreateTN = () => {
       component.label.toLowerCase().includes('vnet')
     );
   
-    // Return a list in format "label-name"
+    // Return a list in format "label-name" or just "name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
       return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
@@ -96,7 +96,7 @@ const CreateTN = () => {
       component.label.toLowerCase().includes('oneke')
     );
   
-    // Return a list in format "label-name"
+    // Return a list in format "label-name" or just "name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
       return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
@@ -108,7 +108,7 @@ const CreateTN = () => {
       component.label.toLowerCase().includes('open5gs')
     );
   
-    // Return a list in format "label-name"
+    // Return a list in format "label-name" or just "name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
       return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
@@ -119,7 +119,7 @@ const CreateTN = () => {
     const filteredComponents = selectedComponent.filter((component) =>
       component.label.toLowerCase().includes('open5gs_vm') || component.label.toLowerCase().includes('open5gs_k8s')
     );
-    // Return a list in format "label-name"
+    // Return a list in format "label-name" or just "name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
       return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
@@ -131,7 +131,7 @@ const CreateTN = () => {
       component.label.toLowerCase().includes('open5gs_vm') || component.label.toLowerCase().includes('open5gs_k8s') ||
       component.label.toLowerCase().includes("open5gcore_vm")
     );
-    // Return a list in format "label-name"
+    // Return a list in format "label-name" or just "name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
       return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
@@ -143,7 +143,7 @@ const CreateTN = () => {
       component.label.toLowerCase().includes('ueransim')
     );
   
-    // Return a list in format "label-name"
+    // Return a list in format "label-name" or just "name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
       return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
@@ -180,7 +180,7 @@ const CreateTN = () => {
           if (
             !componentData.hasOwnProperty(field) || // The error doesnt exist
             componentData[field] === "" ||         // Is empty
-            componentData[field] === null||
+            componentData[field] === null||      // Is null
             (Array.isArray(componentData[field]) && componentData[field].length === 0)
             // Or is null
           ) {
