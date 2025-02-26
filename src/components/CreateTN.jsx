@@ -1,4 +1,6 @@
+import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
+import { getAccessTokenFromSessionStorage } from "../auxFunc/jwt";
 import convertJsonToYaml from '../auxFunc/yamlHandler';
 import TopNavigator from "./TopNavigator";
 import BerlinRan from "./library/Berlin_ran";
@@ -42,6 +44,8 @@ const CreateTN = () => {
   const [errors, setErrors] = useState({});
   const [Cerrors,SetCerrors] = useState({});
   const [childError,setChildError] = useState({});
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -158,40 +162,41 @@ const CreateTN = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-const validateComps = () => {
-  const requi = getRequiredFields();
-  let newErrors = {}; // Temporal object to store the new errors
 
-  requi.forEach((component) => {
-    const matchedComponent = selectedComponent.find(
-      (comp) => comp.label === component.label &&
-                (componentForms[comp.id]?.name === component.name)
-    );
+  const validateComps = () => {
+    const requi = getRequiredFields();
+    let newErrors = {}; // Temporal object to store the new errors
 
-    if (matchedComponent) {
-      const componentData = componentForms[matchedComponent.id] || {};
+    requi.forEach((component) => {
+      const matchedComponent = selectedComponent.find(
+        (comp) => comp.label === component.label &&
+                  (componentForms[comp.id]?.name === component.name)
+      );
 
-      component.requiredFields.forEach((field) => {
-        if (
-          !componentData.hasOwnProperty(field) || // The error doesnt exist
-          componentData[field] === "" ||         // Is empty
-          componentData[field] === null||
-          (Array.isArray(componentData[field]) && componentData[field].length === 0)
-          // Or is null
-        ) {
-          // Add to new errors
-          if (!newErrors[matchedComponent.id]) {
-            newErrors[matchedComponent.id] = {};
+      if (matchedComponent) {
+        const componentData = componentForms[matchedComponent.id] || {};
+
+        component.requiredFields.forEach((field) => {
+          if (
+            !componentData.hasOwnProperty(field) || // The error doesnt exist
+            componentData[field] === "" ||         // Is empty
+            componentData[field] === null||
+            (Array.isArray(componentData[field]) && componentData[field].length === 0)
+            // Or is null
+          ) {
+            // Add to new errors
+            if (!newErrors[matchedComponent.id]) {
+              newErrors[matchedComponent.id] = {};
+            }
+            newErrors[matchedComponent.id][field] = `The field "${field}" is required for "${component.label}"`;
           }
-          newErrors[matchedComponent.id][field] = `The field "${field}" is required for "${component.label}"`;
-        }
-      });
-    }
-  });
+        });
+      }
+    });
 
-  SetCerrors(newErrors); // Update the errors
-  return Object.keys(newErrors).length === 0;
-};
+    SetCerrors(newErrors); // Update the errors
+    return Object.keys(newErrors).length === 0;
+  };
 
   
   const getRequiredFields = () => {
@@ -348,14 +353,53 @@ const validateComps = () => {
         };
       }),
     };
-    //TODO FIX THE YAML AND SEND THE POST REQUEST
-    convertJsonToYaml(networkData);
-    const fileData = JSON.stringify(networkData, null, 2);
-    const blob = new Blob([fileData], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "trial_network_data.json";
-    link.click();
+    (async () => {
+      // Get the descriptor in YAML format
+      const yamlString = convertJsonToYaml(networkData);
+      
+      // Create the FormData
+      let formData2 = new FormData();
+      const blob2 = new Blob([yamlString], { type: "text/yaml" });
+      formData2.append("descriptor", blob2, "descriptor.yaml");
+  
+      // Build the URL
+      let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${formData.trialNetworkId}
+                  &deployment_site=${formData.deploymentSite}&library_reference_type=${formData.libraryReferenceType}
+                  &library_reference_value=${formData.libraryReferenceValue}&sites_reference_type=${formData.sitesReferenceType}
+                  &sites_reference_value=${formData.sitesReferenceValue}`;
+  
+      const createTrialNetwork = async (formData) => {
+        
+              const access_token = await getAccessTokenFromSessionStorage();
+              const auth = `Bearer ${access_token}`;
+  
+              const response = await axios.post(url, formData, {
+                  headers: {
+                      Authorization: auth,
+                      "Content-Type": "multipart/form-data",
+                  },
+              });
+              return response;
+          
+      };
+      //TODO THE PETITION DOESNT WORK
+      try {
+          await createTrialNetwork(formData2);
+          setSuccess("Trial network deployed successfully");
+          setError("");
+          setTimeout(() => {
+            window.location = "/dashboard";
+            setSuccess("");
+          }, 1502);
+      } catch (error) {
+          setSuccess("");
+          setError("Failed to deploy trial network \n" + error.response.data.message);
+          setTimeout(() => {
+            window.location = "/dashboard";
+            setError("");
+          }, 3002);
+      }
+  })();
   };
   
 
@@ -617,17 +661,23 @@ const validateComps = () => {
           </div>
         ))}
       </div>
-      
-      <div className="p-4 flex justify-center items-center">
+
+     <div className="p-4 flex justify-center items-center">
+      {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
+      {success && <div className="mb-4 text-green-500 text-sm">{success}</div>}
+    </div>
+    
+    <div className="p-4 flex justify-center items-center">
       <button
         type="button"
         className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
         onClick={handleDownload}
       >
-        Download Configuration
+        Create new Trial Network
       </button>
     </div>
-    </div>
+
+  </div>
   );
 };
 
