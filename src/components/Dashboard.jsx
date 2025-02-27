@@ -2,6 +2,7 @@ import { faDesktop, faNetworkWired, faTerminal } from '@fortawesome/free-solid-s
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
 import TerminalModal from './TerminalModal';
 import TopNavigator from './TopNavigator';
@@ -15,6 +16,7 @@ const Dashboard = () => {
   const [alturaRestante, setAlturaRestante] = useState(0); // Height of the table
   const [activeCount, setActiveCount] = useState(0);
   const fileInputRef = useRef(null);
+  const fileInputRef2 = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOptionL, setSelectedOptionL] = useState("");
   const [selectedOptionS, setSelectedOptionS] = useState("")
@@ -23,6 +25,9 @@ const Dashboard = () => {
   const [changingStatesIdS,setChangingStatesIdS] = useState([]);
   const [isModalOpen2, setModalOpen2] = useState(false);
   const [selectedNetworkId, setSelectedNetworkId] = useState(null);
+  const [selectedFile1, setSelectedFile1] = useState(null);
+  const [selectedFile2, setSelectedFile2] = useState(null);
+  const navigate = useNavigate();
 
   const handleOpenLogs = (tn_id) => {
     setSelectedNetworkId(tn_id); // Set the selected network ID
@@ -182,12 +187,26 @@ const Dashboard = () => {
     // Do like a click on the input
     fileInputRef.current.click();
   };
+  const handleButtonClick2 = () => {
+    // Do like a click on the input
+    fileInputRef2.current.click();
+  };
 
   const handleFileChange = (event) => {
     const file = event.target.files[0]; // Get the first file
     if (file) {
-      // Open the modal
+      setSelectedFile1(file);
       setIsModalOpen(true);
+    }
+  };
+
+  const handleFileChange2 = (event) => {
+    const file = event.target.files[0]; // Get the first file
+    if (file) {
+      setSelectedFile2(file);
+      navigate("/dashboard/createTN", {
+        state: { selectedFile2 }, // Pasamos el archivo como parte del estado
+      });
     }
   };
 
@@ -205,7 +224,7 @@ const Dashboard = () => {
     const libraryReferenceValue = document.getElementById("library-reference-value").value;
     const sitesReferenceType = selectedOptionS;
     const sitesReferenceValue = document.getElementById("sites-reference-value").value;
-    const descriptor = fileInputRef.current.files[0];
+    const descriptor = selectedFile1;
     let formData = new FormData();
     const blob = new Blob([descriptor], { type: "text/yaml" });
     formData.append("descriptor", blob, "descriptor.yaml");
@@ -407,12 +426,24 @@ const Dashboard = () => {
                 className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
                 onClick={handleButtonClick}
               >
-                Import new File
+                Create Network via File
               </button>
               <input
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
+                style={{ display: "none" }} // Hide the input
+              />
+              <button
+                className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
+                onClick={handleButtonClick2}
+              >
+                Edit Network via File
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef2}
+                onChange={handleFileChange2}
                 style={{ display: "none" }} // Hide the input
               />
 

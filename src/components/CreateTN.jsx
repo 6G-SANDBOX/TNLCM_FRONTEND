@@ -1,5 +1,6 @@
 import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { getAccessTokenFromSessionStorage } from "../auxFunc/jwt";
 import convertJsonToYaml from '../auxFunc/yamlHandler';
 import TopNavigator from "./TopNavigator";
@@ -47,6 +48,9 @@ const CreateTN = () => {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [userInfo, setUserInfo] = useState(null);
+  const location = useLocation();
+  const defaultValues = location.state?.selectedFile2; // If we are coming here with a file, get it
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -454,8 +458,8 @@ const getUser = async () => {
   })();
   };
   
-
-  const switchComponent = (component, removeComponent, handleComponentFormChange, handleChildError) => {
+  //TODO MANAGE DEFAULT VALUES IN THE CHILDS
+  const switchComponent = (component, removeComponent, handleComponentFormChange, handleChildError, defaultValues) => {
     switch (component.label) {
       case "berlin_ran":
         const lbrOKE=filterOneKEComponents();
@@ -709,7 +713,7 @@ const getUser = async () => {
       <div className="p-4">
         {selectedComponent.map((component) => (
           <div id={component.id}  key={component.id} className="border rounded p-4 mb-4">
-            {switchComponent(component, handleRemoveComponent, handleComponentFormChange, handleChildError)}
+            {switchComponent(component, handleRemoveComponent, handleComponentFormChange, handleChildError, defaultValues)}
           </div>
         ))}
       </div>
