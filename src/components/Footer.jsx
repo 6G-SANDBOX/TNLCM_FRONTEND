@@ -38,7 +38,7 @@ const Footer = () => {
             </div>
           </div>
           <h3 className="text-sm font-medium text-gray-700">Phone</h3>
-          <p className="text-sm text-gray-500">Mon-Fri from 8am to 5pm.</p>
+          <p className="text-sm text-gray-500">Mon-Fri from 8am to 2pm.</p>
           <p className="text-sm text-purple-600">+1 (555) 000-0000</p>
         </div>
       </div>

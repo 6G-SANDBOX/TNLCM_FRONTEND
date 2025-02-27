@@ -552,15 +552,18 @@ const Dashboard = () => {
           <div className="flex space-x-4 mb-4">
             {/* Deploy button */}
             <button
-              className="bg-blue-800 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-blue-500"
+              className={`py-2 px-4 rounded-lg shadow-sm text-white font-semibold
+                bg-gradient-to-r from-green-700 to-yellow-700
+                bg-[position:-30%_0]
+                hover:opacity-80 transition-all duration-600`}
               onClick={handleDeployClick}
             >
-              Deploy Networks
+              Turn On/Off Networks
             </button>
 
             {/* Destroy button*/}
             <button
-              className="bg-yellow-700 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-yellow-500"
+              className="bg-red-700 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-red-500"
               onClick={handleDestroyClick}
             >
               Destroy Networks
@@ -611,7 +614,9 @@ const Dashboard = () => {
                         ? "bg-red-100 text-red-500"
                         : network.state === "validated"
                         ? "bg-blue-100 text-blue-500"
-                        : "bg-green-100 text-green-500",
+                        : network.state === "suspended"
+                        ? "bg-yellow-100 text-yellow-500"
+                        : "bg-green-100 text-green-500", // Other stater=== Activated
                       "py-1 px-3 rounded-full text-xs",
                     ].join(" ")}
                   >

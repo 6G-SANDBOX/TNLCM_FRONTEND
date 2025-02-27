@@ -46,6 +46,7 @@ const CreateTN = () => {
   const [childError,setChildError] = useState({});
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+  const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -63,7 +64,12 @@ const CreateTN = () => {
             console.error("Error doing the fetch:", error);
         }
     };
+    const fetchUserInfo = async () => {
+        const user = await getUser();
+        setUserInfo(user);
+    };
 
+    fetchUserInfo();
     fetchData();
 }, []);
 
@@ -335,6 +341,55 @@ const CreateTN = () => {
     } else{
       return false;
     }
+  }
+
+  // Send the POST request
+const getUser = async () => {
+  try {
+    const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/user`;
+    const access_token = await getAccessTokenFromSessionStorage();
+    const auth = `Bearer ${access_token}`;
+
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: auth,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (err) {
+    console.error("Error while retrieving user info:", err.response?.data?.message || err.message);
+  }
+};
+
+  const handleSave = () => {
+    const networkData = {
+      formData,
+      components: selectedComponent.map((component) => {
+        const componentData = componentForms[component.id] || {};
+  
+        return {
+          label: component.label, // Use label-name format for the download
+          data: componentData,
+        };
+      }),
+    };
+    //Convert the json to yaml
+    const yamlString = convertJsonToYaml(networkData);
+    // Create the blob and download the file
+    const blob = new Blob([yamlString], { type: "text/yaml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `TN-${userInfo.username}.yaml`;
+    document.body.appendChild(a);
+    a.click();
+    // Remove the blob and the element
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      window.location = '/dashboard';
+    }, 100);
   }
 
   const handleDownload = () => {
@@ -664,16 +719,22 @@ const CreateTN = () => {
       {success && <div className="mb-4 text-green-500 text-sm">{success}</div>}
     </div>
     
-    <div className="p-4 flex justify-center items-center">
+    <div className="p-4 flex justify-center items-center space-x-4">
       <button
         type="button"
         className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
         onClick={handleDownload}
       >
-        Create new Trial Network
+        Deploy Network
+      </button>
+      <button
+        type="button"
+        className="bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-500"
+        onClick={handleSave}
+      >
+        Save for later
       </button>
     </div>
-
   </div>
   );
 };
