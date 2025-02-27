@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const BerlinRan = ({ id, removeComponent, onChange, list, list2, whenError }) => {
+const BerlinRan = ({ id, removeComponent, onChange, list, list2, whenError, defaultValues }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});

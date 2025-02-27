@@ -26,7 +26,6 @@ const Dashboard = () => {
   const [isModalOpen2, setModalOpen2] = useState(false);
   const [selectedNetworkId, setSelectedNetworkId] = useState(null);
   const [selectedFile1, setSelectedFile1] = useState(null);
-  const [selectedFile2, setSelectedFile2] = useState(null);
   const navigate = useNavigate();
 
   const handleOpenLogs = (tn_id) => {
@@ -203,9 +202,9 @@ const Dashboard = () => {
   const handleFileChange2 = (event) => {
     const file = event.target.files[0]; // Get the first file
     if (file) {
-      setSelectedFile2(file);
+      //TODO LANZAR ERROR SI NO ES UN FICHERO YAML
       navigate("/dashboard/createTN", {
-        state: { selectedFile2 }, // Pasamos el archivo como parte del estado
+        state: { file }, // Send the file to the next page
       });
     }
   };
