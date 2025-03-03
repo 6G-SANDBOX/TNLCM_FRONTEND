@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const UpfP4Sw = ({ id, removeComponent, onChange, list, whenError }) => {
+const UpfP4Sw = ({ id, removeComponent, onChange, list, whenError, defaultValues, name }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -44,11 +44,17 @@ const UpfP4Sw = ({ id, removeComponent, onChange, list, whenError }) => {
         for (const key in result.component_input) {
           const field = result.component_input[key];
           // No default values if the field is special type
-          if (field.type === 'str' || field.type === 'int' || field.type === 'bool') {
+          if (field.type === "str" || field.type === "int" || field.type === "bool") {
             initialValues[key] = field.default_value || "";
+            if (defaultValues && key in defaultValues){
+              initialValues[key] = defaultValues[key];
+            }
           } else {
             initialValues[key] ="";
             deps.push(key);
+            if (defaultValues && key in defaultValues){
+              initialValues[key] = defaultValues[key];
+            }
           }
           
           if (field.required_when) {
@@ -56,7 +62,7 @@ const UpfP4Sw = ({ id, removeComponent, onChange, list, whenError }) => {
           }
         }
         required.push("name");
-        initialValues['name'] = '';
+        name ? initialValues['name'] = name : initialValues['name'] = '';
         initialValues['required']=required;
         initialValues['dependencies']=deps;
         setFormValues(initialValues);
@@ -68,7 +74,7 @@ const UpfP4Sw = ({ id, removeComponent, onChange, list, whenError }) => {
       }
     };
     loadData();
-  }, [id, onChange]);
+  }, [id, onChange, defaultValues, name]);
 
   useEffect(() => {
       // Make sure that  is an array

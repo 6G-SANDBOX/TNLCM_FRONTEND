@@ -27,7 +27,7 @@ const fetchData = async () => {
 };
 
 //TODO IS SAME AS TN_VXLAN, IN THE FUTURE IT WILL BE NECESSARY TO FIX THIS COMPONENT
-const TnInit = ({ id, removeComponent, onChange, whenError }) => {
+const TnInit = ({ id, removeComponent, onChange, whenError, defaultValues, name }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -48,9 +48,15 @@ const TnInit = ({ id, removeComponent, onChange, whenError }) => {
           // No default values if the field is special type
           if (field.type === "str" || field.type === "int" || field.type === "bool") {
             initialValues[key] = field.default_value || "";
+            if (defaultValues && key in defaultValues){
+              initialValues[key] = defaultValues[key];
+            }
           } else {
             initialValues[key] ="";
             deps.push(key);
+            if (defaultValues && key in defaultValues){
+              initialValues[key] = defaultValues[key];
+            }
           }
           
           if (field.required_when) {
@@ -58,7 +64,7 @@ const TnInit = ({ id, removeComponent, onChange, whenError }) => {
           }
         }
         required.push("name");
-        initialValues['name'] = '';
+        name ? initialValues['name'] = name : initialValues['name'] = '';
         initialValues['required']=required;
         initialValues['dependencies']=deps;
         setFormValues(initialValues);
@@ -70,7 +76,7 @@ const TnInit = ({ id, removeComponent, onChange, whenError }) => {
       }
     };
     loadData();
-  }, [id, onChange]);
+  }, [id, onChange, defaultValues, name]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;

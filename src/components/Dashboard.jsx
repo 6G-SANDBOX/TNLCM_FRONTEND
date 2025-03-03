@@ -202,12 +202,21 @@ const Dashboard = () => {
   const handleFileChange2 = (event) => {
     const file = event.target.files[0]; // Get the first file
     if (file) {
-      //TODO LANZAR ERROR SI NO ES UN FICHERO YAML
+      //Check the file is a YAML
+      const validExtensions = ["application/x-yaml", "text/yaml", "text/x-yaml", "application/yaml"];
+      const fileExtension = file.name.split(".").pop().toLowerCase();
+  
+      if (!validExtensions.includes(file.type) && fileExtension !== "yaml") {
+        alert("Error: Only allowed YAML files (.yaml)");
+        return;
+      }
+  
       navigate("/dashboard/createTN", {
         state: { file }, // Send the file to the next page
       });
     }
   };
+  
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -235,7 +244,7 @@ const Dashboard = () => {
       try {
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
-  
+        // TODO THE PETITION DOESNT WORK
         const response = await axios.post(url, formData, {
           headers: {
             Authorization: auth,

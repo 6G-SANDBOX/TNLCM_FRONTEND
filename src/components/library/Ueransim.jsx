@@ -25,7 +25,7 @@ const fetchData = async () => {
   }
   return null;
 };
-const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenError }) => {
+const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenError, defaultValues, name }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -46,9 +46,15 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
           // No default values if the field is special type
           if (field.type === "str" || field.type === "int" || field.type === "bool") {
             initialValues[key] = field.default_value || "";
+            if (defaultValues && key in defaultValues){
+              initialValues[key] = defaultValues[key];
+            }
           } else {
             initialValues[key] ="";
             deps.push(key);
+            if (defaultValues && key in defaultValues){
+              initialValues[key] = defaultValues[key];
+            }
           }
           
           if (field.required_when) {
@@ -56,7 +62,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
           }
         }
         required.push("name");
-        initialValues['name'] = '';
+        name ? initialValues['name'] = name : initialValues['name'] = '';
         initialValues['required']=required;
         initialValues['dependencies']=deps;
         setFormValues(initialValues);
@@ -70,7 +76,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       }
     };
     loadData();
-  }, [id, onChange]);
+  }, [id, onChange, defaultValues, name]);
 
   useEffect(() => {
     // Make sure that "one_ueransim_networks" is an array

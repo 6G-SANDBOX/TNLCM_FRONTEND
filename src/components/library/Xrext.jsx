@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const Xrext = ({ id, removeComponent, onChange,list }) => {
+const Xrext = ({ id, removeComponent, onChange, list, defaultValues, name }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -47,9 +47,15 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
           // No default values if the field is special type
           if (field.type === "str" || field.type === "int" || field.type === "bool") {
             initialValues[key] = field.default_value || "";
+            if (defaultValues && key in defaultValues){
+              initialValues[key] = defaultValues[key];
+            }
           } else {
             initialValues[key] ="";
             deps.push(key);
+            if (defaultValues && key in defaultValues){
+              initialValues[key] = defaultValues[key];
+            }
           }
           
           if (field.required_when) {
@@ -57,7 +63,7 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
           }
         }
         required.push("name");
-        initialValues['name'] = '';
+        name ? initialValues['name'] = name : initialValues['name'] = '';
         initialValues['required']=required;
         initialValues['dependencies']=deps;
         setFormValues(initialValues);
@@ -69,7 +75,7 @@ const Xrext = ({ id, removeComponent, onChange,list }) => {
       }
     };
     loadData();
-  }, [id, onChange]);
+  }, [id, onChange, defaultValues, name]);
 
   useEffect(() => {
         // Make sure that "one_xrext_networks" is an array

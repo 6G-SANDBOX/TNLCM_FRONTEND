@@ -27,7 +27,7 @@ const fetchData = async () => {
   return null;
 };
 
-const Elcm = ({ id, removeComponent, onChange }) => {
+const Elcm = ({ id, removeComponent, onChange, defaultValues, name }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -48,9 +48,15 @@ const Elcm = ({ id, removeComponent, onChange }) => {
           // No default values if the field is special type
           if (field.type === "str" || field.type === "int" || field.type === "bool") {
             initialValues[key] = field.default_value || "";
+            if (defaultValues && key in defaultValues){
+              initialValues[key] = defaultValues[key];
+            }
           } else {
             initialValues[key] ="";
             deps.push(key);
+            if (defaultValues && key in defaultValues){
+              initialValues[key] = defaultValues[key];
+            }
           }
           
           if (field.required_when) {
@@ -58,7 +64,7 @@ const Elcm = ({ id, removeComponent, onChange }) => {
           }
         }
         required.push("name");
-        initialValues['name'] = '';
+        name ? initialValues['name'] = name : initialValues['name'] = '';
         initialValues['required']=required;
         initialValues['dependencies']=deps;
         
@@ -72,7 +78,7 @@ const Elcm = ({ id, removeComponent, onChange }) => {
       }
     };
     loadData();
-  }, [id, onChange]);
+  }, [id, onChange, defaultValues, name]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;

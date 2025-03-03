@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-const BerlinRan = ({ id, removeComponent, onChange, list, list2, whenError, defaultValues }) => {
+const BerlinRan = ({ id, removeComponent, onChange, list, list2, whenError, defaultValues, name }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -43,13 +43,19 @@ const BerlinRan = ({ id, removeComponent, onChange, list, list2, whenError, defa
         const initialValues = {};
         for (const key in result.component_input) {
           const field = result.component_input[key];
-          
+
           // No default values if the field is special type
           if (field.type === "str" || field.type === "int" || field.type === "bool") {
             initialValues[key] = field.default_value || "";
+            if (defaultValues && key in defaultValues){
+              initialValues[key] = defaultValues[key];
+            }
           } else {
             initialValues[key] ="";
             deps.push(key);
+            if (defaultValues && key in defaultValues){
+              initialValues[key] = defaultValues[key];
+            }
           }
           
           if (field.required_when) {
@@ -57,7 +63,7 @@ const BerlinRan = ({ id, removeComponent, onChange, list, list2, whenError, defa
           }
         }
         required.push("name");
-        initialValues['name'] = '';
+        name ? initialValues['name'] = name : initialValues['name'] = '';
         initialValues['required']=required;
         initialValues['dependencies']=deps;
         setFormValues(initialValues);
@@ -69,7 +75,7 @@ const BerlinRan = ({ id, removeComponent, onChange, list, list2, whenError, defa
       }
     };
     loadData();
-  }, [id, onChange]);
+  }, [id, onChange, defaultValues, name]);
 
   // Make sure the list of oneKEs is updated before updating the form value
   const prevListRef = useRef();

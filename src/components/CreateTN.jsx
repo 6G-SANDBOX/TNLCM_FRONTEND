@@ -53,7 +53,6 @@ const CreateTN = () => {
   const defaultValues = location.state?.file; // If we are coming here with a file, get it
 
   useEffect(() => {
-    //TODO FETCH TWICE IDK WHY
     const fetchData = async () => {
         const urlBase =process.env.REACT_APP_ENDPOINT;
         const endpoint = "/tnlcm/library/components/";
@@ -79,8 +78,6 @@ const CreateTN = () => {
         const yamlContent = reader.result;
         try {
           const parsedData = yaml.load(yamlContent); // Parse to YAML object
-  
-          console.log(parsedData); // See YAML
         
           // Open each component
           Object.keys(parsedData.trial_network).forEach((key) => {
@@ -89,8 +86,8 @@ const CreateTN = () => {
               id: `${component.type}-${new Date().getTime()}`,
               label: component.type,
               defaultValues: component.input,
+              name: component.name
             };
-            console.log(component);
             setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
             setComponentForms((prevForms) => ({
               ...prevForms,
@@ -378,7 +375,7 @@ const CreateTN = () => {
     }
   }
 
-  // Send the POST request
+  // Send the get request
 const getUser = async () => {
   try {
     const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/user`;
@@ -456,7 +453,7 @@ const getUser = async () => {
       let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${formData.trialNetworkId}&deployment_site=${formData.deploymentSite}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&sites_reference_type=${formData.sitesReferenceType}&sites_reference_value=${formData.sitesReferenceValue}`;
   
       const createTrialNetwork = async (formData) => {
-        
+               //TODO THE PETITION DOESNT WORK
               const access_token = await getAccessTokenFromSessionStorage();
               const auth = `Bearer ${access_token}`;
   
@@ -469,7 +466,6 @@ const getUser = async () => {
               return response;
           
       };
-      //TODO THE PETITION DOESNT WORK
       try {
           await createTrialNetwork(formData2);
           setSuccess("Trial network deployed successfully");
@@ -489,90 +485,90 @@ const getUser = async () => {
   })();
   };
   
-  //TODO MANAGE DEFAULT VALUES IN THE CHILDS
   const switchComponent = (component, removeComponent, handleComponentFormChange, handleChildError) => {
     switch (component.label) {
       case "berlin_ran":
         const lbrOKE=filterOneKEComponents();
         const lbrO5=filterO5All();
-        return <BerlinRan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lbrOKE} list2={lbrO5} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <BerlinRan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lbrOKE} list2={lbrO5} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "elcm":
-        return <Elcm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} defaultValues={component.defaultValues}/>;
+        return <Elcm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} defaultValues={component.defaultValues} name={component.name}/>;
       case "iswireless_radio":
         const lIswrO5=filterO5gsVMorK8SComponents();
-        return <IswirelessRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lIswrO5} whenError={handleChildError} defaultValues={component.defaultValues}/>
+        return <IswirelessRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lIswrO5} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>
       case "ixc_endpoint":
         const lIxeTNV=filterVnetOrTnVxlanComponents();
-        return <IxcEndpoint id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lIxeTNV} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <IxcEndpoint id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lIxeTNV} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "ks8500_runner":
         const listKS8 =filterVnetOrTnVxlanComponents();
-        return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listKS8} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listKS8} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "loadcore_agent":
         const listLCA= filterVnetOrTnVxlanComponents();
-        return <LoadcoreAgent id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listLCA} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <LoadcoreAgent id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listLCA} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "nokia_radio":
         const listNokia=filterO5gsVMorK8SComponents();
-        return <NokiaRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listNokia} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <NokiaRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listNokia} whenError={handleChildError} defaultValues={component.defaultValues }name={component.name}/>;
       case "ocf":
         const listOCF=filterOneKEComponents();
-        return <Ocf id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOCF} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <Ocf id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOCF} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "oneKE":
         const listO1=filterVnetOrTnVxlanComponents();
         const listO2=filterVnetComponents();
-        return <OneKe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO1} list2={listO2} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <OneKe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO1} list2={listO2} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "open5gcore_vm":
         const listO5C1=filterVnetOrTnVxlanComponents();
         const listO5C2=filterVnetComponents();
-        return <Open5gcoreVM id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO5C1} list2={listO5C2} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <Open5gcoreVM id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO5C1} list2={listO5C2} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "open5gs_k8s":
         const listO5K1=filterOneKEComponents();
-        return <Open5gsK8S id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listO5K1} whenError={handleChildError} defaultValues={component.defaultValues}/>
+        return <Open5gsK8S id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listO5K1} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>
       case "open5gs_vm":
         const listO5SVM=filterVnetOrTnVxlanComponents();
-        return <Open5gcoreVM id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO5SVM} list2={listO5SVM} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <Open5gcoreVM id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO5SVM} list2={listO5SVM} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "opensand_gw":
         const listOGW=filterVnetOrTnVxlanComponents();
-        return <OpensandGw id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOGW} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <OpensandGw id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOGW} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "opensand_sat":
         const listOSAT=filterVnetOrTnVxlanComponents();
-        return <OpensandSat id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOSAT} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <OpensandSat id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOSAT} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "opensand_st":
         const listOST=filterVnetOrTnVxlanComponents();
-        return <OpensandSt id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOST} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <OpensandSt id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOST} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "stf_ue":
-        return <StfUe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <StfUe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "tn_bastion":
-        return <TnBastion id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <TnBastion id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "tn_init":
-        return <TnInit id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <TnInit id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "tn_vxlan":
-        return <TnVxlan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <TnVxlan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "tsn":
-        return <Tsn id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <Tsn id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "ueransim":
         const listUE1=filterVnetOrTnVxlanComponents();
         const listUE2=filterOpen5GsComponents();
         const listUE3=filterUeransimComponents();
-        return <Ueransim id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listUE1} list2={listUE2} list3={listUE3} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <Ueransim id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listUE1} list2={listUE2} list3={listUE3} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "upf_p4_sw":
         const listUPF=filterVnetOrTnVxlanComponents();
-        return <UpfP4Sw id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listUPF} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <UpfP4Sw id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listUPF} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "vm_kvm":
         const listVK=filterVnetOrTnVxlanComponents();
-        return <VmKvm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listVK} defaultValues={component.defaultValues}/>;
+        return <VmKvm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listVK} defaultValues={component.defaultValues} name={component.name}/>;
       case "vnet":
-        return <Vnet id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues}/>;
+        return <Vnet id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "xrext":
         const listXR=filterVnetOrTnVxlanComponents();
-        return <Xrext id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listXR} defaultValues={component.defaultValues}/>;
+        return <Xrext id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listXR} defaultValues={component.defaultValues} name={component.name}/>;
       default:
-        return <NvoModal component={component} removeComponent={removeComponent} defaultValues={component.defaultValues}/>;
+        return <NvoModal component={component} removeComponent={removeComponent} defaultValues={component.defaultValues} name={component.name}/>;
     }
   };
 
   return (
     <div className="bg-white font-sans">
       <TopNavigator />
+      {/* TODO SHOW A GRAFPH WITH THE CHILDS AND THEIRS DEPENDENCIES */}
       <div className="flex flex-col lg:flex-row p-4">
         <div className="lg:w-1/2 space-y-4 justify-center p-4">
           <div>
