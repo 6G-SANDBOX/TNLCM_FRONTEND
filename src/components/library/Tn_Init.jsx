@@ -26,7 +26,7 @@ const fetchData = async () => {
   return null;
 };
 
-//TODO IS SAME AS TN_VXLAN, IN THE FUTURE IT WILL BE NECESSARY TO FIX THIS COMPONENT
+// IS SAME AS TN_VXLAN, IN THE FUTURE IT WILL BE NECESSARY TO FIX THIS COMPONENT
 const TnInit = ({ id, removeComponent, onChange, whenError, defaultValues, name }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
