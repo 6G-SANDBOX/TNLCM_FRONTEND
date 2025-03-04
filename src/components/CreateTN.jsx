@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { getAccessTokenFromSessionStorage } from "../auxFunc/jwt";
 import convertJsonToYaml from '../auxFunc/yamlHandler';
+import CircleGraph from "./CircleGraph";
 import TopNavigator from "./TopNavigator";
 import BerlinRan from "./library/Berlin_ran";
 import Elcm from "./library/Elcm";
@@ -51,6 +52,30 @@ const CreateTN = () => {
   const [userInfo, setUserInfo] = useState(null);
   const location = useLocation();
   const defaultValues = location.state?.file; // If we are coming here with a file, get it
+  //TODO DEFINE THE DATA FOR THE GRAPH
+  const yourData = {
+    name: "Root",
+    children: [
+      {
+        name: "Root",
+        value: 100,
+        children: [
+          {
+            name: "Child 1",
+            value: 40,
+            children: []
+          },
+          {
+            name: "Child 2",
+            value: 60,
+            children: []
+          }
+        ]
+      }
+      
+    ]
+  };
+  
 
   useEffect(() => {
     const fetchData = async () => {
@@ -424,7 +449,7 @@ const getUser = async () => {
     }, 100);
   }
 
-  const handleDownload = () => {
+  const handleSubmit = () => {
     if (validateFields()) {
       return;
     }
@@ -464,7 +489,6 @@ const getUser = async () => {
                   },
               });
               return response;
-          
       };
       try {
           await createTrialNetwork(formData2);
@@ -568,7 +592,10 @@ const getUser = async () => {
   return (
     <div className="bg-white font-sans">
       <TopNavigator />
-      {/* TODO SHOW A GRAFPH WITH THE CHILDS AND THEIRS DEPENDENCIES */}
+      {/* TODO when the data is ok uncomment */}
+      <div className="flex justify-center">
+        <CircleGraph data={yourData} />
+      </div>
       <div className="flex flex-col lg:flex-row p-4">
         <div className="lg:w-1/2 space-y-4 justify-center p-4">
           <div>
@@ -754,7 +781,7 @@ const getUser = async () => {
       <button
         type="button"
         className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
-        onClick={handleDownload}
+        onClick={handleSubmit}
       >
         Deploy Network
       </button>
