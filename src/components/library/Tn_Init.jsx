@@ -9,6 +9,9 @@ const fetchData = async () => {
   if (access_token) {
     const url = process.env.REACT_APP_ENDPOINT;
     const bearerJwt = `Bearer ${access_token}`;
+    
+    const delay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
+    await new Promise(resolve => setTimeout(resolve, delay));
 
     try {
       const response = await axios.get(`${url}/tnlcm/library/components/tn_init`, {
@@ -25,6 +28,7 @@ const fetchData = async () => {
   }
   return null;
 };
+
 
 // IS SAME AS TN_VXLAN, IN THE FUTURE IT WILL BE NECESSARY TO FIX THIS COMPONENT
 const TnInit = ({ id, removeComponent, onChange, whenError, defaultValues, name }) => {
@@ -59,7 +63,7 @@ const TnInit = ({ id, removeComponent, onChange, whenError, defaultValues, name 
             }
           }
           
-          if (field.required_when) {
+          if (field.required_when === true) {
             required.push(key);
           }
         }

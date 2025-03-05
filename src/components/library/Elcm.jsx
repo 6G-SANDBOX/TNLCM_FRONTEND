@@ -11,6 +11,9 @@ const fetchData = async () => {
     const url = process.env.REACT_APP_ENDPOINT;
     const bearerJwt = `Bearer ${access_token}`;
 
+    const delay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
+    await new Promise(resolve => setTimeout(resolve, delay));
+    
     try {
       const response = await axios.get(`${url}/tnlcm/library/components/elcm`, {
         headers: {
@@ -59,7 +62,7 @@ const Elcm = ({ id, removeComponent, onChange, defaultValues, name }) => {
             }
           }
           
-          if (field.required_when) {
+          if (field.required_when === true) {
             required.push(key);
           }
         }

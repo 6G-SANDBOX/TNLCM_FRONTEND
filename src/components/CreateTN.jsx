@@ -495,12 +495,10 @@ const getUser = async () => {
       let formData2 = new FormData();
       const blob2 = new Blob([yamlString], { type: "text/yaml" });
       formData2.append("descriptor", blob2, "descriptor.yaml");
-      console.log(yamlString);
       // Build the URL
       let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${formData.trialNetworkId}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&deployment_site=${formData.deploymentSite}`;
   
       const createTrialNetwork = async (formData) => {
-               //TODO THE PETITION DOESNT WORK
               const access_token = await getAccessTokenFromSessionStorage();
               const auth = `Bearer ${access_token}`;
   
@@ -524,10 +522,9 @@ const getUser = async () => {
           setSuccess("");
           setError("Failed to deploy trial network \n" + error.response.data.message);
           setTimeout(() => {
-            //TODO
-            // window.location = "/dashboard";
-            //setError("");
-          }, 3002);
+             window.location = "/dashboard";
+            setError("");
+          }, 5002);
       }
   })();
   };
