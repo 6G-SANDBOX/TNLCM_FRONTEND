@@ -84,7 +84,7 @@ const ProfileModal = ({ isOpen, onClose, userInfo }) => {
 // Send the POST request to change the password
 const changePwd = async (newPwd, mail) => {
   try {
-    const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/user/change-password`;
+    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/user/change-password`;
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
     const payload = {
@@ -106,7 +106,7 @@ const changePwd = async (newPwd, mail) => {
 // Send the POST request
 const getUser = async () => {
   try {
-    const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/user`;
+    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/user`;
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
 

@@ -18,7 +18,7 @@ const TerminalModal = ({ isOpen, onClose, vmId }) => {
     try {
       const access_token = await getAccessTokenFromSessionStorage();
       const response = await axios.get(
-        `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-networks/${vmId}.log`,
+        `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-networks/${vmId}.log`,
         {
           headers: {
             Authorization: `Bearer ${access_token}`,

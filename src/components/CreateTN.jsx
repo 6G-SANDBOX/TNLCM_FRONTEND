@@ -81,7 +81,7 @@ const CreateTN = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-        const urlBase =process.env.REACT_APP_ENDPOINT;
+        const urlBase =process.env.REACT_APP_TNLCM_BACKEND_API;
         const endpoint = "/tnlcm/library/components/";
 
         try {
@@ -423,7 +423,7 @@ const CreateTN = () => {
   // Send the get request
 const getUser = async () => {
   try {
-    const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/user`;
+    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/user`;
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
 
@@ -496,7 +496,7 @@ const getUser = async () => {
       const blob2 = new Blob([yamlString], { type: "text/yaml" });
       formData2.append("descriptor", blob2, "descriptor.yaml");
       // Build the URL
-      let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${formData.trialNetworkId}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&deployment_site=${formData.deploymentSite}`;
+      let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network?tn_id=${formData.trialNetworkId}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&deployment_site=${formData.deploymentSite}`;
   
       const createTrialNetwork = async (formData) => {
               const access_token = await getAccessTokenFromSessionStorage();

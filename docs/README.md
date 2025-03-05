@@ -14,13 +14,13 @@
 
   [![TNLCM_FRONTEND][tnlcm-frontend-badge]][tnlcm-frontend-url]
 
-  [Report error](https://github.com/6G-SANDBOX/TNLCM_FRONTEND/issues/new?assignees=&labels=&projects=&template=bug_report.md) · [Feature request](https://github.com/6G-SANDBOX/TNLCM_FRONTEND/issues/new?assignees=&labels=&projects=&template=feature_request.md)
+  [Documentation](https://6g-sandbox.github.io/docs/category/tnlcm) • [Report Error](https://github.com/6G-SANDBOX/TNLCM_FRONTEND/issues/new?assignees=&labels=&projects=&template=bug_report.md) • [Feature Request](https://github.com/6G-SANDBOX/TNLCM_FRONTEND/issues/new?assignees=&labels=&projects=&template=feature_request.md) 
+
 </div>
 
-TNLCM frontend is a web application tailored for use by the platform owners and, as such, will provide information and functionality for handling all the Trial Networks in the corresponding platform. To achieve this, the frontend makes use of the APIs exposed by the TNLCM. Other frontends, for example, a simplified one tailored for Experimenters or Trial Network owners can be developed by making use of the same APIs, either by an external developer or by the 6G-SANDBOX consortium.
+## :brain: About
 
-> [!NOTE]
-> TNLCM frontend is under development and is subject to continuous changes.
+TNLCM frontend is a web application tailored for use by the platform owners and, as such, will provide information and functionality for handling all the Trial Networks in the corresponding platform. To achieve this, the frontend makes use of the APIs exposed by the TNLCM. Other frontends, for example, a simplified one tailored for Experimenters or Trial Network owners can be developed by making use of the same APIs, either by an external developer or by the 6G-SANDBOX consortium.
 
 <details>
 <summary>Table of Contents</summary>
@@ -39,8 +39,8 @@ TNLCM frontend is a web application tailored for use by the platform owners and,
 > 
 > | Repository | Release                                                                |
 > | ---------- | ---------------------------------------------------------------------- |
-> | 6G-Library | [v0.3.1](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.3.1) |
-> | TNLCM      | [v0.4.4](https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.4.4)      |
+> | 6G-Library | [v0.4.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.4.0) |
+> | TNLCM      | [v0.4.5](https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.4.5)      |
 
 ### :inbox_tray: Download or clone repository
 
@@ -57,7 +57,7 @@ git clone https://github.com/6G-SANDBOX/TNLCM_FRONTEND.git
 Create a `.env` file at the root level, using the structure and content provided in the [`.env.template`](../.env.template) file.
 
 Mandatory update the value of the variable according on the platform:
-- `REACT_APP_ENDPOINT`
+- `REACT_APP_TNLCM_BACKEND_API`
 
 ### :file_folder: Add node_modules folder
 
@@ -73,7 +73,7 @@ To start TNLCM frontend:
 npm run dev
 ```
 
-Frontend will be available at http://tnlcm-frontend-ip:3000
+Frontend will be available at http://localhost:3000
 
 ## :hammer_and_wrench: Stack
 
@@ -89,8 +89,8 @@ Frontend will be available at http://tnlcm-frontend-ip:3000
 <p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
-[tnlcm-frontend-badge]: https://img.shields.io/badge/TNLCM_FRONTEND-v0.1.0-blue
-[tnlcm-frontend-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/releases/tag/v0.1.0
+[tnlcm-frontend-badge]: https://img.shields.io/github/v/release/6G-SANDBOX/TNLCM_FRONTEND?label=TNLCM_FRONTEND&color=blue
+[tnlcm-frontend-url]: https://github.com/6G-SANDBOX/TNLCM_FRONTEND/releases/latest
 [nodejs-badge]: https://img.shields.io/badge/Node.js-22.12.0-green?style=for-the-badge&logo=node.js&logoColor=white
 [nodejs-url]: https://nodejs.org/en
 [react-badge]: https://img.shields.io/badge/React-18.3.1-black?style=for-the-badge&logo=react&logoColor=white

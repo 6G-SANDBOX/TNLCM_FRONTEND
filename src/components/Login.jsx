@@ -156,7 +156,7 @@ export async function loginUser(username, password, config = {}) {
   const basicAuthHeader = `Basic ${encodedAuth}`;
 
   try {
-    const url = process.env.REACT_APP_ENDPOINT;
+    const url = process.env.REACT_APP_TNLCM_BACKEND_API;
     // Make the POST request to the login endpoint
     const response = await axios.post(
       `${url}/tnlcm/user/login`,

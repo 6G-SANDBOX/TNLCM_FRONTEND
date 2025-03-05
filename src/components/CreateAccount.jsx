@@ -1,10 +1,10 @@
 import {
-  faArrowRight,
-  faBuilding,
-  faEnvelope,
-  faLock,
-  faTimes,
-  faUser,
+    faArrowRight,
+    faBuilding,
+    faEnvelope,
+    faLock,
+    faTimes,
+    faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
@@ -20,7 +20,7 @@ import React, { useState } from "react";
   
     const handleSubmit = async (e) => {
       e.preventDefault();
-      const url =process.env.REACT_APP_ENDPOINT;
+      const url =process.env.REACT_APP_TNLCM_BACKEND_API;
       // Password validation
       const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/; // At least one uppercase, one lowercase, and one number
       if (password !== confirmPassword) {

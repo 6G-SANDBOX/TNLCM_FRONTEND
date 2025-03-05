@@ -58,7 +58,7 @@ const Dashboard = () => {
   
       // Generate the PURGE requests for each ID
       const deleteRequests = validIds.map(async (id) => {
-        const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/purge/${id}`;
+        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/purge/${id}`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
   
@@ -93,7 +93,7 @@ const Dashboard = () => {
       
       selectedIds.forEach((id) => {
         const network = data.trial_networks.find((network) => network.tn_id === id);
-        if (network && (network.state === "activated")) {
+        if (network && ((network.state === "activated") || (network.state === "failed"))) {
           validIds.push(id);
         } else {
           invalidIds.push(id);
@@ -102,7 +102,7 @@ const Dashboard = () => {
 
       // Show an alert if there are invalid IDs
       if (invalidIds.length > 0) {
-        alert(`Can not destroy the nexts TNs becouse their state is not "activated": ${invalidIds.join(", ")}`);
+        alert(`Can not destroy the nexts TNs becouse their state is not "activated" or "failed": ${invalidIds.join(", ")}`);
       }
 
       // Set the states before making the requests
@@ -111,7 +111,7 @@ const Dashboard = () => {
   
       // Make a DELETE request for each ID
       const deleteRequests = validIds.map(async (id) => {
-        const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/${id}`;
+        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/${id}`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
   
@@ -143,7 +143,7 @@ const Dashboard = () => {
   
       // Create a PUT request for each ID
       const promises = selectedIds.map(async (id) => {
-        const url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/${id}`;
+        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/${id}`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
   
@@ -234,7 +234,7 @@ const Dashboard = () => {
     const blob = new Blob([descriptor], { type: "text/yaml" });
     formData.append("descriptor", blob, "descriptor.yaml");
   
-    let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${trialNetworkId}&deployment_site=${deploymentSite}&library_reference_type=${libraryReferenceType}&library_reference_value=${libraryReferenceValue}`;
+    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network?tn_id=${trialNetworkId}&deployment_site=${deploymentSite}&library_reference_type=${libraryReferenceType}&library_reference_value=${libraryReferenceValue}`;
   
     // Send the POST request
     const createTrialNetwork = async (formData) => {
@@ -276,7 +276,7 @@ const Dashboard = () => {
       try {
         const access_token = await getAccessTokenFromSessionStorage();
         if (access_token) {
-          const url = process.env.REACT_APP_ENDPOINT;
+          const url = process.env.REACT_APP_TNLCM_BACKEND_API;
           const bearerJwt = `Bearer ${access_token}`;
   
           const response = await axios.get(`${url}/tnlcm/trial-networks`, {

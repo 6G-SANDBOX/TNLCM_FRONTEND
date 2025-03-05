@@ -35,7 +35,7 @@ async function setAccessTokenUsingRefreshToken() {
   }
 
   try {
-    const url =process.env.REACT_APP_ENDPOINT;
+    const url =process.env.REACT_APP_TNLCM_BACKEND_API;
     const response = await axios.post(
       `${url}/tnlcm/user/refresh`,
       {},

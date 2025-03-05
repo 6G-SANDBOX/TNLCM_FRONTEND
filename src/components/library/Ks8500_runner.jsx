@@ -7,7 +7,7 @@ import { getAccessTokenFromSessionStorage } from "../../auxFunc/jwt.js";
 const fetchData = async () => {
   const access_token = await getAccessTokenFromSessionStorage();
   if (access_token) {
-    const url = process.env.REACT_APP_ENDPOINT;
+    const url = process.env.REACT_APP_TNLCM_BACKEND_API;
     const bearerJwt = `Bearer ${access_token}`;
 
     const delay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
