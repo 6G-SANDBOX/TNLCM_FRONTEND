@@ -19,29 +19,32 @@ const CircleGraph = ({ data }) => {
       .size([width, height])
       .padding(3);
 
-    const root = pack(d3.hierarchy(data).sum(d => d.value || 1));
+      const root = pack(d3.hierarchy(data).sum(() => 1));
+
 
     const svg = d3.select(svgRef.current)
       .attr("viewBox", `-${width / 2} -${height / 2} ${width} ${height}`)
       .attr("width", width)
       .attr("height", height)
-      .attr("style", `max-width: 100%; height: auto; display: block; background: none; cursor: pointer;`);
+      .attr("style", `max-width: 100%; height: auto; display: block; background: white; cursor: pointer;`);
 
     svg.selectAll("*").remove(); // Clean up before rendering
 
     const g = svg.append("g");
 
     const node = g.selectAll("circle")
-      .data(root.descendants().slice(1))
+      .data(root.descendants())
       .join("circle")
       .attr("fill", d => d.children ? color(d.depth) : "white")  // TODO CHANGE TO A PHOTO?
       .attr("pointer-events", d => !d.children ? "none" : null)
+      .attr("stroke", "#050")
       .on("mouseover", function() { d3.select(this).attr("stroke", "#000"); })
       .on("mouseout", function() { d3.select(this).attr("stroke", null); })
       .on("click", (event, d) => focus !== d && (zoom(event, d), event.stopPropagation()));
 
-    const label = g.append("g")
+      const label = g.append("g")
       .style("font", "10px sans-serif")
+      .style("font-weight", "bold")
       .attr("pointer-events", "none")
       .attr("text-anchor", "middle")
       .selectAll("text")
@@ -50,6 +53,7 @@ const CircleGraph = ({ data }) => {
       .style("fill-opacity", d => d.parent === root ? 1 : 0)
       .style("display", d => d.parent === root ? "inline" : "none")
       .text(d => d.data.name);
+    
 
     let focus = root;
     let view;

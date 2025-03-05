@@ -19,7 +19,6 @@ const Dashboard = () => {
   const fileInputRef2 = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOptionL, setSelectedOptionL] = useState("");
-  const [selectedOptionS, setSelectedOptionS] = useState("")
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [changingStatesIdS,setChangingStatesIdS] = useState([]);
@@ -230,14 +229,12 @@ const Dashboard = () => {
     const deploymentSite = document.getElementById("deployment-site").value;
     const libraryReferenceType = selectedOptionL;
     const libraryReferenceValue = document.getElementById("library-reference-value").value;
-    const sitesReferenceType = selectedOptionS;
-    const sitesReferenceValue = document.getElementById("sites-reference-value").value;
     const descriptor = selectedFile1;
     let formData = new FormData();
     const blob = new Blob([descriptor], { type: "text/yaml" });
     formData.append("descriptor", blob, "descriptor.yaml");
   
-    let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${trialNetworkId}&deployment_site=${deploymentSite}&library_reference_type=${libraryReferenceType}&library_reference_value=${libraryReferenceValue}&sites_reference_type=${sitesReferenceType}&sites_reference_value=${sitesReferenceValue}`;
+    let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${trialNetworkId}&deployment_site=${deploymentSite}&library_reference_type=${libraryReferenceType}&library_reference_value=${libraryReferenceValue}`;
   
     // Send the POST request
     const createTrialNetwork = async (formData) => {
@@ -270,7 +267,6 @@ const Dashboard = () => {
   
 
   const handleChangeL = (e) => setSelectedOptionL(e.target.value);
-  const handleChangeS = (e) => setSelectedOptionS(e.target.value);
 
 
   useEffect(() => {
@@ -519,40 +515,6 @@ const Dashboard = () => {
                       className="w-full border border-gray-300 rounded-md p-2 mt-1"
                     />
                   </div>
-
-                  {/* Sites Reference Type */}
-                  <div>
-                    <label htmlFor="sites-reference-type" className="block text-gray-700 font-medium">
-                      SITES REFERENCE TYPE
-                    </label>
-                    <select
-                      id="sites-reference-type"
-                      className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                      value={selectedOptionS}
-                      onChange={handleChangeS}
-                    >
-                      <option value="" disabled>
-                        -- Select an option --
-                      </option>
-                      <option value="branch">branch</option>
-                      <option value="commit">commit</option>
-                      <option value="tag">tag</option>
-                    </select>
-                  </div>
-
-                  {/* Sites Reference Value */}
-                  <div>
-                    <label htmlFor="sites-reference-value" className="block text-gray-700 font-medium">
-                      SITES REFERENCE VALUE
-                    </label>
-                    <input
-                      id="sites-reference-value"
-                      type="text"
-                      placeholder="github_6g_library_reference_value"
-                      className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                    />
-                  </div>
-                  
                   {/* Buttons div */}
                   <div className='flex justify-between mt-4'>
                     {/* Submit Modal Button */}

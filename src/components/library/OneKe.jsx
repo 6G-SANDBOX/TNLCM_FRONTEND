@@ -46,7 +46,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError, default
           
           // No default values if the field is special type
           if (field.type === "str" || field.type === "int" || field.type === "bool") {
-            initialValues[key] = field.default_value || "";
+            initialValues[key] = field.default_value ;
             if (defaultValues && key in defaultValues){
               initialValues[key] = defaultValues[key];
             }
@@ -402,9 +402,9 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError, default
                     onChange={(event) => handleChange({ target: { name: key, value: event.target.value === "true" } })}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   >
-                    <option disabled value="">Select true or false</option>
-                    <option value="true">True</option>
-                    <option value="false">False</option>
+                    <option disabled value="False">Select true or false</option>
+                    <option value="True">True</option>
+                    <option value="False">False</option>
                   </select>
                 ) : (
                   <input

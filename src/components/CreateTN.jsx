@@ -39,8 +39,6 @@ const CreateTN = () => {
     deploymentSite: "",
     libraryReferenceType: "",
     libraryReferenceValue: "",
-    sitesReferenceType: "",
-    sitesReferenceValue: "",
   });
   const [allComp, setAllComp] = useState([]);
   const [componentForms, setComponentForms] = useState({});
@@ -54,24 +52,28 @@ const CreateTN = () => {
   const defaultValues = location.state?.file; // If we are coming here with a file, get it
   //TODO DEFINE THE DATA FOR THE GRAPH
   const yourData = {
-    name: "Root",
+    name: "Trial Network",
     children: [
       {
-        name: "Root",
-        value: 100,
+        name: "Main component 1",
         children: [
           {
-            name: "Child 1",
-            value: 40,
+            name: "Connected to MC1",
             children: []
           },
           {
-            name: "Child 2",
+            name: "Also connected to MC1",
             value: 60,
-            children: []
+            children: [{
+              name: "Connected to a children",
+              children: []
+            }]
           }
         ]
-      }
+      },
+      {
+        name: "MC 2",
+      },
       
     ]
   };
@@ -138,7 +140,12 @@ const CreateTN = () => {
     // Return a list in format "label-name" or just "name"
     return filteredComponents.map((component) => {
       const componentForm = componentForms[component.id] || {};
-      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
+      if (component.label.toLowerCase().includes('tn_init')) {
+        return 'tn_vxlan';
+      }else{
+        return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
+      }
+      
     });
   }, [selectedComponent, componentForms]);
   
@@ -166,9 +173,10 @@ const CreateTN = () => {
     });
   }, [selectedComponent, componentForms]);
 
-  const filterOpen5GsComponents = useCallback(() => {
+  const filterOpen5GsAndUPFComponents = useCallback(() => {
     const filteredComponents = selectedComponent.filter((component) =>
-      component.label.toLowerCase().includes('open5gs')
+      component.label.toLowerCase().includes('open5gs_vm') || component.label.toLowerCase().includes('open5gs_k8s') ||
+      component.label.toLowerCase().includes("open5gcore_vm") || component.label.toLowerCase().includes("upf_p4_sw")
     );
   
     // Return a list in format "label-name" or just "name"
@@ -284,8 +292,17 @@ const CreateTN = () => {
 
   const handleComponentClick = (label) => {
     // Define the components that should only have one instance
-    const restrictedComponents = ["tn_bastion", "tn_init", "tn_vxlan", "tsn"];
-
+    const restrictedComponents = ["tn_bastion", "tn_vxlan", "tsn","tn_init"];
+    
+    // Check if 'tn_init' is already selected, and if the user is trying to add a restricted component
+    const isTnInitSelected = selectedComponent.some((component) => component.label === "tn_init");
+    
+    // If 'tn_init' is selected, prevent adding 'tn_bastion' or 'tn_vxlan'
+    if (isTnInitSelected && (label === "tn_bastion" || label === "tn_vxlan")) {
+      alert(`You cannot add ${label} because tn_init is already selected.`);
+      return;
+    }
+  
     // Check if the clicked component is in the restricted list and if it's already selected
     if (restrictedComponents.includes(label)) {
       const isAlreadySelected = selectedComponent.some((component) => component.label === label);
@@ -295,18 +312,21 @@ const CreateTN = () => {
         return;
       }
     }
-
+  
+    // Add the new component
     const newComponent = {
       id: `${label}-${new Date().getTime()}`,
       label: label,
     };
-
+  
+    // Update the selected components and forms
     setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
     setComponentForms((prevForms) => ({
       ...prevForms,
       [newComponent.id]: {},
     }));
   };
+  
 
   const handleRemoveComponent = (id) => {
     setSelectedComponent((prevSelected) => prevSelected.filter((component) => component.id !== id));
@@ -432,7 +452,8 @@ const getUser = async () => {
       }),
     };
     //Convert the json to yaml
-    const yamlString = convertJsonToYaml(networkData);
+    const tnInit= selectedComponent.some((component) => component.label === "tn_init");
+    const yamlString = convertJsonToYaml(networkData,tnInit);
     // Create the blob and download the file
     const blob = new Blob([yamlString], { type: "text/yaml" });
     const url = URL.createObjectURL(blob);
@@ -467,15 +488,16 @@ const getUser = async () => {
     };
     (async () => {
       // Get the descriptor in YAML format
-      const yamlString = convertJsonToYaml(networkData);
+      const tnInit= selectedComponent.some((component) => component.label === "tn_init");
+      const yamlString = convertJsonToYaml(networkData,tnInit);
       
       // Create the FormData
       let formData2 = new FormData();
       const blob2 = new Blob([yamlString], { type: "text/yaml" });
       formData2.append("descriptor", blob2, "descriptor.yaml");
-  
+      console.log(yamlString);
       // Build the URL
-      let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${formData.trialNetworkId}&deployment_site=${formData.deploymentSite}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&sites_reference_type=${formData.sitesReferenceType}&sites_reference_value=${formData.sitesReferenceValue}`;
+      let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network?tn_id=${formData.trialNetworkId}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&deployment_site=${formData.deploymentSite}`;
   
       const createTrialNetwork = async (formData) => {
                //TODO THE PETITION DOESNT WORK
@@ -502,8 +524,9 @@ const getUser = async () => {
           setSuccess("");
           setError("Failed to deploy trial network \n" + error.response.data.message);
           setTimeout(() => {
-            window.location = "/dashboard";
-            setError("");
+            //TODO
+            // window.location = "/dashboard";
+            //setError("");
           }, 3002);
       }
   })();
@@ -570,7 +593,7 @@ const getUser = async () => {
         return <Tsn id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "ueransim":
         const listUE1=filterVnetOrTnVxlanComponents();
-        const listUE2=filterOpen5GsComponents();
+        const listUE2=filterOpen5GsAndUPFComponents();
         const listUE3=filterUeransimComponents();
         return <Ueransim id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listUE1} list2={listUE2} list3={listUE3} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name}/>;
       case "upf_p4_sw":
@@ -592,7 +615,7 @@ const getUser = async () => {
   return (
     <div className="bg-white font-sans">
       <TopNavigator />
-      {/* TODO when the data is ok uncomment */}
+      {/* TODO fix the data */}
       <div className="flex justify-center">
         <CircleGraph data={yourData} />
       </div>
@@ -626,11 +649,11 @@ const getUser = async () => {
               onChange={handleInputChange}
             >
               <option value="" disabled>--Select a site--</option>
-              <option value="UMA">UMA</option>
-              <option value="ATHENS">ATHENS</option>
-              <option value="BERLIN">BERLIN</option>
-              <option value="OULU">OULU</option>
-              <option value="FOKUS">FOKUS</option>
+              <option value="uma">UMA</option>
+              <option value="athens">ATHENS</option>
+              <option value="fokus">FOKUS</option>
+              <option value="uma">OULU</option>
+              <option value="uma_test">UMA_TEST</option>
             </select>
             {errors.deploymentSite && <p className="text-red-500 text-sm mt-1">{errors.deploymentSite}</p>}
           </div>
@@ -668,41 +691,6 @@ const getUser = async () => {
               onChange={handleInputChange}
             />
             {errors.libraryReferenceValue && <p className="text-red-500 text-sm mt-1">{errors.libraryReferenceValue}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="sites-reference-type" className="block text-gray-700 font-medium">
-              SITES REFERENCE TYPE
-            </label>
-            <select
-              id="sites-reference-type"
-              name="sitesReferenceType"
-              className={`w-full border p-2 mt-1 rounded-md ${errors.sitesReferenceType ? "border-red-500" : "border-gray-300"}`}
-              value={formData.sitesReferenceType}
-              onChange={handleInputChange}
-            >
-              <option value="" disabled>-- Select an option --</option>
-              <option value="branch">branch</option>
-              <option value="commit">commit</option>
-              <option value="tag">tag</option>
-            </select>
-            {errors.sitesReferenceType && <p className="text-red-500 text-sm mt-1">{errors.sitesReferenceType}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="sites-reference-value" className="block text-gray-700 font-medium">
-              SITES REFERENCE VALUE
-            </label>
-            <input
-              id="sites-reference-value"
-              name="sitesReferenceValue"
-              type="text"
-              placeholder="sites_reference_value"
-              className={`w-full border p-2 mt-1 rounded-md ${errors.sitesReferenceValue ? "border-red-500" : "border-gray-300"}`}
-              value={formData.sitesReferenceValue}
-              onChange={handleInputChange}
-            />
-            {errors.sitesReferenceValue && <p className="text-red-500 text-sm mt-1">{errors.sitesReferenceValue}</p>}
           </div>
         </div>
 

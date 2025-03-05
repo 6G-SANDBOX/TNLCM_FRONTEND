@@ -62,8 +62,6 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError, defaultValues, name
             required.push(key);
           }
         }
-        required.push("name");
-        name ? initialValues['name'] = name : initialValues['name'] = '';
         initialValues['required']=required;
         initialValues['dependencies']=deps;
         setFormValues(initialValues);

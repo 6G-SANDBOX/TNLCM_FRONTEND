@@ -62,8 +62,6 @@ const TnBastion = ({ id, removeComponent, onChange, whenError, defaultValues, na
             required.push(key);
           }
         }
-        required.push("name");
-        name ? initialValues['name'] = name : initialValues['name'] = '';
         initialValues['required']=required;
         initialValues['dependencies']=deps;
         setFormValues(initialValues);
@@ -197,24 +195,7 @@ const TnBastion = ({ id, removeComponent, onChange, whenError, defaultValues, na
 
       <div className="mt-8 bg-white shadow-md rounded-lg p-6">
         <form>
-          {/* Additional field 'name' */}
-          <div className="mb-4">
-            <label htmlFor="name" className="block text-gray-700 font-semibold">
-              Name:
-            </label>
-            <input
-              type="text"
-              id={`name-${id}`}
-              name="name"
-              value={formValues.name || ""}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-md p-2 mt-1"
-            />
-            {errorMessages.name && (
-              <small className="block mt-1 text-red-500">{errorMessages.name}</small>
-            )}
-          </div>
-
+    
           {Object.keys(data).map((key) => {
             const field = data[key];
             return (
