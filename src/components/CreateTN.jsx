@@ -1,10 +1,8 @@
-import axios from "axios";
 import yaml from 'js-yaml';
 import React, { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { getAccessTokenFromSessionStorage } from "../auxFunc/jwt";
+import { createTrialNetwork, getComponents, getDeployments, getLibraryTypes, getLibraryValues, getSites, getUser } from "../auxFunc/api";
 import convertJsonToYaml from '../auxFunc/yamlHandler';
-import CircleGraph from "./CircleGraph";
 import TopNavigator from "./TopNavigator";
 import BerlinRan from "./library/Berlin_ran";
 import Elcm from "./library/Elcm";
@@ -39,6 +37,8 @@ const CreateTN = () => {
     deploymentSite: "",
     libraryReferenceType: "",
     libraryReferenceValue: "",
+    sitesReferenceType: "",
+    sitesReferenceValue: "",
   });
   const [allComp, setAllComp] = useState([]);
   const [componentForms, setComponentForms] = useState({});
@@ -48,44 +48,23 @@ const CreateTN = () => {
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
   const [userInfo, setUserInfo] = useState(null);
+  const [sites, setSites] = useState([]);
+  const [deployement, setDeployement] = useState([]);
+  const [libraryTypes, setLibraryTypes] = useState([]);
+  const [libraryValues, setLibraryValues] = useState([]);
   const location = useLocation();
   const defaultValues = location.state?.file; // If we are coming here with a file, get it
   //TODO DEFINE THE DATA FOR THE GRAPH
-  const yourData = {
-    name: "Trial Network",
-    children: [
-      {
-        name: "Main component 1",
-        children: [
-          {
-            name: "Connected to MC1",
-            children: []
-          },
-          {
-            name: "Also connected to MC1",
-            value: 60,
-            children: [{
-              name: "Connected to a children",
-              children: []
-            }]
-          }
-        ]
-      },
-      {
-        name: "MC 2",
-      },
-      
-    ]
-  };
-  
 
   useEffect(() => {
     const fetchData = async () => {
-        const urlBase =process.env.REACT_APP_TNLCM_BACKEND_API;
-        const endpoint = "/tnlcm/library/components/";
 
         try {
-            const response = await fetch(`${urlBase}${endpoint}`);
+          if (!formData.libraryReferenceType || !formData.libraryReferenceValue) {
+            setAllComp([]);
+            return;
+          }
+            const response = await getComponents(formData.libraryReferenceType, formData.libraryReferenceValue);
             if (!response.ok) {
                 throw new Error(`Error while retrieving all components: ${response.status}`);
             }
@@ -98,6 +77,24 @@ const CreateTN = () => {
     const fetchUserInfo = async () => {
         const user = await getUser();
         setUserInfo(user);
+    };
+    const fetchSites = async () => {
+      const sites2 = await getSites();
+      setSites(sites2.sites);
+    };
+    const fetchDeplo= async () => {
+      const deplo = await getDeployments(formData.sitesReferenceValue);
+      setDeployement(deplo);
+    };
+    const fetchLibTypes = async () => {
+      const response = await getLibraryTypes();
+      const values= Object.values(response)[0] || []
+      setLibraryTypes(values);
+    };
+    const fetchLibValues = async () => {
+      const response = await getLibraryValues(formData.libraryReferenceType);
+      const values= Object.values(response)[0] || []
+      setLibraryValues(values);
     };
     if (defaultValues){
       const reader = new FileReader();
@@ -130,7 +127,11 @@ const CreateTN = () => {
     }
     fetchUserInfo();
     fetchData();
-}, [defaultValues,]);
+    if (formData.sitesReferenceType)fetchSites();
+    fetchLibTypes();
+    if (formData.sitesReferenceValue) fetchDeplo();
+    if (formData.libraryReferenceType) fetchLibValues();
+}, [defaultValues,formData]);
 
   const filterVnetOrTnVxlanComponents = useCallback(() => {
     const filteredComponents = selectedComponent.filter((component) =>
@@ -420,24 +421,7 @@ const CreateTN = () => {
     }
   }
 
-  // Send the get request
-const getUser = async () => {
-  try {
-    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/user`;
-    const access_token = await getAccessTokenFromSessionStorage();
-    const auth = `Bearer ${access_token}`;
 
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: auth,
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  } catch (err) {
-    console.error("Error while retrieving user info:", err.response?.data?.message || err.message);
-  }
-};
 
   const handleSave = () => {
     const networkData = {
@@ -496,28 +480,16 @@ const getUser = async () => {
       const blob2 = new Blob([yamlString], { type: "text/yaml" });
       formData2.append("descriptor", blob2, "descriptor.yaml");
       // Build the URL
-      let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network?tn_id=${formData.trialNetworkId}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&deployment_site=${formData.deploymentSite}`;
-  
-      const createTrialNetwork = async (formData) => {
-              const access_token = await getAccessTokenFromSessionStorage();
-              const auth = `Bearer ${access_token}`;
-  
-              const response = await axios.post(url, formData, {
-                  headers: {
-                      Authorization: auth,
-                      "Content-Type": "multipart/form-data",
-                  },
-              });
-              return response;
-      };
+      
       try {
-          await createTrialNetwork(formData2);
+          let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/create-validate?tn_id=${formData.trialNetworkId}&deployment_site=${formData.deploymentSite}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&sites_reference_type=${formData.sitesReferenceType}&sites_reference_value=${formData.sitesReferenceValue}`
+          await createTrialNetwork(formData2,url);
           setSuccess("Trial network deployed successfully");
           setError("");
           setTimeout(() => {
             window.location = "/dashboard";
             setSuccess("");
-          }, 1502);
+          }, 2502);
       } catch (error) {
           setSuccess("");
           setError("Failed to deploy trial network \n" + error.response.data.message);
@@ -612,10 +584,6 @@ const getUser = async () => {
   return (
     <div className="bg-white font-sans">
       <TopNavigator />
-      {/* TODO fix the data */}
-      <div className="flex justify-center">
-        <CircleGraph data={yourData} />
-      </div>
       <div className="flex flex-col lg:flex-row p-4">
         <div className="lg:w-1/2 space-y-4 justify-center p-4">
           <div>
@@ -635,27 +603,6 @@ const getUser = async () => {
           </div>
 
           <div>
-            <label htmlFor="deployment-site" className="block text-gray-700 font-medium">
-              DEPLOYMENT SITE
-            </label>
-            <select
-              id="deployment-site"
-              name="deploymentSite"
-              className={`w-full border p-2 mt-1 rounded-md ${errors.deploymentSite ? "border-red-500" : "border-gray-300"}`}
-              value={formData.deploymentSite}
-              onChange={handleInputChange}
-            >
-              <option value="" disabled>--Select a site--</option>
-              <option value="uma">UMA</option>
-              <option value="athens">ATHENS</option>
-              <option value="fokus">FOKUS</option>
-              <option value="uma">OULU</option>
-              <option value="uma_test">UMA_TEST</option>
-            </select>
-            {errors.deploymentSite && <p className="text-red-500 text-sm mt-1">{errors.deploymentSite}</p>}
-          </div>
-
-          <div>
             <label htmlFor="library-reference-type" className="block text-gray-700 font-medium">
               LIBRARY REFERENCE TYPE
             </label>
@@ -666,10 +613,12 @@ const getUser = async () => {
               value={formData.libraryReferenceType}
               onChange={handleInputChange}
             >
-              <option value="" disabled>-- Select an option --</option>
-              <option value="branch">branch</option>
-              <option value="commit">commit</option>
-              <option value="tag">tag</option>
+              <option value="" disabled>--Select a site--</option>
+              {libraryTypes && Object.entries(libraryTypes).map(([key, value], index) => (
+                <option key={index} value={value}>
+                  {value}
+                </option>
+              ))}
             </select>
             {errors.libraryReferenceType && <p className="text-red-500 text-sm mt-1">{errors.libraryReferenceType}</p>}
           </div>
@@ -678,19 +627,85 @@ const getUser = async () => {
             <label htmlFor="library-reference-value" className="block text-gray-700 font-medium">
               LIBRARY REFERENCE VALUE
             </label>
-            <input
+            <select
               id="library-reference-value"
               name="libraryReferenceValue"
-              type="text"
-              placeholder="library_reference_value"
               className={`w-full border p-2 mt-1 rounded-md ${errors.libraryReferenceValue ? "border-red-500" : "border-gray-300"}`}
               value={formData.libraryReferenceValue}
               onChange={handleInputChange}
-            />
+            >
+              <option value=""   disabled>--Select a site--</option>
+              {libraryValues && Object.entries(libraryValues).map(([key, value], index) => (
+                <option key={index} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
             {errors.libraryReferenceValue && <p className="text-red-500 text-sm mt-1">{errors.libraryReferenceValue}</p>}
           </div>
-        </div>
 
+          <div>
+            <label htmlFor="sites-reference-type" className="block text-gray-700 font-medium">
+              SITES REFERENCE TYPE
+            </label>
+            <select
+              id="sites-reference-type"
+              name="sitesReferenceType"
+              className={`w-full border p-2 mt-1 rounded-md ${errors.sitesReferenceType ? "border-red-500" : "border-gray-300"}`}
+              value={formData.sitesReferenceType}
+              onChange={handleInputChange}
+            >
+              <option value=""   disabled>-- Select an option --</option>
+              <option value="branch">branch</option>
+            </select>
+            {errors.sitesReferenceType && <p className="text-red-500 text-sm mt-1">{errors.sitesReferenceType}</p>}
+          </div>
+
+          <div>
+            <label htmlFor="sites-reference-value" className="block text-gray-700 font-medium">
+              SITES REFERENCE VALUE
+            </label>
+            <select
+              id="sites-reference-value"
+              name="sitesReferenceValue"
+              type="text"
+              className={`w-full border p-2 mt-1 rounded-md ${errors.sitesReferenceValue ? "border-red-500" : "border-gray-300"}`}
+              value={formData.sitesReferenceValue}
+              onChange={handleInputChange}
+            >
+              <option value=""  disabled>--Select a site--</option>
+              {sites && Object.entries(sites).map(([key, value], index) => (
+                <option key={index} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+            {errors.sitesReferenceValue && <p className="text-red-500 text-sm mt-1">{errors.sitesReferenceValue}</p>}
+          </div>
+
+
+          <div>
+            <label htmlFor="deployment-site" className="block text-gray-700 font-medium">
+              DEPLOYMENT SITE
+            </label>
+            <select
+              id="deployment-site"
+              name="deploymentSite"
+              className={`w-full border p-2 mt-1 rounded-md ${errors.deploymentSite ? "border-red-500" : "border-gray-300"}`}
+              value={formData.deploymentSite}
+              onChange={handleInputChange}
+            >
+              <option value=""  disabled>--Select a site--</option>
+              {deployement && Object.entries(deployement).map(([key, value], index) => (
+                <option key={index} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+            {errors.deploymentSite && <p className="text-red-500 text-sm mt-1">{errors.deploymentSite}</p>}
+          </div>
+        </div>
+        
         <div className="lg:w-1/2 grid grid-cols-4 gap-4 mt-8 lg:mt-0">
           {allComp.map((label, index) => (
             <button

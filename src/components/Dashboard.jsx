@@ -1,8 +1,8 @@
 import { faDesktop, faNetworkWired, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import axios from 'axios';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from "react-router-dom";
+import { createTrialNetwork, deleteTN, getTrialNetworks, purgeTN, putTN } from '../auxFunc/api';
 import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
 import TerminalModal from './TerminalModal';
 import TopNavigator from './TopNavigator';
@@ -57,22 +57,12 @@ const Dashboard = () => {
       setChangingStatesIdS((prevState) => [...prevState, ...validIds]);
   
       // Generate the PURGE requests for each ID
-      const deleteRequests = validIds.map(async (id) => {
-        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/purge/${id}`;
-        const access_token = await getAccessTokenFromSessionStorage();
-        const auth = `Bearer ${access_token}`;
-  
-        // Make the PURGE request
-        return axios.delete(url, {
-          headers: {
-            Authorization: auth,
-            "Content-Type": "application/json",
-          },
-        });
+      const purgeRequest = validIds.map(async (id) => {
+        return await purgeTN(id);
       });
   
       // Make all with Promise.allSettled
-       await Promise.allSettled(deleteRequests);
+       await Promise.allSettled(purgeRequest);
   
       // Set the state after all requests are completed
       setChangingStatesIdS((prevState) => prevState.filter((id) => !validIds.includes(id)));
@@ -111,17 +101,7 @@ const Dashboard = () => {
   
       // Make a DELETE request for each ID
       const deleteRequests = validIds.map(async (id) => {
-        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/${id}`;
-        const access_token = await getAccessTokenFromSessionStorage();
-        const auth = `Bearer ${access_token}`;
-  
-        // Make the DELETE request
-        await axios.delete(url, {
-          headers: {
-            Authorization: auth,
-            "Content-Type": "application/json",
-          },
-        });
+        await deleteTN(id);
       });
   
       // Wait for all requests to complete
@@ -143,19 +123,9 @@ const Dashboard = () => {
   
       // Create a PUT request for each ID
       const promises = selectedIds.map(async (id) => {
-        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/${id}`;
-        const access_token = await getAccessTokenFromSessionStorage();
-        const auth = `Bearer ${access_token}`;
-  
         // Make the PUT request
         try {
-          await axios.put(url, {}, {
-            headers: {
-              Authorization: auth,
-              "Content-Type": "application/json",
-            },
-          });
-  
+          await putTN(id);
           // After the request is completed, update the state
           setChangingStatesIdS((prevState) => prevState.filter((item) => item !== id));
           return { id, status: 'success' };
@@ -234,21 +204,12 @@ const Dashboard = () => {
     const blob = new Blob([descriptor], { type: "text/yaml" });
     formData.append("descriptor", blob, "descriptor.yaml");
   
-    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network?tn_id=${trialNetworkId}&deployment_site=${deploymentSite}&library_reference_type=${libraryReferenceType}&library_reference_value=${libraryReferenceValue}`;
+    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/create-validate?tn_id=${trialNetworkId}&deployment_site=${deploymentSite}&library_reference_type=${libraryReferenceType}&library_reference_value=${libraryReferenceValue}`;
   
     // Send the POST request
-    const createTrialNetwork = async (formData) => {
+    const cTN = async (formData) => {
       try {
-        const access_token = await getAccessTokenFromSessionStorage();
-        const auth = `Bearer ${access_token}`;
-        // TODO THE PETITION DOESNT WORK
-        const response = await axios.post(url, formData, {
-          headers: {
-            Authorization: auth,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-        return response;
+        return await createTrialNetwork(formData,url);
       } catch (err) {
         console.error("Error while creating trial network:", err.response.data.message);
         alert("Failed to fetch data \n" + err.response.data.message);
@@ -256,7 +217,7 @@ const Dashboard = () => {
     };
   
     try {
-      await createTrialNetwork(formData);
+      await cTN(formData);
     } catch (error) {
     alert("Failed to create trial network \n" + error.response.data.message);
     }
@@ -276,15 +237,9 @@ const Dashboard = () => {
       try {
         const access_token = await getAccessTokenFromSessionStorage();
         if (access_token) {
-          const url = process.env.REACT_APP_TNLCM_BACKEND_API;
-          const bearerJwt = `Bearer ${access_token}`;
+          
   
-          const response = await axios.get(`${url}/tnlcm/trial-networks`, {
-            headers: {
-              Authorization: bearerJwt,
-              "Content-Type": "application/json",
-            },
-          });
+          const response = await getTrialNetworks();
   
           setData(response.data);
   
