@@ -66,15 +66,13 @@ export const putTN = async (id) => {
 }
 
 export const getComponents= async (type, value) => {
+    //Need to be delayed due to the backend
+    const delay = Math.floor(Math.random() * 4000) + 1000;
+    await new Promise(resolve => setTimeout(resolve, delay));
+
     let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/library/${type}/${value}`
     const response = await fetch(url);
     return response || {components : []};
-}
-
-export const getComponent= async (type, value,name) => {
-    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/library/${type}/${value}/${name}`
-    const response = await fetch(url);
-    return response || null;
 }
 
 export const getUser = async () => {
@@ -170,3 +168,28 @@ export const getLibraryValues = async (type) => {
         return {libraryTypes : []};
       }
 }
+
+export const getComponent = async (type, value,name) => {
+    
+  const delay = Math.floor(Math.random() * 4000) + 1000;
+  await new Promise(resolve => setTimeout(resolve, delay));
+  const access_token = await getAccessTokenFromSessionStorage();
+  if (access_token) {
+    const url = process.env.REACT_APP_TNLCM_BACKEND_API;
+    const bearerJwt = `Bearer ${access_token}`;
+    
+    try {
+      const response = await axios.get(`${url}/tnlcm/library/${type}/${value}/${name}`, {
+        headers: {
+          Authorization: bearerJwt,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      alert(`Error fetching data for ${name}:`, error);
+      return null;
+    }
+  }
+  return null;
+};

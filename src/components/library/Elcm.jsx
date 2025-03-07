@@ -1,36 +1,8 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { getAccessTokenFromSessionStorage } from "../../auxFunc/jwt.js";
 
-// Function to fetch data from the API
-const fetchData = async () => {
-  const access_token = await getAccessTokenFromSessionStorage();
-  if (access_token) {
-    const url = process.env.REACT_APP_TNLCM_BACKEND_API;
-    const bearerJwt = `Bearer ${access_token}`;
-
-    const delay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
-    await new Promise(resolve => setTimeout(resolve, delay));
-    
-    try {
-      const response = await axios.get(`${url}/tnlcm/library/components/elcm`, {
-        headers: {
-          Authorization: bearerJwt,
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data;
-    } catch (error) {
-      alert(`Error fetching data for elcm:`, error);
-      return null;
-    }
-  }
-  return null;
-};
-
-const Elcm = ({ id, removeComponent, onChange, defaultValues, name }) => {
+const Elcm = ({ id, removeComponent, onChange, defaultValues, name, request }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -38,7 +10,7 @@ const Elcm = ({ id, removeComponent, onChange, defaultValues, name }) => {
   // UseEffect to fetch data from the API
   useEffect(() => {
     const loadData = async () => {
-      const result = await fetchData();
+      const result = await request;
       if (result) {
         setData(result.component_input);
         const required = [];
@@ -81,7 +53,7 @@ const Elcm = ({ id, removeComponent, onChange, defaultValues, name }) => {
       }
     };
     loadData();
-  }, [id, onChange, defaultValues, name]);
+  }, [id, onChange, defaultValues, name, request]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;

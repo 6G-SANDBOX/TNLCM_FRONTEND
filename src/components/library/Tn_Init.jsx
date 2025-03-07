@@ -1,37 +1,9 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { getAccessTokenFromSessionStorage } from "../../auxFunc/jwt.js";
-
-const fetchData = async () => {
-  const access_token = await getAccessTokenFromSessionStorage();
-  if (access_token) {
-    const url = process.env.REACT_APP_TNLCM_BACKEND_API;
-    const bearerJwt = `Bearer ${access_token}`;
-    
-    const delay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
-    await new Promise(resolve => setTimeout(resolve, delay));
-
-    try {
-      const response = await axios.get(`${url}/tnlcm/library/components/tn_init`, {
-        headers: {
-          Authorization: bearerJwt,
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data;
-    } catch (error) {
-      alert(`Error trying to get data for tn_init:`, error);
-      return null;
-    }
-  }
-  return null;
-};
-
 
 // IS SAME AS TN_VXLAN, IN THE FUTURE IT WILL BE NECESSARY TO FIX THIS COMPONENT
-const TnInit = ({ id, removeComponent, onChange, whenError, defaultValues, name }) => {
+const TnInit = ({ id, removeComponent, onChange, whenError, defaultValues, name, request }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -39,7 +11,7 @@ const TnInit = ({ id, removeComponent, onChange, whenError, defaultValues, name 
 
   useEffect(() => {
     const loadData = async () => {
-      const result = await fetchData();
+      const result = await request;
       if (result) {
         setData(result.component_input);
         const required = [];  // Array to store the required fields
@@ -78,7 +50,7 @@ const TnInit = ({ id, removeComponent, onChange, whenError, defaultValues, name 
       }
     };
     loadData();
-  }, [id, onChange, defaultValues, name]);
+  }, [id, onChange, defaultValues, name, request]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;

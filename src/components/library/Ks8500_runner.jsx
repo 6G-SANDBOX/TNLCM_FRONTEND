@@ -1,35 +1,8 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { getAccessTokenFromSessionStorage } from "../../auxFunc/jwt.js";
 
-const fetchData = async () => {
-  const access_token = await getAccessTokenFromSessionStorage();
-  if (access_token) {
-    const url = process.env.REACT_APP_TNLCM_BACKEND_API;
-    const bearerJwt = `Bearer ${access_token}`;
-
-    const delay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
-    await new Promise(resolve => setTimeout(resolve, delay));
-    
-    try {
-      const response = await axios.get(`${url}/tnlcm/library/components/ks8500_runner`, {
-        headers: {
-          Authorization: bearerJwt,
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data;
-    } catch (error) {
-      alert(`Error fetching data for ks8500_runner:`, error);
-      return null;
-    }
-  }
-  return null;
-};
-
-const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError, defaultValues, name }) => {
+const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError, defaultValues, name, request }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -37,7 +10,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError, defaultV
 
   useEffect(() => {
     const loadData = async () => {
-      const result = await fetchData();
+      const result = await request;
       if (result) {
         setData(result.component_input);
         const required = [];
@@ -78,7 +51,7 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError, defaultV
       }
     };
     loadData();
-  }, [id, onChange, defaultValues, name]);
+  }, [id, onChange, defaultValues, name, request]);
 
   useEffect(() => {
     // Make sure that "one_ks8500runner_networks" is an array

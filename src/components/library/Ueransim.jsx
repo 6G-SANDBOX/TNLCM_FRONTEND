@@ -1,34 +1,8 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import { getAccessTokenFromSessionStorage } from "../../auxFunc/jwt.js";
 
-const fetchData = async () => {
-  const access_token = await getAccessTokenFromSessionStorage();
-  if (access_token) {
-    const url = process.env.REACT_APP_TNLCM_BACKEND_API;
-    const bearerJwt = `Bearer ${access_token}`;
-
-    const delay = Math.floor(Math.random() * (5000 - 1000 + 1)) + 1000;
-    await new Promise(resolve => setTimeout(resolve, delay));
-    
-    try {
-      const response = await axios.get(`${url}/tnlcm/library/components/ueransim`, {
-        headers: {
-          Authorization: bearerJwt,
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data;
-    } catch (error) {
-      alert(`Error fetching data for ueransim:`, error);
-      return null;
-    }
-  }
-  return null;
-};
-const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenError, defaultValues, name }) => {
+const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenError, defaultValues, name, request }) => {
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
@@ -36,7 +10,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
 
   useEffect(() => {
     const loadData = async () => {
-      const result = await fetchData();
+      const result = await request;
       if (result) {
         setData(result.component_input);
         const required = [];  // Array to store the required fields
@@ -79,7 +53,7 @@ const Ueransim = ({ id, removeComponent, onChange, list1, list2, list3, whenErro
       }
     };
     loadData();
-  }, [id, onChange, defaultValues, name]);
+  }, [id, onChange, defaultValues, name, request]);
 
   useEffect(() => {
     // Make sure that "one_ueransim_networks" is an array
