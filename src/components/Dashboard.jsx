@@ -2,7 +2,7 @@ import { faDesktop, faNetworkWired, faTerminal } from '@fortawesome/free-solid-s
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from "react-router-dom";
-import { createTrialNetwork, deleteTN, getTrialNetworks, purgeTN, putTN } from '../auxFunc/api';
+import { deleteTN, getTrialNetworks, purgeTN, putTN } from '../auxFunc/api';
 import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
 import TerminalModal from './TerminalModal';
 import TopNavigator from './TopNavigator';
@@ -15,16 +15,11 @@ const Dashboard = () => {
   const [itemsPerPage] = useState(8); // Nuember of items per page
   const [alturaRestante, setAlturaRestante] = useState(0); // Height of the table
   const [activeCount, setActiveCount] = useState(0);
-  const fileInputRef = useRef(null);
   const fileInputRef2 = useRef(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedOptionL, setSelectedOptionL] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [changingStatesIdS,setChangingStatesIdS] = useState([]);
   const [isModalOpen2, setModalOpen2] = useState(false);
   const [selectedNetworkId, setSelectedNetworkId] = useState(null);
-  const [selectedFile1, setSelectedFile1] = useState(null);
   const navigate = useNavigate();
 
   const handleOpenLogs = (tn_id) => {
@@ -71,9 +66,6 @@ const Dashboard = () => {
       alert("Error while purging:", error);
     }
   };
-  
-  
-  
 
   const handleDestroyClick = async () => {
     try {
@@ -114,7 +106,6 @@ const Dashboard = () => {
     }
   };
   
-
   const handleDeployClick = async () => {
     try {
       // Set the states before making the requests
@@ -141,8 +132,6 @@ const Dashboard = () => {
     }
   };
   
-  
-
   const handleCheckboxChange = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id)
@@ -151,22 +140,11 @@ const Dashboard = () => {
     );
   };
 
-  const handleButtonClick = () => {
-    // Do like a click on the input
-    fileInputRef.current.click();
-  };
   const handleButtonClick2 = () => {
     // Do like a click on the input
     fileInputRef2.current.click();
   };
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0]; // Get the first file
-    if (file) {
-      setSelectedFile1(file);
-      setIsModalOpen(true);
-    }
-  };
 
   const handleFileChange2 = (event) => {
     const file = event.target.files[0]; // Get the first file
@@ -185,50 +163,6 @@ const Dashboard = () => {
       });
     }
   };
-  
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    
-  };
-
-  const handleSubmitModal = async (event) => {
-    setIsLoading(true); // Show the loading spinner
-    // Get the values from the form
-    const trialNetworkId = document.getElementById("trial-network-id").value;
-    const deploymentSite = document.getElementById("deployment-site").value;
-    const libraryReferenceType = selectedOptionL;
-    const libraryReferenceValue = document.getElementById("library-reference-value").value;
-    const descriptor = selectedFile1;
-    let formData = new FormData();
-    const blob = new Blob([descriptor], { type: "text/yaml" });
-    formData.append("descriptor", blob, "descriptor.yaml");
-  
-    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/create-validate?tn_id=${trialNetworkId}&deployment_site=${deploymentSite}&library_reference_type=${libraryReferenceType}&library_reference_value=${libraryReferenceValue}`;
-  
-    // Send the POST request
-    const cTN = async (formData) => {
-      try {
-        return await createTrialNetwork(formData,url);
-      } catch (err) {
-        console.error("Error while creating trial network:", err.response.data.message);
-        alert("Failed to fetch data \n" + err.response.data.message);
-      }
-    };
-  
-    try {
-      await cTN(formData);
-    } catch (error) {
-    alert("Failed to create trial network \n" + error.response.data.message);
-    }
-    event.target.value = "";
-    setIsModalOpen(false);
-    setIsLoading(false);
-  };
-  
-
-  const handleChangeL = (e) => setSelectedOptionL(e.target.value);
-
 
   useEffect(() => {
     let timeoutId; // Store the ID of the timeout
@@ -276,9 +210,6 @@ const Dashboard = () => {
       clearTimeout(timeoutId);
     };
   }, []);
-  
-  
-  
 
   useLayoutEffect(() => {
     const updateAlturaRestante = () => {
@@ -383,18 +314,6 @@ const Dashboard = () => {
               </button>
               <button
                 className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
-                onClick={handleButtonClick}
-              >
-                Create Network via File
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                style={{ display: "none" }} // Hide the input
-              />
-              <button
-                className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
                 onClick={handleButtonClick2}
               >
                 Edit Network via File
@@ -405,105 +324,6 @@ const Dashboard = () => {
                 onChange={handleFileChange2}
                 style={{ display: "none" }} // Hide the input
               />
-
-              {/* Modal */}
-              {isModalOpen && (
-              <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center">
-                <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-                  <h2 className="text-xl font-semibold mb-4">File Details</h2>
-
-                  {/* Trial Network ID */}
-                  <div>
-                    <label htmlFor="trial-network-id" className="block text-gray-700 font-medium">
-                      TRIAL NETWORK ID
-                    </label>
-                    <input
-                      id="trial-network-id"
-                      type="text"
-                      placeholder="tn_id"
-                      className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                    />
-                  </div>
-
-                  {/* Deployment Site */}
-                  <div>
-                    <label htmlFor="deployment-site" className="block text-gray-700 font-medium">
-                      DEPLOYMENT SITE
-                    </label>
-                    <input
-                      id="deployment-site"
-                      type="text"
-                      placeholder="UMA / ATHENS / BERLIN / OULU..."
-                      className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                    />
-                  </div>
-
-                  {/* Library Reference Type */}
-                  <div>
-                    <label htmlFor="library-reference-type" className="block text-gray-700 font-medium">
-                      LIBRARY REFERENCE TYPE
-                    </label>
-                    <select
-                      id="library-reference-type"
-                      className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                      value={selectedOptionL}
-                      onChange={handleChangeL}
-                    >
-                      <option value="" disabled>
-                        -- Select an option --
-                      </option>
-                      <option value="branch">branch</option>
-                      <option value="commit">commit</option>
-                      <option value="tag">tag</option>
-                    </select>
-                  </div>
-
-                  {/* Library Reference Value */}
-                  <div>
-                    <label htmlFor="library-reference-value" className="block text-gray-700 font-medium">
-                      LIBRARY REFERENCE VALUE
-                    </label>
-                    <input
-                      id="library-reference-value"
-                      type="text"
-                      placeholder="github_6g_library_reference_value"
-                      className="w-full border border-gray-300 rounded-md p-2 mt-1"
-                    />
-                  </div>
-                  {/* Buttons div */}
-                  <div className='flex justify-between mt-4'>
-                    {/* Submit Modal Button */}
-                    <div className="mt-4 text-left">
-                      {isLoading ? (
-                        <div className="flex justify-center items-center">
-                          <img
-                            src="loading.gif"
-                            alt="validating..."
-                            className="h-8 w-8"
-                          />
-                        </div>
-                      ) : (
-                        <button
-                          className="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-500"
-                          onClick={handleSubmitModal}
-                        >
-                          Submit
-                        </button>
-                      )}
-                    </div>
-                    {/* Close Modal Button */}
-                    <div className="mt-4 text-right">
-                      <button
-                        className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-500"
-                        onClick={handleCloseModal}
-                      >
-                        Close
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
           <div className="flex space-x-4 mb-4">
             {/* Deploy button */}

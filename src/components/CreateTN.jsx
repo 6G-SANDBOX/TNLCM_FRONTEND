@@ -1,7 +1,7 @@
 import yaml from 'js-yaml';
 import React, { useCallback, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { createTrialNetwork, getComponent, getComponents, getDeployments, getLibraryTypes, getLibraryValues, getSites, getUser } from "../auxFunc/api";
+import { createTrialNetwork, getComponents, getDeployments, getLibraryTypes, getLibraryValues, getSites, saveTrialNetwork } from "../auxFunc/api";
 import convertJsonToYaml from '../auxFunc/yamlHandler';
 import TopNavigator from "./TopNavigator";
 import BerlinRan from "./library/Berlin_ran";
@@ -47,7 +47,6 @@ const CreateTN = () => {
   const [childError,setChildError] = useState({});
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
-  const [userInfo, setUserInfo] = useState(null);
   const [sites, setSites] = useState([]);
   const [deployement, setDeployement] = useState([]);
   const [libraryTypes, setLibraryTypes] = useState([]);
@@ -72,10 +71,6 @@ const CreateTN = () => {
         } catch (error) {
             console.error("Error doing the fetch:", error);
         }
-    };
-    const fetchUserInfo = async () => {
-        const user = await getUser();
-        setUserInfo(user);
     };
     const fetchSites = async () => {
       const sites2 = await getSites();
@@ -124,14 +119,25 @@ const CreateTN = () => {
       };
       reader.readAsText(defaultValues);
     }
-    fetchUserInfo()
-    .then(() => fetchData())
-    .then(() => formData.sitesReferenceType ? fetchSites() : Promise.resolve())
-    .then(() => formData.sitesReferenceValue ? fetchDeplo() : Promise.resolve())
-    .then(() => formData.libraryReferenceType ? fetchLibValues() : Promise.resolve())
-    .then(() => fetchLibTypes())
-    .catch(error => console.error("Error in sequential execution:", error));
-  
+  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    // TODO DO IT ONLY ONCE
+  fetchLibTypes()
+    .then(async () => {
+        await delay(1000);
+        return formData.sitesReferenceType ? fetchSites() : Promise.resolve();
+    })
+    .then(async () => {
+        await delay(1000);
+        return formData.sitesReferenceValue ? fetchDeplo() : Promise.resolve();
+    })
+    .then(async () => {
+        await delay(1000);
+        return formData.libraryReferenceType ? fetchLibValues() : Promise.resolve();
+    })
+    .then(async () => {
+        await delay(1000);
+        return fetchData();
+    });
 }, [defaultValues,formData]);
 
   const filterVnetOrTnVxlanComponents = useCallback(() => {
@@ -423,8 +429,21 @@ const CreateTN = () => {
   }
 
 
+  const validateTrialNetworkId = () => {
+    const newErrors = {};
+
+    if (!formData.trialNetworkId || !formData.trialNetworkId.trim()) {
+        newErrors.trialNetworkId = "This field is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length !== 0;
+};
+
 
   const handleSave = () => {
+    if (validateTrialNetworkId()) return;
+    //SEND TO THE BACKEND WITH CREATE
     const networkData = {
       formData,
       components: selectedComponent.map((component) => {
@@ -436,23 +455,35 @@ const CreateTN = () => {
         };
       }),
     };
-    //Convert the json to yaml
-    const tnInit= selectedComponent.some((component) => component.label === "tn_init");
-    const yamlString = convertJsonToYaml(networkData,tnInit);
-    // Create the blob and download the file
-    const blob = new Blob([yamlString], { type: "text/yaml" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `TN-${userInfo.username}.yaml`;
-    document.body.appendChild(a);
-    a.click();
-    // Remove the blob and the element
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      window.location = '/dashboard';
-    }, 100);
+   
+     (async () => {
+       //Convert the json to yaml
+      const tnInit = selectedComponent.some((component) => component.label === "tn_init");
+      const yamlString = convertJsonToYaml(networkData,tnInit);
+      // Create the blob and download the file
+      let formData3= new FormData();
+      const blob3 = new Blob([yamlString], { type: "text/yaml" });
+      formData3.append("descriptor", blob3, "descriptor.yaml");
+      //TODO FORMDATA IS EMPTY
+      try {
+        console.log(formData3);
+        console.log(blob3)
+        await saveTrialNetwork(formData3,formData.trialNetworkId);
+        setSuccess("Trial network saved successfully");
+        setError("");
+        setTimeout(() => {
+          window.location = "/dashboard";
+          setSuccess("");
+        }, 2502);
+      } catch (error) {
+        setSuccess("");
+        setError("Failed to save trial network \n" + error.response.data.message);
+        setTimeout(() => {
+          window.location = "/dashboard";
+          setError("");
+        }, 5002);
+      }
+    })();
   }
 
   const handleSubmit = () => {
@@ -503,7 +534,7 @@ const CreateTN = () => {
   };
   
   const switchComponent = (component, removeComponent, handleComponentFormChange, handleChildError) => {
-    const request= getComponent(formData.libraryReferenceType,formData.libraryReferenceValue,component.label);
+    const request = [formData.libraryReferenceType,formData.libraryReferenceValue,component.label];
     switch (component.label) {
       case "berlin_ran":
         const lbrOKE=filterOneKEComponents();

@@ -1,6 +1,7 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
+import { getComponent } from "../../auxFunc/api";
 
 const TnVxlan = ({ id, removeComponent, onChange, whenError, defaultValues, name, request }) => {
   const [data, setData] = useState(null);
@@ -9,9 +10,17 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError, defaultValues, name
   const [requiredFields, setRequiredFields] = useState({});
 
   useEffect(() => {
+    let isMounted = true;
     const loadData = async () => {
-      const result = await request;
-      if (result) {
+      let result= null;
+      if (isMounted){
+        result = await getComponent(
+        request[0],
+        request[1],
+        request[2]
+        );
+      }
+      if (isMounted && result) {
         setData(result.component_input);
         const required = [];  // Array to store the required fields
         const deps=[];
@@ -49,6 +58,9 @@ const TnVxlan = ({ id, removeComponent, onChange, whenError, defaultValues, name
       }
     };
     loadData();
+    return () => {
+      isMounted = false;
+    };
   }, [id, onChange, defaultValues, name, request]);
 
   const validateInteger = (value) => {

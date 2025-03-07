@@ -13,6 +13,19 @@ export const createTrialNetwork = async (formData,url) => {
     return response;
 };
 
+export const saveTrialNetwork = async (formData,id) => {
+    const access_token = await getAccessTokenFromSessionStorage();
+    const auth = `Bearer ${access_token}`;
+    let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/create?tn_id=${id}`;
+    const response = await axios.post(url, formData, {
+        headers: {
+            Authorization: auth,
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return response;
+};
+
 export const getTrialNetworks = async () => {
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
@@ -170,8 +183,8 @@ export const getLibraryValues = async (type) => {
 }
 
 export const getComponent = async (type, value,name) => {
-    
-  const delay = Math.floor(Math.random() * 4000) + 1000;
+
+  const delay = Math.floor(Math.random() * 4000) + 2000;
   await new Promise(resolve => setTimeout(resolve, delay));
   const access_token = await getAccessTokenFromSessionStorage();
   if (access_token) {

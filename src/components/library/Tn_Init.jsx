@@ -1,6 +1,7 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState } from "react";
+import { getComponent } from "../../auxFunc/api";
 
 // IS SAME AS TN_VXLAN, IN THE FUTURE IT WILL BE NECESSARY TO FIX THIS COMPONENT
 const TnInit = ({ id, removeComponent, onChange, whenError, defaultValues, name, request }) => {
@@ -10,9 +11,17 @@ const TnInit = ({ id, removeComponent, onChange, whenError, defaultValues, name,
   const [requiredFields, setRequiredFields] = useState({});
 
   useEffect(() => {
+    let isMounted = true;
     const loadData = async () => {
-      const result = await request;
-      if (result) {
+      let result= null;
+      if (isMounted){
+        result = await getComponent(
+        request[0],
+        request[1],
+        request[2]
+        );
+      }
+      if (isMounted && result) {
         setData(result.component_input);
         const required = [];  // Array to store the required fields
         const deps=[];
@@ -50,6 +59,9 @@ const TnInit = ({ id, removeComponent, onChange, whenError, defaultValues, name,
       }
     };
     loadData();
+    return () => {
+      isMounted = false;
+    };
   }, [id, onChange, defaultValues, name, request]);
 
   const handleChange = (event) => {
