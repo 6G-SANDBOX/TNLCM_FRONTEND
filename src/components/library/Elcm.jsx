@@ -1,6 +1,6 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getComponent } from "../../auxFunc/api";
 
 const Elcm = ({ id, removeComponent, onChange, defaultValues, name, request }) => {
@@ -8,19 +8,20 @@ const Elcm = ({ id, removeComponent, onChange, defaultValues, name, request }) =
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
   const [requiredFields, setRequiredFields] = useState({});
+  const hasFetched = useRef(false);
   // UseEffect to fetch data from the API
   useEffect(() => {
-    let isMounted = true;
     const loadData = async () => {
       let result= null;
-      if (isMounted){
+      if (hasFetched.current) return;
+      hasFetched.current = true;
+
         result = await getComponent(
-        request[0],
-        request[1],
-        request[2]
+          request[0],
+          request[1],
+          request[2]
         );
-      }
-      if (isMounted && result) {
+      if (result) {
         setData(result.component_input);
         const required = [];
         const deps=[];
@@ -62,9 +63,6 @@ const Elcm = ({ id, removeComponent, onChange, defaultValues, name, request }) =
       }
     };
     loadData();
-    return () => {
-      isMounted = false;
-    };
   }, [id, onChange, defaultValues, name, request]);
 
   const handleChange = (event) => {

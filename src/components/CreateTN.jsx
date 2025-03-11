@@ -1,5 +1,5 @@
 import yaml from 'js-yaml';
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { createTrialNetwork, getComponents, getDeployments, getLibraryTypes, getLibraryValues, getSites, saveTrialNetwork } from "../auxFunc/api";
 import convertJsonToYaml from '../auxFunc/yamlHandler';
@@ -54,6 +54,15 @@ const CreateTN = () => {
   const location = useLocation();
   const defaultValues = location.state?.file; // If we are coming here with a file, get it
 
+  const previousValues = useRef({
+    sitesReferenceType: formData.sitesReferenceType,
+    sitesReferenceValue: formData.sitesReferenceValue,
+    libraryReferenceType: formData.libraryReferenceType,
+    libraryTypes: null, // Inicialmente vacío para controlar fetchLibTypes()
+  });
+
+  const previousLibraryTypes = useRef(null); // Nuevo useRef para libraryTypes
+
   useEffect(() => {
     const fetchData = async () => {
 
@@ -83,7 +92,10 @@ const CreateTN = () => {
     const fetchLibTypes = async () => {
       const response = await getLibraryTypes();
       const values= Object.values(response)[0] || []
-      setLibraryTypes(values);
+      if (JSON.stringify(previousLibraryTypes.current || []) !== JSON.stringify(values)) {
+            setLibraryTypes(values);
+            previousLibraryTypes.current = values; // Guardar nuevo valor
+        }
     };
     const fetchLibValues = async () => {
       const response = await getLibraryValues(formData.libraryReferenceType);
@@ -119,26 +131,45 @@ const CreateTN = () => {
       };
       reader.readAsText(defaultValues);
     }
-  const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-    // TODO DO IT ONLY ONCE
-  fetchLibTypes()
-    .then(async () => {
-        await delay(1000);
-        return formData.sitesReferenceType ? fetchSites() : Promise.resolve();
-    })
-    .then(async () => {
-        await delay(1000);
-        return formData.sitesReferenceValue ? fetchDeplo() : Promise.resolve();
-    })
-    .then(async () => {
-        await delay(1000);
-        return formData.libraryReferenceType ? fetchLibValues() : Promise.resolve();
-    })
-    .then(async () => {
-        await delay(1000);
-        return fetchData();
-    });
-}, [defaultValues,formData]);
+    const executeIfChanged = async () => {
+      if (!previousValues.current.libraryTypes) {
+          await fetchLibTypes(); // Solo se ejecuta una vez al inicio
+      } else if (JSON.stringify(previousLibraryTypes.current) !== JSON.stringify(previousValues.current.libraryTypes)) {
+
+          await fetchLibTypes(); // Solo si libraryTypes realmente cambia
+      }
+
+      if (formData.sitesReferenceType !== previousValues.current.sitesReferenceType) {
+          await fetchSites();
+      }
+
+      if (formData.sitesReferenceValue !== previousValues.current.sitesReferenceValue) {
+          await fetchDeplo();
+      }
+
+      if (formData.libraryReferenceType !== previousValues.current.libraryReferenceType) {
+          await fetchLibValues();
+      }
+
+      await fetchData();
+
+      // Actualizar valores anteriores
+      previousValues.current = {
+          sitesReferenceType: formData.sitesReferenceType,
+          sitesReferenceValue: formData.sitesReferenceValue,
+          libraryReferenceType: formData.libraryReferenceType,
+          libraryTypes: previousLibraryTypes.current, // Actualizar con el ref en lugar de useState
+      };
+  };
+
+  executeIfChanged();
+  }, [
+    defaultValues,
+    formData.sitesReferenceType,
+    formData.sitesReferenceValue,
+    formData.libraryReferenceType,
+    formData.libraryReferenceValue,
+]);
 
   const filterVnetOrTnVxlanComponents = useCallback(() => {
     const filteredComponents = selectedComponent.filter((component) =>
@@ -541,7 +572,7 @@ const CreateTN = () => {
         const lbrO5=filterO5All();
         return <BerlinRan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lbrOKE} list2={lbrO5} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
       case "elcm":
-        return <Elcm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} defaultValues={component.defaultValues} name={component.name}/>;
+        return <Elcm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} defaultValues={component.defaultValues} name={component.name} request={request}/>;
       case "iswireless_radio":
         const lIswrO5=filterO5gsVMorK8SComponents();
         return <IswirelessRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lIswrO5} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>

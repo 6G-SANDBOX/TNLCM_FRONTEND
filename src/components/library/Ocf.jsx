@@ -7,20 +7,22 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError, defaultValues, na
   const [data, setData] = useState(null);
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
-   const [requiredFields, setRequiredFields] = useState({});
+  const [requiredFields, setRequiredFields] = useState({});
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    let isMounted = true;
+
     const loadData = async () => {
+      if (hasFetched.current) return;
+      hasFetched.current = true;
       let result= null;
-      if (isMounted){
-        result = await getComponent(
+      result = await getComponent(
         request[0],
         request[1],
         request[2]
-        );
-      }
-      if (isMounted && result) {
+      );
+  
+      if (result) {
         setData(result.component_input);
         const required = [];
         const deps=[];
@@ -60,9 +62,6 @@ const Ocf = ({ id, removeComponent, onChange, list, whenError, defaultValues, na
       }
     };
     loadData();
-    return () => {
-      isMounted = false;
-    };
   }, [id, onChange, defaultValues, name, request]);
 
   const prevListRef = useRef();

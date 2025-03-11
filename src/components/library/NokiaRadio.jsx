@@ -8,19 +8,19 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError, defaultVal
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
   const [requiredFields, setRequiredFields] = useState({});
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    let isMounted = true;
     const loadData = async () => {
+      if (hasFetched.current) return;
+      hasFetched.current = true;
       let result= null;
-      if (isMounted){
-        result = await getComponent(
+      result = await getComponent(
         request[0],
         request[1],
-        request[2]
-        );
-      }
-      if (isMounted && result) {
+        request[2],
+      );
+      if (result) {
         setData(result.component_input);
         const required = [];
         const deps=[];
@@ -60,9 +60,6 @@ const NokiaRadio = ({ id, removeComponent, onChange, list, whenError, defaultVal
       }
     };
     loadData();
-    return () => {
-      isMounted = false;
-    };
   }, [id, onChange, defaultValues, name, request]);
 
   // Make sure the list of Open5gs is updated before updating the form value

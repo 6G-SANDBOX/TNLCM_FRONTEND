@@ -8,19 +8,19 @@ const Open5gsK8S = ({ id, removeComponent, onChange, list, whenError, defaultVal
   const [formValues, setFormValues] = useState({});
   const [errorMessages, setErrorMessages] = useState({});
   const [requiredFields, setRequiredFields] = useState({});
+  const hasFetched = useRef(false);
 
   useEffect(() => {
-    let isMounted = true;
     const loadData = async () => {
+      if (hasFetched.current) return;
+      hasFetched.current = true;
       let result= null;
-      if (isMounted){
         result = await getComponent(
         request[0],
         request[1],
         request[2]
         );
-      }
-      if (isMounted && result) {
+      if (result) {
         setData(result.component_input);
         const deps=[];
         const required = [];  // Array to store the required fields
@@ -60,9 +60,6 @@ const Open5gsK8S = ({ id, removeComponent, onChange, list, whenError, defaultVal
       }
     };
     loadData();
-    return () => {
-      isMounted = false;
-    };
   }, [id, onChange, defaultValues, name, request]);
 
   const prevListRef = useRef();
