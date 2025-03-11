@@ -1,7 +1,7 @@
 import { faDesktop, faNetworkWired, faTerminal } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { deleteTN, getTrialNetworks, purgeTN, putTN } from '../auxFunc/api';
 import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
 import TerminalModal from './TerminalModal';
@@ -174,7 +174,6 @@ const Dashboard = () => {
           
   
           const response = await getTrialNetworks();
-  
           setData(response.data);
   
           const trialNetworks = response.data.trial_networks;
@@ -377,25 +376,29 @@ const Dashboard = () => {
                     />
                   </td>
                   <td className="py-2">
-                  <button className="text-purple-600 hover:underline">{network.tn_id}</button>
+                  <Link to={`/dashboard/${network.tn_id}`}>
+                    <button className="text-purple-600 hover:underline">{network.tn_id}</button>
+                  </Link>
                   </td>
                   <td className="py-2">{formatDate(network.date_created_utc)}</td>
                   <td className="py-2">{network.deployment_site}</td>
                   <td className="py-2">
                   <span
-                    className={[
-                      changingStatesIdS.includes(network.tn_id)
-                        ? "" // No background color when changing state
-                        : network.state === "failed" || network.state === "destroyed"
-                        ? "bg-red-100 text-red-500"
-                        : network.state === "validated"
-                        ? "bg-blue-100 text-blue-500"
-                        : network.state === "suspended"
-                        ? "bg-yellow-100 text-yellow-500"
-                        : "bg-green-100 text-green-500", // Other stater=== Activated
-                      "py-1 px-3 rounded-full text-xs",
-                    ].join(" ")}
-                  >
+                      className={[
+                        changingStatesIdS.includes(network.tn_id)
+                          ? "" // No background color when changing state
+                          : network.state === "failed" || network.state === "destroyed"
+                          ? "bg-red-100 text-red-500"
+                          : network.state === "validated"
+                          ? "bg-blue-100 text-blue-500"
+                          : network.state === "suspended"
+                          ? "bg-yellow-100 text-yellow-500"
+                          : network.state === "created"
+                          ? "bg-gray-100 text-gray-500"
+                          : "bg-green-100 text-green-500",
+                        "py-1 px-3 rounded-full text-xs",
+                      ].join(" ")}
+                    >
                     {changingStatesIdS.includes(network.tn_id) ? (
                       <img src="loading.gif" alt="loading" className="flex w-6 h-6 justify-center items-center" />
                     ) : (

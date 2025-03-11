@@ -16,7 +16,7 @@ export const createTrialNetwork = async (formData,url) => {
 export const saveTrialNetwork = async (formData,id) => {
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
-    let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/create?tn_id=${id}`;
+    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/create?tn_id=${id}`;
     const response = await axios.post(url, formData, {
         headers: {
             Authorization: auth,
@@ -206,3 +206,16 @@ export const getComponent = async (type, value,name) => {
   }
   return null;
 };
+
+export const getTrialNetwork = async (id) => {
+    const access_token = await getAccessTokenFromSessionStorage();
+    const auth = `Bearer ${access_token}`;
+    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/${id}`
+    const response = await axios.get(url, {
+        headers: {
+            Authorization: auth,
+            "Content-Type": "application/json",
+        },
+    });
+    return response;
+}

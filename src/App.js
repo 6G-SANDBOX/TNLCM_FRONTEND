@@ -4,6 +4,7 @@ import { getAccessTokenFromSessionStorage } from "./auxFunc/jwt";
 import CreateTN from "./components/CreateTN";
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
+import Network from "./components/Network";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // Use null to indicate that we are still checking authentication status
@@ -46,6 +47,11 @@ function App() {
          <Route
           path="/dashboard/createTN"
           element={isAuthenticated ? <CreateTN /> : <Navigate to="/" />}
+        />
+        {/* Route for editing a TN */}
+        <Route
+          path="/dashboard/:id"
+          element={isAuthenticated ? <Network/> : <Navigate to="/" />}
         />
       </Routes>
     </Router>

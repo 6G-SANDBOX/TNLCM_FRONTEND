@@ -30,7 +30,7 @@ import Vnet from "./library/Vnet";
 import Xrext from "./library/Xrext";
 import NvoModal from "./nvoModal";
 
-const CreateTN = () => {
+const CreateTN = (networkData) => {
   const [selectedComponent, setSelectedComponent] = useState([]);
   const [formData, setFormData] = useState({
     trialNetworkId: "",
@@ -58,10 +58,10 @@ const CreateTN = () => {
     sitesReferenceType: formData.sitesReferenceType,
     sitesReferenceValue: formData.sitesReferenceValue,
     libraryReferenceType: formData.libraryReferenceType,
-    libraryTypes: null, // Inicialmente vacío para controlar fetchLibTypes()
+    libraryTypes: null, // Initially empty
   });
 
-  const previousLibraryTypes = useRef(null); // Nuevo useRef para libraryTypes
+  const previousLibraryTypes = useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -94,7 +94,7 @@ const CreateTN = () => {
       const values= Object.values(response)[0] || []
       if (JSON.stringify(previousLibraryTypes.current || []) !== JSON.stringify(values)) {
             setLibraryTypes(values);
-            previousLibraryTypes.current = values; // Guardar nuevo valor
+            previousLibraryTypes.current = values; 
         }
     };
     const fetchLibValues = async () => {
@@ -133,10 +133,10 @@ const CreateTN = () => {
     }
     const executeIfChanged = async () => {
       if (!previousValues.current.libraryTypes) {
-          await fetchLibTypes(); // Solo se ejecuta una vez al inicio
+          await fetchLibTypes(); // Always at the start
       } else if (JSON.stringify(previousLibraryTypes.current) !== JSON.stringify(previousValues.current.libraryTypes)) {
 
-          await fetchLibTypes(); // Solo si libraryTypes realmente cambia
+          await fetchLibTypes(); // Only later if it really changes
       }
 
       if (formData.sitesReferenceType !== previousValues.current.sitesReferenceType) {
@@ -153,12 +153,11 @@ const CreateTN = () => {
 
       await fetchData();
 
-      // Actualizar valores anteriores
       previousValues.current = {
           sitesReferenceType: formData.sitesReferenceType,
           sitesReferenceValue: formData.sitesReferenceValue,
           libraryReferenceType: formData.libraryReferenceType,
-          libraryTypes: previousLibraryTypes.current, // Actualizar con el ref en lugar de useState
+          libraryTypes: previousLibraryTypes.current, // Use ref instead of useState due to infinite loop
       };
   };
 
@@ -465,6 +464,10 @@ const CreateTN = () => {
 
     if (!formData.trialNetworkId || !formData.trialNetworkId.trim()) {
         newErrors.trialNetworkId = "This field is required";
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+      });
     }
 
     setErrors(newErrors);
@@ -497,8 +500,6 @@ const CreateTN = () => {
       formData3.append("descriptor", blob3, "descriptor.yaml");
       //TODO FORMDATA IS EMPTY
       try {
-        console.log(formData3);
-        console.log(blob3)
         await saveTrialNetwork(formData3,formData.trialNetworkId);
         setSuccess("Trial network saved successfully");
         setError("");
@@ -508,7 +509,7 @@ const CreateTN = () => {
         }, 2502);
       } catch (error) {
         setSuccess("");
-        setError("Failed to save trial network \n" + error.response.data.message);
+        setError("Failed to save trial network \n" + error.message);
         setTimeout(() => {
           window.location = "/dashboard";
           setError("");
