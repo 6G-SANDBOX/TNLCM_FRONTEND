@@ -356,7 +356,7 @@ const Dashboard = () => {
             <thead>
               <tr className=" text-gray-500 text-sm border-b">
                 <th className="py-2">Select</th>
-                <th className="py-2">Trial Network ID</th>
+                <th className="py-2">Trial Network ID (Click to play)</th>
                 <th className="py-2">Date Created UTC </th>
                 <th className="py-2">Deployment Site</th>
                 <th className="py-2">Status</th>
