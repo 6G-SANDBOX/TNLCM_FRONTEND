@@ -177,7 +177,6 @@ const CreateTN = (networkData) => {
     };
     reader.readAsText(defaultValues);
   } else if (networkData !== null && Object.keys(networkData).length > 0){
-    console.log(networkData);
       if (JSON.stringify(networkData) === JSON.stringify(processedNetworkData.current)) {
         //If the network data is the same dont re-render again
         return;
@@ -596,7 +595,7 @@ const CreateTN = (networkData) => {
       // Build the URL
       
       try {
-          let url = `${process.env.REACT_APP_ENDPOINT}/tnlcm/trial-network/create-validate?tn_id=${formData.trialNetworkId}&deployment_site=${formData.deploymentSite}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&sites_reference_type=${formData.sitesReferenceType}&sites_reference_value=${formData.sitesReferenceValue}`
+          let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/create-validate?tn_id=${formData.trialNetworkId}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&sites_branch=${formData.sitesReferenceValue}&deployment_site=${formData.deploymentSite}`
           await createTrialNetwork(formData2,url);
           setSuccess("Trial network deployed successfully");
           setError("");
@@ -606,7 +605,7 @@ const CreateTN = (networkData) => {
           }, 2502);
       } catch (error) {
           setSuccess("");
-          setError("Failed to deploy trial network \n" + error.response.data.message);
+          setError("Failed to deploy trial network \n" + error);
           setTimeout(() => {
              window.location = "/dashboard";
             setError("");

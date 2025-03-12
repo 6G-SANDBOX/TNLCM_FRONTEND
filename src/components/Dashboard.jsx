@@ -175,7 +175,6 @@ const Dashboard = () => {
   
           const response = await getTrialNetworks();
           setData(response.data);
-  
           const trialNetworks = response.data.trial_networks;
           const activeNetworks = trialNetworks.filter(
             (network) => network.state === "activated"
