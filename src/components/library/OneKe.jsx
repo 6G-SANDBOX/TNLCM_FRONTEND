@@ -100,45 +100,6 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError, default
 
   }, [list1,list2,formValues,id,onChange]);
 
-
-   // UseEffect for specific fields
-    useEffect(() => {
-      setRequiredFields((prevState) => {
-        let newRequiredFields = { ...prevState };
-    
-        // Check when is mandatory one_oneKE_cilium_range (Cilium is selected)
-        if (formValues["one_oneKE_cni_plugin "] === "cilium") {
-          if (!Object.values(newRequiredFields).includes("one_oneKE_cilium_range")) {
-            newRequiredFields[Object.keys(newRequiredFields).length] = "one_oneKE_cilium_range";
-          }
-        } else {
-          // if the condition is not met, remove it from requiredFields
-          newRequiredFields = Object.fromEntries(
-            Object.entries(newRequiredFields).filter(([_, value]) => value !== "one_oneKE_cilium_range")
-          );
-        }
-
-        // Check when is mandatory one_oneKE_metallb_range (Metallb is selected)
-        if (formValues["one_oneKE_metallb  "] === "YES") {
-          if (!Object.values(newRequiredFields).includes("one_oneKE_metallb_range")) {
-            newRequiredFields[Object.keys(newRequiredFields).length] = "one_oneKE_metallb_range";
-          }
-        } else {
-          // if the condition is not met, remove it from requiredFields
-          newRequiredFields = Object.fromEntries(
-            Object.entries(newRequiredFields).filter(([_, value]) => value !== "one_oneKE_metallb_range")
-          );
-        }
-    
-        return JSON.stringify(prevState) !== JSON.stringify(newRequiredFields) ? newRequiredFields : prevState;
-      });
-    }, [formValues]);
-    
-    // **useEffect for calling onChange  only when requiredFields change**
-    useEffect(() => {
-      onChange(id, "required", Object.values(requiredFields));
-    }, [requiredFields, id, onChange]);
-
   const handleCheckboxChange = (event, key, network) => {
     // Make sure that the value of the field is an array
     const currentValue = Array.isArray(formValues[key]) ? formValues[key] : [];

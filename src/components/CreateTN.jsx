@@ -176,42 +176,41 @@ const CreateTN = (networkData) => {
 
     };
     reader.readAsText(defaultValues);
-  } else if (networkData){
-    if (JSON.stringify(networkData) === JSON.stringify(processedNetworkData.current)) {
-      //If the network data is the same dont re-render again
-      return;
-    }
-    try {
-      setID(true);
-      processedNetworkData.current = networkData;
-      //TODO In the future maybe we got this fields from the networkData
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        trialNetworkId: networkData.networkData.tn_id,
-        libraryReferenceType: "branch",
-        libraryReferenceValue: "develop",
-      }));
-      // Open each component
-      Object.keys(networkData.networkData.raw_descriptor.trial_network).forEach((key) => {
-        const component = networkData.networkData.raw_descriptor.trial_network[key];
-        const newComponent = {
-          id: `${component.type}-${new Date().getTime()}`,
-          label: component.type,
-          defaultValues: component.input,
-          name: component.name
-        };
-        setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
-        setComponentForms((prevForms) => ({
-          ...prevForms,
-          [newComponent.id]: {},
+  } else if (networkData !== null && Object.keys(networkData).length > 0){
+    console.log(networkData);
+      if (JSON.stringify(networkData) === JSON.stringify(processedNetworkData.current)) {
+        //If the network data is the same dont re-render again
+        return;
+      }
+      try {
+        setID(true);
+        processedNetworkData.current = networkData;
+        //TODO In the future maybe we got this fields from the networkData
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          trialNetworkId: networkData.networkData.tn_id,
+          libraryReferenceType: "branch",
+          libraryReferenceValue: "develop",
         }));
-      });
-    } catch (e) {
-      console.error("Error while accessing to the network data: ", e);
+        // Open each component
+        Object.keys(networkData.networkData.raw_descriptor.trial_network).forEach((key) => {
+          const component = networkData.networkData.raw_descriptor.trial_network[key];
+          const newComponent = {
+            id: `${component.type}-${new Date().getTime()}`,
+            label: component.type,
+            defaultValues: component.input,
+            name: component.name
+          };
+          setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
+          setComponentForms((prevForms) => ({
+            ...prevForms,
+            [newComponent.id]: {},
+          }));
+        });
+      } catch (e) {
+        console.error("Error while accessing to the network data: ", e);
+      }
     }
-  }
-
-  
   }, [
     networkData,
     defaultValues,
