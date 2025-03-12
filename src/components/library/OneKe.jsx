@@ -120,7 +120,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError, default
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-
+    console.log(value);
     // Update the formValues with the new value
     setFormValues((prevState) => ({
       ...prevState,
@@ -160,7 +160,6 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError, default
           delete newState[name];
           return newState;
         });
-        console.log("clearing error");
         whenError(id,name,"");
       }
     }
@@ -359,6 +358,7 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError, default
                 </div>
               );
             }
+            //TODO Use this as example for the generic file
             return (
               <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">
@@ -386,10 +386,10 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError, default
                     id={key}
                     name={key}
                     value={formValues[key] !== undefined ? String(formValues[key]) : ""}
-                    onChange={(event) => handleChange({ target: { name: key, value: event.target.value === "true" } })}
+                    onChange={(event) => handleChange(event)}
                     className="w-full border border-gray-300 rounded-md p-2 mt-1"
                   >
-                    <option disabled value="False">Select true or false</option>
+                    <option disabled value="">Select true or false</option>
                     <option value="True">True</option>
                     <option value="False">False</option>
                   </select>
