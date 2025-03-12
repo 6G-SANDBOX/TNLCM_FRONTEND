@@ -52,7 +52,10 @@ const CreateTN = (networkData) => {
   const [libraryTypes, setLibraryTypes] = useState([]);
   const [libraryValues, setLibraryValues] = useState([]);
   const location = useLocation();
-  const defaultValues = location.state?.file; // If we are coming here with a file, get it
+  const defaultValues = location.state?.file;// If we are coming here with a file, get it
+  const processedNetworkData = useRef(null);
+  const processedDefaultValues = useRef(null);
+  const [ID, setID] = useState(false);
 
   const previousValues = useRef({
     sitesReferenceType: formData.sitesReferenceType,
@@ -64,6 +67,7 @@ const CreateTN = (networkData) => {
   const previousLibraryTypes = useRef(null);
 
   useEffect(() => {
+    
     const fetchData = async () => {
 
         try {
@@ -94,7 +98,7 @@ const CreateTN = (networkData) => {
       const values= Object.values(response)[0] || []
       if (JSON.stringify(previousLibraryTypes.current || []) !== JSON.stringify(values)) {
             setLibraryTypes(values);
-            previousLibraryTypes.current = values; 
+            previousLibraryTypes.current = values;
         }
     };
     const fetchLibValues = async () => {
@@ -102,35 +106,6 @@ const CreateTN = (networkData) => {
       const values= Object.values(response)[0] || []
       setLibraryValues(values);
     };
-    if (defaultValues){
-      const reader = new FileReader();
-      reader.onload = () => {
-        const yamlContent = reader.result;
-        try {
-          const parsedData = yaml.load(yamlContent); // Parse to YAML object
-        
-          // Open each component
-          Object.keys(parsedData.trial_network).forEach((key) => {
-            const component = parsedData.trial_network[key];
-            const newComponent = {
-              id: `${component.type}-${new Date().getTime()}`,
-              label: component.type,
-              defaultValues: component.input,
-              name: component.name
-            };
-            setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
-            setComponentForms((prevForms) => ({
-              ...prevForms,
-              [newComponent.id]: {},
-            }));
-          });
-        } catch (e) {
-          console.error("Error while opening the YAML descriptor:", e);
-        }
-
-      };
-      reader.readAsText(defaultValues);
-    }
     const executeIfChanged = async () => {
       if (!previousValues.current.libraryTypes) {
           await fetchLibTypes(); // Always at the start
@@ -162,7 +137,83 @@ const CreateTN = (networkData) => {
   };
 
   executeIfChanged();
+
+  if (defaultValues){
+    if (JSON.stringify(defaultValues) === JSON.stringify(processedDefaultValues.current)) {
+      //If the default value doesnt change dont re-render again
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const yamlContent = reader.result;
+      try {
+        processedDefaultValues.current = defaultValues;
+        const parsedData = yaml.load(yamlContent); // Parse to YAML object
+        //TODO MAYBE IN THE FUTURE THIS WILL BE FROM A MODALS
+        setFormData((prevFormData) => ({
+          ...prevFormData,
+          libraryReferenceType: "branch",
+          libraryReferenceValue: "develop",
+        }));
+        // Open each component
+        Object.keys(parsedData.trial_network).forEach((key) => {
+          const component = parsedData.trial_network[key];
+          const newComponent = {
+            id: `${component.type}-${new Date().getTime()}`,
+            label: component.type,
+            defaultValues: component.input,
+            name: component.name
+          };
+          setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
+          setComponentForms((prevForms) => ({
+            ...prevForms,
+            [newComponent.id]: {},
+          }));
+        });
+      } catch (e) {
+        console.error("Error while opening the YAML descriptor: ", e);
+      }
+
+    };
+    reader.readAsText(defaultValues);
+  } else if (networkData){
+    if (JSON.stringify(networkData) === JSON.stringify(processedNetworkData.current)) {
+      //If the network data is the same dont re-render again
+      return;
+    }
+    try {
+      setID(true);
+      processedNetworkData.current = networkData;
+      //TODO In the future maybe we got this fields from the networkData
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        trialNetworkId: networkData.networkData.tn_id,
+        libraryReferenceType: "branch",
+        libraryReferenceValue: "develop",
+      }));
+      // Open each component
+      Object.keys(networkData.networkData.raw_descriptor.trial_network).forEach((key) => {
+        const component = networkData.networkData.raw_descriptor.trial_network[key];
+        const newComponent = {
+          id: `${component.type}-${new Date().getTime()}`,
+          label: component.type,
+          defaultValues: component.input,
+          name: component.name
+        };
+        setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
+        setComponentForms((prevForms) => ({
+          ...prevForms,
+          [newComponent.id]: {},
+        }));
+      });
+    } catch (e) {
+      console.error("Error while accessing to the network data: ", e);
+    }
+  }
+
+  
   }, [
+    networkData,
     defaultValues,
     formData.sitesReferenceType,
     formData.sitesReferenceValue,
@@ -475,6 +526,7 @@ const CreateTN = (networkData) => {
 };
 
 
+
   const handleSave = () => {
     if (validateTrialNetworkId()) return;
     //SEND TO THE BACKEND WITH CREATE
@@ -498,7 +550,6 @@ const CreateTN = (networkData) => {
       let formData3= new FormData();
       const blob3 = new Blob([yamlString], { type: "text/yaml" });
       formData3.append("descriptor", blob3, "descriptor.yaml");
-      //TODO FORMDATA IS EMPTY
       try {
         await saveTrialNetwork(formData3,formData.trialNetworkId);
         setSuccess("Trial network saved successfully");
@@ -662,6 +713,7 @@ const CreateTN = (networkData) => {
               placeholder="tn_id"
               className={`w-full border p-2 mt-1 rounded-md ${errors.trialNetworkId ? "border-red-500" : "border-gray-300"}`}
               value={formData.trialNetworkId}
+              readOnly={ID}
               onChange={handleInputChange}
             />
             {errors.trialNetworkId && <p className="text-red-500 text-sm mt-1">{errors.trialNetworkId}</p>}

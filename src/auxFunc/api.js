@@ -80,8 +80,8 @@ export const putTN = async (id) => {
 
 export const getComponents= async (type, value) => {
     //Need to be delayed due to the backend
-    const delay = Math.floor(Math.random() * 4000) + 1000;
-    await new Promise(resolve => setTimeout(resolve, delay));
+    // const delay = Math.floor(Math.random() * 4000) + 1000;
+    // await new Promise(resolve => setTimeout(resolve, delay));
 
     let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/library/${type}/${value}`
     const response = await fetch(url);
@@ -219,3 +219,17 @@ export const getTrialNetwork = async (id) => {
     });
     return response;
 }
+
+export const getTnMarkdown = async (id) => {
+  const access_token = await getAccessTokenFromSessionStorage();
+  const auth = `Bearer ${access_token}`;
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-networks/${id}.md`
+  const response = await axios.get(url, {
+      headers: {
+          Authorization: auth,
+          "Content-Type": "application/json",
+      },
+  });
+  return response;
+}
+

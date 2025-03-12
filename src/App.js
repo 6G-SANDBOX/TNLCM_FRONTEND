@@ -25,7 +25,7 @@ function App() {
   if (isAuthenticated === null) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <img src="/images/loading.gif" alt="Loading..." />
+        <img src="loading.gif" alt="Loading..." />
       </div>
     );
   }
