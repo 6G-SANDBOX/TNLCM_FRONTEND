@@ -1,12 +1,19 @@
 import { useEffect, useState } from 'react';
+import ReactMarkdown from "react-markdown";
 import { useParams } from 'react-router-dom';
-import { getTrialNetwork } from '../auxFunc/api';
+
+import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
+import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import rehypeRaw from "rehype-raw";
+import remarkGfm from "remark-gfm";
+import { getTnMarkdown, getTrialNetwork } from '../auxFunc/api';
 import CreateTN from './CreateTN';
 import TopNavigator from './TopNavigator';
 
 function Network() {
   const { id } = useParams();  // We get the `id` parameter from the URL
   const [data, setData] = useState(null);
+  const [markdown, setMarkdown] = useState(null);
 
   useEffect(() => {
     
@@ -14,6 +21,10 @@ function Network() {
         try {
             const response = await getTrialNetwork(id);
             setData(response.data);
+            if (response.data.state === "activated") {
+              const markdownReq= await getTnMarkdown(id);
+              setMarkdown(markdownReq.data);
+            };
         } catch (error) {
             console.error(error);
         }
@@ -40,7 +51,41 @@ function Network() {
       // If it not "created", show the content
       <div>
         <TopNavigator />
-        <p> TODO: SHOW HERE THE DATA </p>
+        <div className="p-6 bg-gray-100 min-h-screen flex justify-center">
+        <div className="prose lg:prose-xl bg-white p-6 rounded-2xl shadow-lg ">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeRaw]}
+            components={{
+              code({ node, inline, className, children, ...props }) {
+                const match = /language-(\w+)/.exec(className || "");
+                return !inline && match ? (
+                  <SyntaxHighlighter
+                    style={atomOneDark}
+                    language={match[1]}
+                    PreTag="div"
+                  >
+                    {String(children).replace(/\n$/, "")}
+                  </SyntaxHighlighter>
+                ) : (
+                  <code className="bg-gray-200 px-1 rounded-md" {...props}>
+                    {children}
+                  </code>
+                );
+              },
+              blockquote({ children }) {
+                return (
+                  <blockquote className="border-l-4 border-blue-500 pl-4 italic text-gray-600">
+                    {children}
+                  </blockquote>
+                );
+              }
+            }}
+          >
+            {markdown}
+          </ReactMarkdown>
+        </div>
+      </div>
       </div>
     )}
     </div>
