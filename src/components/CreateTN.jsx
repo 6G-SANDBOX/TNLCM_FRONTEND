@@ -1,7 +1,7 @@
 import yaml from 'js-yaml';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { createTrialNetwork, getComponents, getDeployments, getLibraryTypes, getLibraryValues, getSites, saveTrialNetwork } from "../auxFunc/api";
+import { createTrialNetwork, getComponent, getComponents, getDeployments, getLibraryTypes, getLibraryValues, getSites, saveTrialNetwork } from "../auxFunc/api";
 import convertJsonToYaml from '../auxFunc/yamlHandler';
 import TopNavigator from "./TopNavigator";
 import BerlinRan from "./library/Berlin_ran";
@@ -56,6 +56,9 @@ const CreateTN = (networkData) => {
   const processedNetworkData = useRef(null);
   const processedDefaultValues = useRef(null);
   const [ID, setID] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const [componentsData, setComponentsData] = useState({});
 
   const previousValues = useRef({
     sitesReferenceType: formData.sitesReferenceType,
@@ -64,11 +67,40 @@ const CreateTN = (networkData) => {
     libraryTypes: null, // Initially empty
   });
 
-  const previousLibraryTypes = useRef(null);
+  const delay = async () => {
+    return new Promise((resolve) => setTimeout(resolve, 2000));
+  };
 
+  
+  // UseEffect for the component loading
+  useEffect(() => {
+    const makeRequestAndRender = async (component) => {
+      setIsLoading(true); // Start the loading
+      try {
+        // Call the function to get the component
+        const result = await getComponent(formData.libraryReferenceType,formData.libraryReferenceValue,component.label);
+        setComponentsData((prevData) => ({
+          ...prevData,
+          [component.id]: result, // Usamos el id del componente como clave
+        }));
+        setCurrentIndex(prevIndex => prevIndex + 1);
+      } catch (error) {
+        console.error('Error while doing the request:', error);
+        setIsLoading(false);
+      }
+    };
+
+
+    if (currentIndex < selectedComponent.length && !isLoading) {
+      const component = selectedComponent[currentIndex];
+      makeRequestAndRender(component);
+    }
+  }, [currentIndex, isLoading, selectedComponent, formData.libraryReferenceType, formData.libraryReferenceValue]);
+
+  // UseEffect for rending purposes
   useEffect(() => {
     
-    const fetchData = async () => {
+    const fetchComponents = async () => {
 
         try {
           if (formData.libraryReferenceType ==="" || formData.libraryReferenceValue ==="") {
@@ -85,7 +117,7 @@ const CreateTN = (networkData) => {
             console.error("Error doing the fetch:", error);
         }
     };
-    const fetchSites = async () => {
+    const fetchSiteValue = async () => {
       const sites2 = await getSites();
       setSites(sites2.sites);
     };
@@ -95,61 +127,56 @@ const CreateTN = (networkData) => {
     };
     const fetchLibTypes = async () => {
       const response = await getLibraryTypes();
-      const values= Object.values(response)[0] || []
-      if (JSON.stringify(previousLibraryTypes.current || []) !== JSON.stringify(values)) {
-            setLibraryTypes(values);
-            previousLibraryTypes.current = values;
-        }
+      const values= Object.values(response)[0] || [];
+      setLibraryTypes(values);
     };
     const fetchLibValues = async () => {
       const response = await getLibraryValues(formData.libraryReferenceType);
       const values= Object.values(response)[0] || []
       setLibraryValues(values);
     };
-    const executeIfChanged = async () => {
-      if (!previousValues.current.libraryTypes) {
-          await fetchLibTypes(); // Always at the start
-      } else if (JSON.stringify(previousLibraryTypes.current) !== JSON.stringify(previousValues.current.libraryTypes)) {
-          await fetchLibTypes(); // Only later if it really changes
-      }
 
-      if (formData.sitesReferenceType !== previousValues.current.sitesReferenceType) {
-          await fetchSites();
-          setFormData((prevFormData) => ({
-            ...prevFormData,
-            sitesReferenceValue: "",
-          }));
-      }
+    const executeIfChanged = () => {
+      //TODO FIX THE LOGIC
 
-      if (formData.sitesReferenceValue !== previousValues.current.sitesReferenceValue) {
-          await fetchDeplo();
-          setFormData((prevFormData) => ({
-            ...prevFormData,
-            deploymentSite: "",
-          }));
-
-      }
-
-      if (formData.libraryReferenceType !== previousValues.current.libraryReferenceType) {
-          await fetchLibValues();
+      if (formData.libraryReferenceType===""){
+        fetchLibTypes();
+      } else{
+        if (formData.libraryReferenceType !== previousValues.current.libraryReferenceType) {
           setFormData((prevFormData) => ({
             ...prevFormData,
             libraryReferenceValue: "",
           }));
+        fetchLibValues();
+        }
       }
 
-      await fetchData();
+      if (formData.libraryReferenceType !==""  && formData.libraryReferenceValue !==""){
+        console.log(formData.libraryReferenceValue);
+        //TODO SE EJCUTA DOBLE AQUI
+        if ( (formData.libraryReferenceType !== previousValues.current.libraryReferenceType) || (formData.libraryReferenceValue !== previousValues.current.libraryReferenceValue) ) {
+          fetchComponents();
+        }
+      } else {
+        setAllComp([]);
+      }
+      
+      if (formData.sitesReferenceType !==""){
+        fetchSiteValue();
+      }
 
+      if (formData.sitesReferenceValue !==""){
+        fetchDeplo();
+      }
+    
       previousValues.current = {
-          sitesReferenceType: formData.sitesReferenceType,
-          sitesReferenceValue: formData.sitesReferenceValue,
-          libraryReferenceType: formData.libraryReferenceType,
-          libraryTypes: previousLibraryTypes.current, // Use ref instead of useState due to infinite loop
+        sitesReferenceType: formData.sitesReferenceType,
+        sitesReferenceValue: formData.sitesReferenceValue,
+        libraryReferenceType: formData.libraryReferenceType,
+        libraryReferenceValue: formData.libraryReferenceValue,
       };
-  };
-
-  executeIfChanged();
-
+    };
+    
   if (defaultValues){
     if (JSON.stringify(defaultValues) === JSON.stringify(processedDefaultValues.current)) {
       //If the default value doesnt change dont re-render again
@@ -176,6 +203,7 @@ const CreateTN = (networkData) => {
             defaultValues: component.input,
             name: component.name
           };
+         
           setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
           setComponentForms((prevForms) => ({
             ...prevForms,
@@ -212,7 +240,10 @@ const CreateTN = (networkData) => {
             defaultValues: component.input,
             name: component.name
           };
-          setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
+          delay().then(() => {
+            setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
+          });
+          
           setComponentForms((prevForms) => ({
             ...prevForms,
             [newComponent.id]: {},
@@ -222,11 +253,15 @@ const CreateTN = (networkData) => {
         console.error("Error while accessing to the network data: ", e);
       }
     }
+
+    executeIfChanged();
   }, [
+    libraryTypes,
     networkData,
     defaultValues,
     formData.sitesReferenceType,
     formData.sitesReferenceValue,
+    formData.deploymentSite,
     formData.libraryReferenceType,
     formData.libraryReferenceValue,
 ]);
@@ -535,8 +570,6 @@ const CreateTN = (networkData) => {
     return Object.keys(newErrors).length !== 0;
 };
 
-
-
   const handleSave = () => {
     if (validateTrialNetworkId()) return;
     //SEND TO THE BACKEND WITH CREATE
@@ -560,8 +593,10 @@ const CreateTN = (networkData) => {
       let formData3= new FormData();
       const blob3 = new Blob([yamlString], { type: "text/yaml" });
       formData3.append("descriptor", blob3, "descriptor.yaml");
+      formData3.append("tn_id", formData.trialNetworkId);
+
       try {
-        await saveTrialNetwork(formData3,formData.trialNetworkId);
+        await saveTrialNetwork(formData3);
         setSuccess("Trial network saved successfully");
         setError("");
         setTimeout(() => {
@@ -607,7 +642,13 @@ const CreateTN = (networkData) => {
       // Build the URL
       
       try {
-          let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/create-validate?tn_id=${formData.trialNetworkId}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&sites_branch=${formData.sitesReferenceValue}&deployment_site=${formData.deploymentSite}`
+          let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-network?validate=True?`;
+          formData2.append("tn_id", formData.trialNetworkId);
+          formData2.append("library_reference_type", formData.libraryReferenceType);
+          formData2.append("library_reference_value", formData.libraryReferenceValue);
+          formData2.append("sites_branch", formData.sitesReferenceValue);
+          formData2.append("deployment_site", formData.deploymentSite);
+          //TODO SOMEHTING WRONG WITH TNID
           await createTrialNetwork(formData2,url);
           setSuccess("Trial network deployed successfully");
           setError("");
@@ -627,7 +668,15 @@ const CreateTN = (networkData) => {
   };
   
   const switchComponent = (component, removeComponent, handleComponentFormChange, handleChildError) => {
-    const request = [formData.libraryReferenceType,formData.libraryReferenceValue,component.label];
+    const request = componentsData[component.id];
+    //TODO NO FUNCIONA BIEN
+    if (request === undefined || request === null) {
+      setTimeout(() => {
+        return switchComponent(component, removeComponent, handleComponentFormChange, handleChildError);
+      }, 2000);
+    } else{
+      
+    }
     switch (component.label) {
       case "berlin_ran":
         const lbrOKE=filterOneKEComponents();
@@ -892,8 +941,8 @@ const CreateTN = (networkData) => {
 
 
       <div className="p-4">
-        {selectedComponent.map((component) => (
-          <div id={component.id}  key={component.id} className="border rounded p-4 mb-4">
+        {selectedComponent.slice(0, currentIndex + 1).map((component) => (
+          <div id={component.id} key={component.id} className="border rounded p-4 mb-4">
             {switchComponent(component, handleRemoveComponent, handleComponentFormChange, handleChildError)}
           </div>
         ))}

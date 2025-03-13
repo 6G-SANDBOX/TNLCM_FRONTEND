@@ -156,10 +156,11 @@ export async function loginUser(username, password, config = {}) {
   const basicAuthHeader = `Basic ${encodedAuth}`;
 
   try {
+    //TODO MOVER A PI
     const url = process.env.REACT_APP_TNLCM_BACKEND_API;
     // Make the POST request to the login endpoint
     const response = await axios.post(
-      `${url}/tnlcm/user/login`,
+      `${url}/user/login`,
       {},
       {
         headers: {

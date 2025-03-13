@@ -1,10 +1,10 @@
 import {
-    faArrowRight,
-    faBuilding,
-    faEnvelope,
-    faLock,
-    faTimes,
-    faUser,
+  faArrowRight,
+  faBuilding,
+  faEnvelope,
+  faLock,
+  faTimes,
+  faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
@@ -46,11 +46,11 @@ import React, { useState } from "react";
       };
   
       try {
-        const response = await axios.post(
-          `${url}/tnlcm/user/register`,
+        //TODO MOVER
+        await axios.post(
+          `${url}/user/register`,
           accountData
         );
-        console.log("Account created successfully:", response.data);
         onClose(); // Close modal after account creation
       } catch (error) {
         if (error.response) {

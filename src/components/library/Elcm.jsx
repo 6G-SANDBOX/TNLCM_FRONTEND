@@ -1,7 +1,6 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useRef, useState } from "react";
-import { getComponent } from "../../auxFunc/api";
 
 const Elcm = ({ id, removeComponent, onChange, defaultValues, name, request }) => {
   const [data, setData] = useState(null);
@@ -16,11 +15,8 @@ const Elcm = ({ id, removeComponent, onChange, defaultValues, name, request }) =
       if (hasFetched.current) return;
       hasFetched.current = true;
 
-        result = await getComponent(
-          request[0],
-          request[1],
-          request[2]
-        );
+      result = await request;
+      console.log(result);
       if (result) {
         setData(result.component_input);
         const required = [];

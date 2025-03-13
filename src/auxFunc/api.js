@@ -13,10 +13,10 @@ export const createTrialNetwork = async (formData,url) => {
     return response;
 };
 
-export const saveTrialNetwork = async (formData,id) => {
+export const saveTrialNetwork = async (formData) => {
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
-    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/create?tn_id=${id}`;
+    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-network?validate=False`;
     const response = await axios.post(url, formData, {
         headers: {
             Authorization: auth,
@@ -29,7 +29,7 @@ export const saveTrialNetwork = async (formData,id) => {
 export const getTrialNetworks = async () => {
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
-    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-networks`
+    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks`
     const response = await axios.get(url, {
         headers: {
             Authorization: auth,
@@ -39,10 +39,23 @@ export const getTrialNetworks = async () => {
     return response;
 }
 
+export const getTrialNetwork = async (id) => {
+  const access_token = await getAccessTokenFromSessionStorage();
+  const auth = `Bearer ${access_token}`;
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}`
+  const response = await axios.get(url, {
+      headers: {
+          Authorization: auth,
+          "Content-Type": "application/json",
+      },
+  });
+  return response;
+}
+
 export const purgeTN = async (id) => {
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
-    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}}/tnlcm/trial-network/purge/${id}`
+    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}}/trial-networks/${id}/purge`
     const response = await axios.delete(url, {
         headers: {
             Authorization: auth,
@@ -55,7 +68,7 @@ export const purgeTN = async (id) => {
 export const deleteTN = async (id) => {
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
-    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/${id}`
+    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/destroy`
     const response = await axios.delete(url, {
         headers: {
             Authorization: auth,
@@ -68,7 +81,7 @@ export const deleteTN = async (id) => {
 export const putTN = async (id) => {
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
-    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/${id}`
+    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/activate`
     const response = await axios.put(url,{}, {
         headers: {
             Authorization: auth,
@@ -78,19 +91,9 @@ export const putTN = async (id) => {
     return response;
 }
 
-export const getComponents= async (type, value) => {
-    //Need to be delayed due to the backend
-    // const delay = Math.floor(Math.random() * 4000) + 1000;
-    // await new Promise(resolve => setTimeout(resolve, delay));
-
-    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/library/${type}/${value}`
-    const response = await fetch(url);
-    return response || {components : []};
-}
-
 export const getUser = async () => {
     try {
-      const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/user`;
+      const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/user`;
       const access_token = await getAccessTokenFromSessionStorage();
       const auth = `Bearer ${access_token}`;
   
@@ -108,7 +111,7 @@ export const getUser = async () => {
   
 export  const getSites = async () => {
     try {
-      const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/sites/branches`;
+      const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/branches`;
       const access_token = await getAccessTokenFromSessionStorage();
       const auth = `Bearer ${access_token}`;
   
@@ -127,7 +130,10 @@ export  const getSites = async () => {
 
 export const getDeployments = async (deplo) => {
     try {
-        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/sites/${deplo}`;
+        const delay = Math.floor(Math.random() * 4000) + 1000;
+        await new Promise(resolve => setTimeout(resolve, delay));
+
+        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/${deplo}`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
     
@@ -146,7 +152,10 @@ export const getDeployments = async (deplo) => {
 
 export const getLibraryTypes = async () => {
     try {
-        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/library/library_references_types`;
+      const delay = Math.floor(Math.random() * 4000) + 1000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+
+        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/library_references_types`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
     
@@ -165,7 +174,7 @@ export const getLibraryTypes = async () => {
 
 export const getLibraryValues = async (type) => {
     try {
-        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/library/${type}`;
+        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/${type}`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
     
@@ -182,17 +191,28 @@ export const getLibraryValues = async (type) => {
       }
 }
 
-export const getComponent = async (type, value,name) => {
-
-  const delay = Math.floor(Math.random() * 4000) + 2000;
+export const getComponents= async (type, value) => {
+  //Need to be delayed due to the backend
+  const delay = Math.floor(Math.random() * 4000) + 1000;
   await new Promise(resolve => setTimeout(resolve, delay));
+
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/${type}/${value}`
+  const response = await fetch(url);
+  return response || {components : []};
+}
+
+export const getComponent = async (type, value,name) => {
+  //Need to be delayed due to the backend
+  const delay = Math.floor(Math.random() * 4000);
+  await new Promise(resolve => setTimeout(resolve, delay));
+
   const access_token = await getAccessTokenFromSessionStorage();
   if (access_token) {
     const url = process.env.REACT_APP_TNLCM_BACKEND_API;
     const bearerJwt = `Bearer ${access_token}`;
     
     try {
-      const response = await axios.get(`${url}/tnlcm/library/${type}/${value}/${name}`, {
+      const response = await axios.get(`${url}/library/${type}/${value}/${name}`, {
         headers: {
           Authorization: bearerJwt,
           "Content-Type": "application/json",
@@ -207,23 +227,12 @@ export const getComponent = async (type, value,name) => {
   return null;
 };
 
-export const getTrialNetwork = async (id) => {
-    const access_token = await getAccessTokenFromSessionStorage();
-    const auth = `Bearer ${access_token}`;
-    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/${id}`
-    const response = await axios.get(url, {
-        headers: {
-            Authorization: auth,
-            "Content-Type": "application/json",
-        },
-    });
-    return response;
-}
+
 
 export const getTnMarkdown = async (id) => {
   const access_token = await getAccessTokenFromSessionStorage();
   const auth = `Bearer ${access_token}`;
-  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-networks/${id}.md`
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/report/content`
   const response = await axios.get(url, {
       headers: {
           Authorization: auth,

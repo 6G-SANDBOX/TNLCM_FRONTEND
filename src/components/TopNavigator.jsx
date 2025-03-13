@@ -2,15 +2,18 @@ import { faBars, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { getUser } from '../auxFunc/api';
 import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
 
 const ProfileModal = ({ isOpen, onClose, userInfo }) => {
   // Conditionally render the modal
   const [newPassword, setNewPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
   // Reset the password when the modal is closed
   useEffect(() => {
     if (!isOpen) {
       setNewPassword("");
+      setOldPassword("");
     }
   }, [isOpen]);
   // If the user info is not loaded yet, show "Loading..."
@@ -20,10 +23,11 @@ const ProfileModal = ({ isOpen, onClose, userInfo }) => {
   // Handle the save button click
   const handleSave = async () => {
     if (!newPassword) {
+      //TODO QUITAR DE ALERTA Y HACER DE MENSAJE
       alert("Please enter a new password");
       return;
     }
-    const result = await changePwd(newPassword, email);
+    const result = await changePwd(oldPassword, newPassword, username);
     if (result) {
       alert("Password changed successfully");
       onClose();
@@ -54,6 +58,16 @@ const ProfileModal = ({ isOpen, onClose, userInfo }) => {
         </div>
 
         <p className="text-sm text-gray-700 mb-2"><strong>Change Password: </strong></p>
+        {/* TODO PONER BONITO */}
+        <p>Current Password</p>
+        <input
+          type="password"
+          placeholder="Old Password"
+          value={oldPassword}
+          onChange={(e) => setOldPassword(e.target.value)}
+          className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
+        />
+        <p>New Password</p>
         <input
           type="password"
           placeholder="New Password"
@@ -61,6 +75,7 @@ const ProfileModal = ({ isOpen, onClose, userInfo }) => {
           onChange={(e) => setNewPassword(e.target.value)}
           className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
         />
+        
         
         <div className="flex justify-end gap-4">
           <button
@@ -81,15 +96,17 @@ const ProfileModal = ({ isOpen, onClose, userInfo }) => {
   );
 };
 
+//TODO MOVER PETICION A API.JS
 // Send the POST request to change the password
-const changePwd = async (newPwd, mail) => {
+const changePwd = async (oldPwd, newPwd, username) => {
   try {
-    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/user/change-password`;
+    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/user/change-password`;
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
     const payload = {
-      email: mail,
-      password: newPwd
+      username: username,
+      old_password: oldPwd,
+      new_password: newPwd,
     };
     const response = await axios.post(url, payload, {
       headers: {
@@ -103,24 +120,6 @@ const changePwd = async (newPwd, mail) => {
   }
 };
 
-// Send the POST request
-const getUser = async () => {
-  try {
-    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/user`;
-    const access_token = await getAccessTokenFromSessionStorage();
-    const auth = `Bearer ${access_token}`;
-
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: auth,
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  } catch (err) {
-    console.error("Error while retrieving user info:", err.response?.data?.message || err.message);
-  }
-};
 
 const TopNavigator = () => {
   const [menuVisible, setMenuVisible] = useState(false);

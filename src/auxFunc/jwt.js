@@ -33,11 +33,11 @@ async function setAccessTokenUsingRefreshToken() {
   if (!refreshToken) {
     throw new Error("No refresh token found.");
   }
-
+  //TODO mover
   try {
     const url =process.env.REACT_APP_TNLCM_BACKEND_API;
     const response = await axios.post(
-      `${url}/tnlcm/user/refresh`,
+      `${url}/user/refresh`,
       {},
       {
         headers: {
