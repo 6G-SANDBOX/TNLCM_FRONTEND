@@ -71,7 +71,7 @@ const CreateTN = (networkData) => {
     const fetchData = async () => {
 
         try {
-          if (!formData.libraryReferenceType || !formData.libraryReferenceValue) {
+          if (formData.libraryReferenceType ==="" || formData.libraryReferenceValue ==="") {
             setAllComp([]);
             return;
           }
@@ -110,20 +110,32 @@ const CreateTN = (networkData) => {
       if (!previousValues.current.libraryTypes) {
           await fetchLibTypes(); // Always at the start
       } else if (JSON.stringify(previousLibraryTypes.current) !== JSON.stringify(previousValues.current.libraryTypes)) {
-
           await fetchLibTypes(); // Only later if it really changes
       }
 
       if (formData.sitesReferenceType !== previousValues.current.sitesReferenceType) {
           await fetchSites();
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            sitesReferenceValue: "",
+          }));
       }
 
       if (formData.sitesReferenceValue !== previousValues.current.sitesReferenceValue) {
           await fetchDeplo();
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            deploymentSite: "",
+          }));
+
       }
 
       if (formData.libraryReferenceType !== previousValues.current.libraryReferenceType) {
           await fetchLibValues();
+          setFormData((prevFormData) => ({
+            ...prevFormData,
+            libraryReferenceValue: "",
+          }));
       }
 
       await fetchData();
@@ -149,7 +161,7 @@ const CreateTN = (networkData) => {
       try {
         processedDefaultValues.current = defaultValues;
         const parsedData = yaml.load(yamlContent); // Parse to YAML object
-        //TODO MAYBE IN THE FUTURE THIS WILL BE FROM A MODALS
+        //TODO MAYBE IN THE FUTURE THIS WILL BE FROM A MODAL
         setFormData((prevFormData) => ({
           ...prevFormData,
           libraryReferenceType: "branch",
