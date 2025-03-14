@@ -152,9 +152,7 @@ export const getDeployments = async (deplo) => {
 
 export const getLibraryTypes = async () => {
     try {
-      const delay = Math.floor(Math.random() * 4000) + 1000;
-      await new Promise(resolve => setTimeout(resolve, delay));
-
+     
         const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/library_references_types`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;

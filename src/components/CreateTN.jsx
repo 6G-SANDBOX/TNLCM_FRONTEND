@@ -63,7 +63,7 @@ const CreateTN = (networkData) => {
   const previousValues = useRef({
     sitesReferenceType: formData.sitesReferenceType,
     sitesReferenceValue: formData.sitesReferenceValue,
-    libraryReferenceType: formData.libraryReferenceType,
+    libraryReferenceType: null,
     libraryTypes: null, // Initially empty
   });
 
@@ -139,7 +139,7 @@ const CreateTN = (networkData) => {
     const executeIfChanged = () => {
       //TODO FIX THE LOGIC
 
-      if (formData.libraryReferenceType===""){
+      if (formData.libraryReferenceType==="" && formData.libraryReferenceType !== previousValues.current.libraryReferenceType){
         fetchLibTypes();
       } else{
         if (formData.libraryReferenceType !== previousValues.current.libraryReferenceType) {
