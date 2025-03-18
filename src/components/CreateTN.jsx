@@ -60,12 +60,6 @@ const CreateTN = (networkData) => {
   const [isLoading, setIsLoading] = useState(false);
   const [componentsData, setComponentsData] = useState({});
 
-  const previousValues = useRef({
-    sitesReferenceType: formData.sitesReferenceType,
-    sitesReferenceValue: formData.sitesReferenceValue,
-    libraryReferenceType: null,
-    libraryTypes: null, // Initially empty
-  });
 
   const delay = async () => {
     return new Promise((resolve) => setTimeout(resolve, 2000));
@@ -99,84 +93,30 @@ const CreateTN = (networkData) => {
 
   // UseEffect for rending purposes
   useEffect(() => {
-    
-    const fetchComponents = async () => {
 
-        try {
-          if (formData.libraryReferenceType ==="" || formData.libraryReferenceValue ==="") {
-            setAllComp([]);
-            return;
-          }
-            const response = await getComponents(formData.libraryReferenceType, formData.libraryReferenceValue);
-            if (!response.ok) {
-                throw new Error(`Error while retrieving all components: ${response.status}`);
-            }
-            const result = await response.json();
-            setAllComp(result.components);
-        } catch (error) {
-            console.error("Error doing the fetch:", error);
-        }
-    };
-    const fetchSiteValue = async () => {
-      const sites2 = await getSites();
-      setSites(sites2.sites);
-    };
-    const fetchDeplo= async () => {
-      const deplo = await getDeployments(formData.sitesReferenceValue);
-      setDeployement(deplo);
-    };
     const fetchLibTypes = async () => {
       const response = await getLibraryTypes();
       const values= Object.values(response)[0] || [];
       setLibraryTypes(values);
     };
-    const fetchLibValues = async () => {
-      const response = await getLibraryValues(formData.libraryReferenceType);
-      const values= Object.values(response)[0] || []
-      setLibraryValues(values);
-    };
 
-    const executeIfChanged = () => {
-      //TODO FIX THE LOGIC
-
-      if (formData.libraryReferenceType==="" && formData.libraryReferenceType !== previousValues.current.libraryReferenceType){
-        fetchLibTypes();
-      } else{
-        if (formData.libraryReferenceType !== previousValues.current.libraryReferenceType) {
-          setFormData((prevFormData) => ({
-            ...prevFormData,
-            libraryReferenceValue: "",
-          }));
-        fetchLibValues();
+    const fetchComponents = async () => {
+      try {
+        if (formData.libraryReferenceType ==="" || formData.libraryReferenceValue ==="") {
+          setAllComp([]);
+          return;
         }
+          const response = await getComponents(formData.libraryReferenceType, formData.libraryReferenceValue);
+          if (!response.ok) {
+              throw new Error(`Error while retrieving all components: ${response.status}`);
+          }
+          const result = await response.json();
+          setAllComp(result.components);
+      } catch (error) {
+          console.error("Error doing the fetch:", error);
       }
+  };
 
-      if (formData.libraryReferenceType !==""  && formData.libraryReferenceValue !==""){
-        console.log(formData.libraryReferenceValue);
-        //TODO SE EJCUTA DOBLE AQUI
-        if ( (formData.libraryReferenceType !== previousValues.current.libraryReferenceType) || (formData.libraryReferenceValue !== previousValues.current.libraryReferenceValue) ) {
-          fetchComponents();
-        }
-      } else {
-        setAllComp([]);
-      }
-      
-      if (formData.sitesReferenceType !==""){
-        fetchSiteValue();
-      }
-
-      if (formData.sitesReferenceValue !==""){
-        fetchDeplo();
-      }
-    
-      previousValues.current = {
-        sitesReferenceType: formData.sitesReferenceType,
-        sitesReferenceValue: formData.sitesReferenceValue,
-        libraryReferenceType: formData.libraryReferenceType,
-        libraryReferenceValue: formData.libraryReferenceValue,
-      };
-    };
-    
   if (defaultValues){
     if (JSON.stringify(defaultValues) === JSON.stringify(processedDefaultValues.current)) {
       //If the default value doesnt change dont re-render again
@@ -253,18 +193,80 @@ const CreateTN = (networkData) => {
         console.error("Error while accessing to the network data: ", e);
       }
     }
-
-    executeIfChanged();
+    // Execute the fetch for the library types only the first time
+    if (formData.libraryReferenceType==="") {
+      fetchLibTypes();
+    }
+    fetchComponents();
   }, [
-    libraryTypes,
-    networkData,
     defaultValues,
-    formData.sitesReferenceType,
-    formData.sitesReferenceValue,
-    formData.deploymentSite,
     formData.libraryReferenceType,
     formData.libraryReferenceValue,
-]);
+    networkData,
+  ]);
+
+  const handleInputChange = (event) => {
+
+    const fetchSiteValue = async () => {
+      const sites2 = await getSites();
+      setSites(sites2.sites);
+    };
+
+    const fetchLibValues = async (value) => {
+      const response = await getLibraryValues(value);
+      const values= Object.values(response)[0] || []
+      setLibraryValues(values);
+    };
+
+    const fetchDeplo= async (value) => {
+      const deplo = await getDeployments(value);
+      setDeployement(deplo);
+    };
+
+    const { name, value } = event.target;
+
+    if (name === "sitesReferenceType" ) {
+      setSites([]);
+      setDeployement([]);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        sitesReferenceValue: "",
+        deploymentSite: "",
+        [name]: value,
+      }));
+      fetchSiteValue();
+
+    } else if (name === "sitesReferenceValue") {
+      setDeployement([]);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        [name]: value
+      }));
+      fetchDeplo(value);
+
+    } else if (name === "libraryReferenceType") {
+      setLibraryValues([]);
+      setAllComp([]);
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        libraryReferenceValue: "",
+        [name]: value,
+      }));
+      if (value) fetchLibValues(value);
+
+    } else if (name === "libraryReferenceValue") {
+      setFormData((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+
+    } else {
+      setFormData((prevState) => ({
+        ...prevState,
+        [name]: value,
+      }));
+    }
+  };
 
   const filterVnetOrTnVxlanComponents = useCallback(() => {
     const filteredComponents = selectedComponent.filter((component) =>
@@ -416,13 +418,7 @@ const CreateTN = (networkData) => {
   };
   
 
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
+  
 
   const handleComponentClick = (label) => {
     // Define the components that should only have one instance
