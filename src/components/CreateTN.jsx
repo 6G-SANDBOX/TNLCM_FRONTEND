@@ -75,19 +75,20 @@ const CreateTN = (networkData) => {
         const result = await getComponent(formData.libraryReferenceType,formData.libraryReferenceValue,component.label);
         setComponentsData((prevData) => ({
           ...prevData,
-          [component.id]: result, // Usamos el id del componente como clave
+          [component.id]: result,
         }));
         setCurrentIndex(prevIndex => prevIndex + 1);
       } catch (error) {
         console.error('Error while doing the request:', error);
         setIsLoading(false);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-
     if (currentIndex < selectedComponent.length && !isLoading) {
       const component = selectedComponent[currentIndex];
-      makeRequestAndRender(component);
+      if (component) makeRequestAndRender(component);
     }
   }, [currentIndex, isLoading, selectedComponent, formData.libraryReferenceType, formData.libraryReferenceValue]);
 
@@ -470,6 +471,8 @@ const CreateTN = (networkData) => {
         const { [id]: removed, ...rest } = prevErrors; // Remove all the errors associated to the component
         return rest;
     });
+
+    setCurrentIndex(prevIndex => prevIndex - 1);
 };
 
 

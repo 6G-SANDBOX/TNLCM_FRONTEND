@@ -1,7 +1,6 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useRef, useState } from "react";
-import { getComponent } from "../../auxFunc/api";
 
 const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError, defaultValues, name, request }) => {
   const [data, setData] = useState(null);
@@ -15,11 +14,11 @@ const Ks8500Runner = ({ id, removeComponent, onChange, list, whenError, defaultV
       if (hasFetched.current) return;
       hasFetched.current = true;
       let result= null;
-      result = await getComponent(
-        request[0],
-        request[1],
-        request[2]
-      );
+      result = await request;
+      if (!result) {
+        hasFetched.current = false;
+        return;
+      }
       if (result) {
         setData(result.component_input);
         const required = [];

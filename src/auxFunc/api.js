@@ -191,8 +191,6 @@ export const getLibraryValues = async (type) => {
 
 export const getComponents= async (type, value) => {
   //Need to be delayed due to the backend
-  const delay = Math.floor(Math.random() * 4000) + 1000;
-  await new Promise(resolve => setTimeout(resolve, delay));
 
   let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/${type}/${value}`
   const response = await fetch(url);
@@ -201,8 +199,6 @@ export const getComponents= async (type, value) => {
 
 export const getComponent = async (type, value,name) => {
   //Need to be delayed due to the backend
-  const delay = Math.floor(Math.random() * 4000);
-  await new Promise(resolve => setTimeout(resolve, delay));
 
   const access_token = await getAccessTokenFromSessionStorage();
   if (access_token) {

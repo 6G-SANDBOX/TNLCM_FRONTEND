@@ -16,7 +16,10 @@ const TnInit = ({ id, removeComponent, onChange, whenError, defaultValues, name,
       hasFetched.current = true;
       let result= null;
       result = await request;
-      
+      if (!result) {
+        hasFetched.current = false;
+        return;
+      }
       if (result) {
         setData(result.component_input);
         const required = [];  // Array to store the required fields

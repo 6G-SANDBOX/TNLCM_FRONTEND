@@ -11,10 +11,14 @@ const Elcm = ({ id, removeComponent, onChange, defaultValues, name, request }) =
   // UseEffect to fetch data from the API
   useEffect(() => {
     const loadData = async () => {
-      let result= null;
       if (hasFetched.current) return;
       hasFetched.current = true;
-
+      let result= null;
+      result = await request;
+      if (!result) {
+        hasFetched.current = false;
+        return;
+      }
       result = await request;
       console.log(result);
       if (result) {
