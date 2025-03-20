@@ -59,7 +59,9 @@ const CreateTN = (networkData) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [componentsData, setComponentsData] = useState({});
-
+  const prevLibValue = useRef(formData.libraryReferenceValue);
+  const prevLibType = useRef(formData.libraryReferenceType);
+  const [lock, setLock] = useState(false);
 
   const delay = async () => {
     return new Promise((resolve) => setTimeout(resolve, 2000));
@@ -68,6 +70,26 @@ const CreateTN = (networkData) => {
   
   // UseEffect for the component loading
   useEffect(() => {
+    const fetchComponents = async (skip) => {
+      try {
+        if (formData.libraryReferenceType ==="" || formData.libraryReferenceValue ==="") {
+          setAllComp([]);
+          return;
+        }
+        if (prevLibValue.current === formData.libraryReferenceValue && prevLibType.current === formData.libraryReferenceType && !skip){
+          return;
+        }
+        const response = await getComponents(formData.libraryReferenceType, formData.libraryReferenceValue);
+        if (!response.ok) {
+            throw new Error(`Error while retrieving all components: ${response.status}`);
+        }
+        const result = await response.json();
+        setAllComp(result.components);
+      } catch (error) {
+          console.error("Error doing the fetch:", error);
+      }
+    };
+
     const makeRequestAndRender = async (component) => {
       setIsLoading(true); // Start the loading
       try {
@@ -85,12 +107,46 @@ const CreateTN = (networkData) => {
         setIsLoading(false);
       }
     };
+    //Wait for request the branch
+    if (lock) return;
 
-    if (currentIndex < selectedComponent.length && !isLoading) {
+    if (currentIndex < (selectedComponent.length -1) && !isLoading) {
       const component = selectedComponent[currentIndex];
       if (component) makeRequestAndRender(component);
-    }
-  }, [currentIndex, isLoading, selectedComponent, formData.libraryReferenceType, formData.libraryReferenceValue]);
+      
+    } else if (currentIndex >= (selectedComponent.length -1) && !isLoading) {
+      const component = selectedComponent[currentIndex];
+      if (component) makeRequestAndRender(component);
+      delay(3000).then(() => {
+        fetchComponents(true);
+    });
+  }
+  }, [currentIndex, isLoading, selectedComponent, formData.libraryReferenceType, formData.libraryReferenceValue, lock]);
+
+
+  useEffect(() => {
+    const fetchComponents = async () => {
+      try {
+        if (formData.libraryReferenceType ==="" || formData.libraryReferenceValue ==="") {
+          setAllComp([]);
+          return;
+        }
+        if (prevLibValue.current === formData.libraryReferenceValue && prevLibType.current === formData.libraryReferenceType){
+          
+          return;
+        }
+        const response = await getComponents(formData.libraryReferenceType, formData.libraryReferenceValue);
+        if (!response.ok) {
+            throw new Error(`Error while retrieving all components: ${response.status}`);
+        }
+        const result = await response.json();
+        setAllComp(result.components);
+      } catch (error) {
+          console.error("Error doing the fetch:", error);
+      }
+    };
+  fetchComponents(false);
+  }, [formData.libraryReferenceType, formData.libraryReferenceValue]);
 
   // UseEffect for rending purposes
   useEffect(() => {
@@ -101,22 +157,11 @@ const CreateTN = (networkData) => {
       setLibraryTypes(values);
     };
 
-    const fetchComponents = async () => {
-      try {
-        if (formData.libraryReferenceType ==="" || formData.libraryReferenceValue ==="") {
-          setAllComp([]);
-          return;
-        }
-          const response = await getComponents(formData.libraryReferenceType, formData.libraryReferenceValue);
-          if (!response.ok) {
-              throw new Error(`Error while retrieving all components: ${response.status}`);
-          }
-          const result = await response.json();
-          setAllComp(result.components);
-      } catch (error) {
-          console.error("Error doing the fetch:", error);
-      }
-  };
+    const fetchLibValues = async (value) => {
+      const response = await getLibraryValues(value);
+      const values= Object.values(response)[0] || []
+      setLibraryValues(values);
+    };
 
   if (defaultValues){
     if (JSON.stringify(defaultValues) === JSON.stringify(processedDefaultValues.current)) {
@@ -130,11 +175,17 @@ const CreateTN = (networkData) => {
         processedDefaultValues.current = defaultValues;
         const parsedData = yaml.load(yamlContent); // Parse to YAML object
         //TODO MAYBE IN THE FUTURE THIS WILL BE FROM A MODAL
+        prevLibType.current = "branch";
+        prevLibValue.current = "develop";
         setFormData((prevFormData) => ({
           ...prevFormData,
           libraryReferenceType: "branch",
           libraryReferenceValue: "develop",
         }));
+        setLock(true);
+        fetchLibValues("branch").then(() => {
+          setLock(false);
+        });
         // Open each component
         Object.keys(parsedData.trial_network).forEach((key) => {
           const component = parsedData.trial_network[key];
@@ -166,12 +217,18 @@ const CreateTN = (networkData) => {
         setID(true);
         processedNetworkData.current = networkData;
         //TODO In the future maybe we got this fields from the networkData
+        prevLibType.current = "branch";
+        prevLibValue.current = "develop";
         setFormData((prevFormData) => ({
           ...prevFormData,
           trialNetworkId: networkData.networkData.tn_id,
           libraryReferenceType: "branch",
           libraryReferenceValue: "develop",
         }));
+        setLock(true);
+        fetchLibValues("branch").then(() => {
+          setLock(false);
+        });
         // Open each component
         Object.keys(networkData.networkData.raw_descriptor.trial_network).forEach((key) => {
           const component = networkData.networkData.raw_descriptor.trial_network[key];
@@ -198,7 +255,6 @@ const CreateTN = (networkData) => {
     if (formData.libraryReferenceType==="") {
       fetchLibTypes();
     }
-    fetchComponents();
   }, [
     defaultValues,
     formData.libraryReferenceType,

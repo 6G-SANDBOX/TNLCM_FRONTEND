@@ -118,7 +118,6 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError, default
 
   const handleChange = (event) => {
     const { name, value } = event.target;
-    console.log(value);
     // Update the formValues with the new value
     setFormValues((prevState) => ({
       ...prevState,

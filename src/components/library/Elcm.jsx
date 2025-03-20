@@ -20,7 +20,6 @@ const Elcm = ({ id, removeComponent, onChange, defaultValues, name, request }) =
         return;
       }
       result = await request;
-      console.log(result);
       if (result) {
         setData(result.component_input);
         const required = [];
