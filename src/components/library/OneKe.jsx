@@ -356,7 +356,6 @@ const OneKe = ({ id, removeComponent, onChange, list1, list2, whenError, default
                 </div>
               );
             }
-            //TODO Use this as example for the generic file
             return (
               <div className="mb-4" key={key}>
                 <label htmlFor={key} className="block text-gray-700 font-semibold">

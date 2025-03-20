@@ -668,7 +668,6 @@ const CreateTN = (networkData) => {
   
   const switchComponent = (component, removeComponent, handleComponentFormChange, handleChildError) => {
     const request = componentsData[component.id];
-    //TODO NO FUNCIONA BIEN
     if (request === undefined || request === null) {
       setTimeout(() => {
         return switchComponent(component, removeComponent, handleComponentFormChange, handleChildError);

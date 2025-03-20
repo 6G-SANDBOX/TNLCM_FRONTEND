@@ -1,8 +1,7 @@
 import { faArrowsRotate, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import React, { useCallback, useEffect, useState } from "react";
-import { getAccessTokenFromSessionStorage } from "../auxFunc/jwt";
+import { getLogs } from "../auxFunc/api";
 const TerminalModal = ({ isOpen, onClose, vmId }) => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -16,20 +15,10 @@ const TerminalModal = ({ isOpen, onClose, vmId }) => {
     setError(null);
 
     try {
-      //TODO MOVER
-      const access_token = await getAccessTokenFromSessionStorage();
-      const response = await axios.get(
-        `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${vmId}/log/content`,
-        {
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
-        }
-      );
-
+       const response = getLogs(vmId);
       // If the response contains a log string, split it by new lines
-      if (typeof response.data.log === "string") {
-        const logLines = response.data.log.split("\n");
+      if (typeof response.data.log_content === "string") {
+        const logLines = response.data.log_content.split("\n");
         setLogs(logLines);
       } else {
         setLogs([]);

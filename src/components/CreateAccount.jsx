@@ -7,8 +7,8 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import React, { useState } from "react";
+import { createAccount } from "../auxFunc/api";
   
   const CreateAccount = ({ onClose }) => {
     const [email, setEmail] = useState("");
@@ -20,7 +20,6 @@ import React, { useState } from "react";
   
     const handleSubmit = async (e) => {
       e.preventDefault();
-      const url =process.env.REACT_APP_TNLCM_BACKEND_API;
       // Password validation
       const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/; // At least one uppercase, one lowercase, and one number
       if (password !== confirmPassword) {
@@ -46,11 +45,7 @@ import React, { useState } from "react";
       };
   
       try {
-        //TODO MOVER
-        await axios.post(
-          `${url}/user/register`,
-          accountData
-        );
+        createAccount(accountData); // Call the createAccount function
         onClose(); // Close modal after account creation
       } catch (error) {
         if (error.response) {

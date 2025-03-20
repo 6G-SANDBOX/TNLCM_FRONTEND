@@ -1,7 +1,7 @@
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import React, { useState } from "react";
+import { loginUser } from "../auxFunc/api";
 import CreateAccount from "./CreateAccount";
 import Footer from "./Footer";
 import TopNavigator from "./TopNavigator";
@@ -150,32 +150,4 @@ const Login = () => {
 
 export default Login;
 
-export async function loginUser(username, password, config = {}) {
-  const authString = `${username}:${password}`;
-  const encodedAuth = window.btoa(unescape(encodeURIComponent(authString))); // Special encoding for base64
-  const basicAuthHeader = `Basic ${encodedAuth}`;
-
-  try {
-    //TODO MOVER A PI
-    const url = process.env.REACT_APP_TNLCM_BACKEND_API;
-    // Make the POST request to the login endpoint
-    const response = await axios.post(
-      `${url}/user/login`,
-      {},
-      {
-        headers: {
-          Authorization: basicAuthHeader, // Authorization header with basic auth
-          "Content-Type": "application/json",
-        },
-        ...config, // Add any other configuration
-      }
-    );
-
-    // Return the response
-    return response;
-  } catch (error) {
-    // Make sure to return the error
-    throw error;
-  }
-}
 

@@ -1,19 +1,30 @@
 import { faBars, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import axios from 'axios';
+import {
+  Box,
+  Button,
+  Modal,
+  TextField,
+  Typography,
+} from "@mui/material";
 import React, { useEffect, useState } from 'react';
-import { getUser } from '../auxFunc/api';
+import { changePwd, getUser } from '../auxFunc/api';
 import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
 
 const ProfileModal = ({ isOpen, onClose, userInfo }) => {
   // Conditionally render the modal
   const [newPassword, setNewPassword] = useState("");
   const [oldPassword, setOldPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   // Reset the password when the modal is closed
   useEffect(() => {
     if (!isOpen) {
+      setSuccess("");
       setNewPassword("");
       setOldPassword("");
+      setError("");
     }
   }, [isOpen]);
   // If the user info is not loaded yet, show "Loading..."
@@ -22,104 +33,101 @@ const ProfileModal = ({ isOpen, onClose, userInfo }) => {
   const email = userInfo ? userInfo.email : 'Loading...';
   // Handle the save button click
   const handleSave = async () => {
-    if (!newPassword) {
-      //TODO QUITAR DE ALERTA Y HACER DE MENSAJE
-      alert("Please enter a new password");
+    setSuccess("");
+    if (!oldPassword || !newPassword)  {
+      setError("All fields are required.");
+      return;
+    }
+    if (newPassword === oldPassword) {
+      setError("Passwords can not be the same.");
       return;
     }
     const result = await changePwd(oldPassword, newPassword, username);
     if (result) {
-      alert("Password changed successfully");
+      setSuccess("Password changed successfully.");
       onClose();
     }
+    setError("");
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-xl shadow-2xl w-80 max-w-sm border border-gray-200">
-        <div className="mb-6">
-          {userInfo ? (
-            <div>
-              <p className="text-sm text-gray-700 mb-2">
-                <strong>Username:</strong> {username}
-              </p>
-              <p className="text-sm text-gray-700 mb-2">
-                <strong>Email:</strong> {email}
-              </p>
-              <p className="text-sm text-gray-700 mb-4">
-                <strong>Organization:</strong> {organization}
-              </p>
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500 mb-4">Loading user information...</p>
-          )}
-        </div>
+    <Modal open={isOpen} onClose={onClose}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 350,
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}
+      >
 
-        <p className="text-sm text-gray-700 mb-2"><strong>Change Password: </strong></p>
-        {/* TODO PONER BONITO */}
-        <p>Current Password</p>
-        <input
+        {userInfo ? (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="body2"><strong>Username:</strong> {username}</Typography>
+            <Typography variant="body2"><strong>Email:</strong> {email}</Typography>
+            <Typography variant="body2"><strong>Organization:</strong> {organization}</Typography>
+          </Box>
+        ) : (
+          <Typography variant="body2" color="textSecondary">
+            Loading user information...
+          </Typography>
+        )}
+
+        <Typography variant="h6" gutterBottom>
+          Change Password :
+        </Typography>
+
+        <TextField
+          label="Current Password"
           type="password"
-          placeholder="Old Password"
+          fullWidth
+          margin="normal"
+          variant="outlined"
           value={oldPassword}
           onChange={(e) => setOldPassword(e.target.value)}
-          className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
         />
-        <p>New Password</p>
-        <input
+
+        <TextField
+          label="New Password"
           type="password"
-          placeholder="New Password"
+          fullWidth
+          margin="normal"
+          variant="outlined"
           value={newPassword}
           onChange={(e) => setNewPassword(e.target.value)}
-          className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
         />
-        
-        
-        <div className="flex justify-end gap-4">
-          <button
-            onClick={onClose}
-            className="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none transition duration-300"
-          >
+
+        {error && (
+          <Typography variant="body2" color="error" sx={{ mt: 2 }}>
+            {error}
+          </Typography>
+        )}
+
+        {success && (
+          <Typography variant="body2" color="success.main" sx={{ mt: 2 }}>
+            {success}
+          </Typography>
+        )}
+
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+          <Button onClick={onClose} color="secondary" sx={{ mr: 2 }}>
             Close
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none transition duration-300"
-          >
+          </Button>
+          <Button onClick={handleSave} variant="contained" color="primary">
             Save
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
   );
 };
-
-//TODO MOVER PETICION A API.JS
-// Send the POST request to change the password
-const changePwd = async (oldPwd, newPwd, username) => {
-  try {
-    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/user/change-password`;
-    const access_token = await getAccessTokenFromSessionStorage();
-    const auth = `Bearer ${access_token}`;
-    const payload = {
-      username: username,
-      old_password: oldPwd,
-      new_password: newPwd,
-    };
-    const response = await axios.post(url, payload, {
-      headers: {
-        Authorization: auth,
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  } catch (err) {
-    console.error("Error while changing password:", err.response?.data?.message || err.message);
-  }
-};
-
 
 const TopNavigator = () => {
   const [menuVisible, setMenuVisible] = useState(false);

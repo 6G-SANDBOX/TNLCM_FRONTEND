@@ -221,8 +221,6 @@ export const getComponent = async (type, value,name) => {
   return null;
 };
 
-
-
 export const getTnMarkdown = async (id) => {
   const access_token = await getAccessTokenFromSessionStorage();
   const auth = `Bearer ${access_token}`;
@@ -236,3 +234,101 @@ export const getTnMarkdown = async (id) => {
   return response;
 }
 
+
+
+export async function loginUser(username, password, config = {}) {
+  const authString = `${username}:${password}`;
+  const encodedAuth = window.btoa(unescape(encodeURIComponent(authString))); // Special encoding for base64
+  const basicAuthHeader = `Basic ${encodedAuth}`;
+
+  try {
+    const url =`${process.env.REACT_APP_TNLCM_BACKEND_API}/user/login`;
+    // Make the POST request to the login endpoint
+    const response = await axios.post(
+      url,
+      {},
+      {
+        headers: {
+          Authorization: basicAuthHeader, // Authorization header with basic auth
+          "Content-Type": "application/json",
+        },
+        ...config, // Add any other configuration
+      }
+    );
+
+    // Return the response
+    return response;
+  } catch (error) {
+    // Make sure to return the error
+    throw error;
+  }
+}
+
+export const createAccount = async (accountData) => {
+  const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/user/register`;
+  try {
+    const response = await axios.post(url, accountData);
+    return response;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export const changePwd = async (oldPwd, newPwd, username) => {
+  try {
+    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/user/change-password`;
+    const access_token = await getAccessTokenFromSessionStorage();
+    const auth = `Bearer ${access_token}`;
+    const payload = {
+      username: username,
+      old_password: oldPwd,
+      new_password: newPwd,
+    };
+    const response = await axios.post(url, payload, {
+      headers: {
+        Authorization: auth,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data;
+  } catch (err) {
+    console.error("Error while changing password:", err.response?.data?.message || err.message);
+  }
+};
+
+export const refreshToken= async () => {
+  try {
+    const url =process.env.REACT_APP_TNLCM_BACKEND_API;
+    const response = await axios.post(
+      `${url}/user/refresh`,
+      {},
+      {
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${refreshToken}`,
+        },
+      }
+    );
+    if (!response.data || !response.data.access_token) {
+      throw new Error("Failed to refresh access token.");
+    }
+    return response.data; // Return the new access token
+  } catch (error) {
+    throw new Error("Failed to fetch a new access token: " + error.message);
+  }
+};
+
+
+export async function getLogs(vmId) {
+  const access_token = await getAccessTokenFromSessionStorage();
+  const response = await axios.get(
+    `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${vmId}/log/content`,
+    {
+      headers: {
+        Authorization: `Bearer ${access_token}`,
+      },
+    }
+  );
+  return response;
+}

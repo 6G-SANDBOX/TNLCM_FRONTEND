@@ -1,4 +1,3 @@
-import axios from "axios";
 import { jwtDecode } from 'jwt-decode';
 
 // Check if the token is expired
@@ -33,26 +32,6 @@ async function setAccessTokenUsingRefreshToken() {
   if (!refreshToken) {
     throw new Error("No refresh token found.");
   }
-  //TODO mover
-  try {
-    const url =process.env.REACT_APP_TNLCM_BACKEND_API;
-    const response = await axios.post(
-      `${url}/user/refresh`,
-      {},
-      {
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${refreshToken}`,
-        },
-      }
-    );
-    if (!response.data || !response.data.access_token) {
-      throw new Error("Failed to refresh access token.");
-    }
-
-    return response.data; // Return the new access token
-  } catch (error) {
-    throw new Error("Failed to fetch a new access token: " + error.message);
-  }
+  return refreshToken();
+  
 }
