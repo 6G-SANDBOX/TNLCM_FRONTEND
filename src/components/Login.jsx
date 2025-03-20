@@ -16,6 +16,16 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevents the default form submission behavior
+    if (!user && !password) {
+      setError("Username and password are required.");
+      return;
+    } else if (!user) {
+      setError("Username is required.");
+      return;
+    } else if (!password) {
+      setError("Password is required.");
+      return;
+    }
     try {
       const response = await loginUser(user, password, { timeout: 5000 }); // Five seconds timeout
   
@@ -27,7 +37,7 @@ const Login = () => {
       sessionStorage.setItem("access_token", accessToken);
       // Save refresh_token in localStorage (multiple sessions)
       localStorage.setItem("refresh_token", refreshToken);
-  
+      
       setSuccess("Login successful!");
       setError(""); // Clean error message
       setTimeout(() => {

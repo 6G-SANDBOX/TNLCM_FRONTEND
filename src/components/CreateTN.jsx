@@ -216,7 +216,7 @@ const CreateTN = (networkData) => {
       try {
         setID(true);
         processedNetworkData.current = networkData;
-        //TODO In the future maybe we got this fields from the networkData
+        //Backend always send us the commit from the network
         prevLibType.current = "commit";
         prevLibValue.current = networkData.networkData.library_commit_id;
         setFormData((prevFormData) => ({
@@ -225,6 +225,7 @@ const CreateTN = (networkData) => {
           libraryReferenceType: "commit",
           libraryReferenceValue: networkData.networkData.library_commit_id,
         }));
+        //Lock while fetching the library values
         setLock(true);
         fetchLibValues("commit").then(() => {
           setLock(false);
@@ -713,7 +714,6 @@ const CreateTN = (networkData) => {
           formData2.append("library_reference_value", formData.libraryReferenceValue);
           formData2.append("sites_branch", formData.sitesReferenceValue);
           formData2.append("deployment_site", formData.deploymentSite);
-          //TODO SOMEHTING WRONG WITH TNID
           await createTrialNetwork(formData2,url);
           setSuccess("Trial network deployed successfully");
           setError("");
