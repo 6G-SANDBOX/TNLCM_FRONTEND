@@ -1,7 +1,7 @@
 import yaml from 'js-yaml';
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { createTrialNetwork, getComponent, getComponents, getDeployments, getLibraryTypes, getLibraryValues, getSites, saveTrialNetwork } from "../auxFunc/api";
+import { createTrialNetwork, getComponent, getComponents, getDeployments, getLibraryTypes, getLibraryValues, getSites, saveTrialNetwork, updateTrialNetwork } from "../auxFunc/api";
 import convertJsonToYaml from '../auxFunc/yamlHandler';
 import TopNavigator from "./TopNavigator";
 import BerlinRan from "./library/Berlin_ran";
@@ -116,10 +116,9 @@ const CreateTN = (networkData) => {
       
     } else if (currentIndex >= (selectedComponent.length -1) && !isLoading) {
       const component = selectedComponent[currentIndex];
-      if (component) makeRequestAndRender(component);
-      delay(3000).then(() => {
+      if (component) makeRequestAndRender(component).then(() => {
         fetchComponents(true);
-    });
+      });
   }
   }, [currentIndex, isLoading, selectedComponent, formData.libraryReferenceType, formData.libraryReferenceValue, lock]);
 
@@ -217,16 +216,17 @@ const CreateTN = (networkData) => {
         setID(true);
         processedNetworkData.current = networkData;
         //TODO In the future maybe we got this fields from the networkData
-        prevLibType.current = "branch";
-        prevLibValue.current = "develop";
+        console.log(networkData.networkData);
+        prevLibType.current = "commit";
+        prevLibValue.current = networkData.networkData.library_commit_id;
         setFormData((prevFormData) => ({
           ...prevFormData,
           trialNetworkId: networkData.networkData.tn_id,
-          libraryReferenceType: "branch",
-          libraryReferenceValue: "develop",
+          libraryReferenceType: "commit",
+          libraryReferenceValue: networkData.networkData.library_commit_id,
         }));
         setLock(true);
-        fetchLibValues("branch").then(() => {
+        fetchLibValues("commit").then(() => {
           setLock(false);
         });
         // Open each component
@@ -262,7 +262,7 @@ const CreateTN = (networkData) => {
     networkData,
   ]);
 
-  const handleInputChange = (event) => {
+  const handleChange = (event) => {
 
     const fetchSiteValue = async () => {
       const sites2 = await getSites();
@@ -304,6 +304,7 @@ const CreateTN = (networkData) => {
     } else if (name === "libraryReferenceType") {
       setLibraryValues([]);
       setAllComp([]);
+      setSelectedComponent([]);
       setFormData((prevFormData) => ({
         ...prevFormData,
         libraryReferenceValue: "",
@@ -316,7 +317,8 @@ const CreateTN = (networkData) => {
         ...prevState,
         [name]: value,
       }));
-
+      setAllComp([]);
+      setSelectedComponent([]);
     } else {
       setFormData((prevState) => ({
         ...prevState,
@@ -613,8 +615,10 @@ const CreateTN = (networkData) => {
   const validateTrialNetworkId = () => {
     const newErrors = {};
 
-    if (!formData.trialNetworkId || !formData.trialNetworkId.trim()) {
-        newErrors.trialNetworkId = "This field is required";
+    if ((!formData.trialNetworkId || !formData.trialNetworkId.trim()) || (!formData.libraryReferenceType || !formData.libraryReferenceType.trim()) || (!formData.libraryReferenceValue || !formData.libraryReferenceValue.trim())) {
+        if (!formData.trialNetworkId || !formData.trialNetworkId.trim()) newErrors.trialNetworkId = "This field is required";
+        if (!formData.libraryReferenceType || !formData.libraryReferenceType.trim()) newErrors.libraryReferenceType = "This field is required";
+        if (!formData.libraryReferenceValue || !formData.libraryReferenceValue.trim()) newErrors.libraryReferenceValue = "This field is required";
         window.scrollTo({
           top: 0,
           behavior: "smooth"
@@ -647,11 +651,16 @@ const CreateTN = (networkData) => {
       // Create the blob and download the file
       let formData3= new FormData();
       const blob3 = new Blob([yamlString], { type: "text/yaml" });
-      formData3.append("descriptor", blob3, "descriptor.yaml");
       formData3.append("tn_id", formData.trialNetworkId);
-
+      formData3.append("descriptor", blob3, "descriptor.yaml");
+      formData3.append("library_reference_type", formData.libraryReferenceType);
+      formData3.append("library_reference_value", formData.libraryReferenceValue);
       try {
-        await saveTrialNetwork(formData3);
+        if (!networkData) {
+          await saveTrialNetwork(formData3);
+        } else {
+          await updateTrialNetwork(formData3, formData.trialNetworkId);
+        }
         setSuccess("Trial network saved successfully");
         setError("");
         setTimeout(() => {
@@ -660,9 +669,8 @@ const CreateTN = (networkData) => {
         }, 2502);
       } catch (error) {
         setSuccess("");
-        setError("Failed to save trial network \n" + error.message);
+        setError("Failed to save trial network \n" + error);
         setTimeout(() => {
-          window.location = "/dashboard";
           setError("");
         }, 5002);
       }
@@ -827,7 +835,7 @@ const CreateTN = (networkData) => {
               className={`w-full border p-2 mt-1 rounded-md ${errors.trialNetworkId ? "border-red-500" : "border-gray-300"}`}
               value={formData.trialNetworkId}
               readOnly={ID}
-              onChange={handleInputChange}
+              onChange={handleChange}
             />
             {errors.trialNetworkId && <p className="text-red-500 text-sm mt-1">{errors.trialNetworkId}</p>}
           </div>
@@ -841,7 +849,7 @@ const CreateTN = (networkData) => {
               name="libraryReferenceType"
               className={`w-full border p-2 mt-1 rounded-md ${errors.libraryReferenceType ? "border-red-500" : "border-gray-300"}`}
               value={formData.libraryReferenceType}
-              onChange={handleInputChange}
+              onChange={handleChange}
             >
               <option value="" disabled>--Select a site--</option>
               {libraryTypes && Object.entries(libraryTypes).map(([key, value], index) => (
@@ -862,7 +870,7 @@ const CreateTN = (networkData) => {
               name="libraryReferenceValue"
               className={`w-full border p-2 mt-1 rounded-md ${errors.libraryReferenceValue ? "border-red-500" : "border-gray-300"}`}
               value={formData.libraryReferenceValue}
-              onChange={handleInputChange}
+              onChange={handleChange}
             >
               <option value=""   disabled>--Select a site--</option>
               {libraryValues && Object.entries(libraryValues).map(([key, value], index) => (
@@ -883,7 +891,7 @@ const CreateTN = (networkData) => {
               name="sitesReferenceType"
               className={`w-full border p-2 mt-1 rounded-md ${errors.sitesReferenceType ? "border-red-500" : "border-gray-300"}`}
               value={formData.sitesReferenceType}
-              onChange={handleInputChange}
+              onChange={handleChange}
             >
               <option value=""   disabled>-- Select an option --</option>
               <option value="branch">branch</option>
@@ -901,7 +909,7 @@ const CreateTN = (networkData) => {
               type="text"
               className={`w-full border p-2 mt-1 rounded-md ${errors.sitesReferenceValue ? "border-red-500" : "border-gray-300"}`}
               value={formData.sitesReferenceValue}
-              onChange={handleInputChange}
+              onChange={handleChange}
             >
               <option value=""  disabled>--Select a site--</option>
               {sites && Object.entries(sites).map(([key, value], index) => (
@@ -923,7 +931,7 @@ const CreateTN = (networkData) => {
               name="deploymentSite"
               className={`w-full border p-2 mt-1 rounded-md ${errors.deploymentSite ? "border-red-500" : "border-gray-300"}`}
               value={formData.deploymentSite}
-              onChange={handleInputChange}
+              onChange={handleChange}
             >
               <option value=""  disabled>--Select a site--</option>
               {deployement && Object.entries(deployement).map(([key, value], index) => (

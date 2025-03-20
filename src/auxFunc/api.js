@@ -26,6 +26,19 @@ export const saveTrialNetwork = async (formData) => {
     return response;
 };
 
+export const updateTrialNetwork = async (formData,id) => {
+    const access_token = await getAccessTokenFromSessionStorage();
+    const auth = `Bearer ${access_token}`;
+    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/update`
+    const response = await axios.put(url, formData, {
+        headers: {
+            Authorization: auth,
+            "Content-Type": "multipart/form-data",
+        },
+    });
+    return response;
+};
+
 export const getTrialNetworks = async () => {
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
