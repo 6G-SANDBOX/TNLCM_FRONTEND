@@ -64,45 +64,43 @@ const ProfileModal = ({ isOpen, onClose, userInfo }) => {
           bgcolor: "background.paper",
           boxShadow: 24,
           p: 4,
-          borderRadius: 2,
+          borderRadius: 4,
+          border: '2px solid black',
         }}
       >
 
         {userInfo ? (
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="body2"><strong>Username:</strong> {username}</Typography>
-            <Typography variant="body2"><strong>Email:</strong> {email}</Typography>
-            <Typography variant="body2"><strong>Organization:</strong> {organization}</Typography>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6"><strong>Username:</strong> {username}</Typography>
+            <Typography variant="h6"><strong>Email:</strong> {email}</Typography>
+            <Typography variant="h6"><strong>Organization:</strong> {organization}</Typography>
+            <Typography variant="h6" gutterBottom style={{ textDecoration: 'underline' }}>
+              <strong>Change Password :</strong>
+            </Typography>
+            <TextField
+              label="Current Password"
+              type="password"
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+            />
+            <TextField
+              label="New Password"
+              type="password"
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
           </Box>
         ) : (
-          <Typography variant="body2" color="textSecondary">
+          <Typography variant="h6" color="textSecondary">
             Loading user information...
           </Typography>
         )}
-
-        <Typography variant="h6" gutterBottom>
-          Change Password :
-        </Typography>
-
-        <TextField
-          label="Current Password"
-          type="password"
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          value={oldPassword}
-          onChange={(e) => setOldPassword(e.target.value)}
-        />
-
-        <TextField
-          label="New Password"
-          type="password"
-          fullWidth
-          margin="normal"
-          variant="outlined"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-        />
 
         {error && (
           <Typography variant="body2" color="error" sx={{ mt: 2 }}>

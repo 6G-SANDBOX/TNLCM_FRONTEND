@@ -62,6 +62,7 @@ const CreateTN = (networkData) => {
   const prevLibValue = useRef(formData.libraryReferenceValue);
   const prevLibType = useRef(formData.libraryReferenceType);
   const [lock, setLock] = useState(false);
+  const [lock2, setLock2] = useState(true);
 
   const delay = async () => {
     return new Promise((resolve) => setTimeout(resolve, 2000));
@@ -117,10 +118,11 @@ const CreateTN = (networkData) => {
     } else if (currentIndex >= (selectedComponent.length -1) && !isLoading) {
       const component = selectedComponent[currentIndex];
       if (component) makeRequestAndRender(component).then(() => {
-        fetchComponents(true);
+        fetchComponents(lock2);
+        setLock2(false);
       });
   }
-  }, [currentIndex, isLoading, selectedComponent, formData.libraryReferenceType, formData.libraryReferenceValue, lock]);
+  }, [currentIndex, isLoading, selectedComponent, formData.libraryReferenceType, formData.libraryReferenceValue, lock, lock2]);
 
 
   useEffect(() => {
@@ -131,7 +133,6 @@ const CreateTN = (networkData) => {
           return;
         }
         if (prevLibValue.current === formData.libraryReferenceValue && prevLibType.current === formData.libraryReferenceType){
-          
           return;
         }
         const response = await getComponents(formData.libraryReferenceType, formData.libraryReferenceValue);
@@ -216,7 +217,6 @@ const CreateTN = (networkData) => {
         setID(true);
         processedNetworkData.current = networkData;
         //TODO In the future maybe we got this fields from the networkData
-        console.log(networkData.networkData);
         prevLibType.current = "commit";
         prevLibValue.current = networkData.networkData.library_commit_id;
         setFormData((prevFormData) => ({
@@ -302,6 +302,7 @@ const CreateTN = (networkData) => {
       fetchDeplo(value);
 
     } else if (name === "libraryReferenceType") {
+      prevLibType.current = formData.libraryReferenceType;
       setLibraryValues([]);
       setAllComp([]);
       setSelectedComponent([]);
@@ -313,6 +314,7 @@ const CreateTN = (networkData) => {
       if (value) fetchLibValues(value);
 
     } else if (name === "libraryReferenceValue") {
+      prevLibValue.current = formData.libraryReferenceValue;
       setFormData((prevState) => ({
         ...prevState,
         [name]: value,
