@@ -27,18 +27,35 @@ const Component = ({ open, handleClose, component }) => {
   }
 
   return (
-    <Modal open={open} onClose={handleSendClose} aria-labelledby="component-modal">
-      <Box className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-lg shadow-lg w-2/3 text-center">
-				<Typography gutterBottom variant="h6" className="mb-2">
+    <Modal sx={{
+				display: 'flex',
+				alignItems: 'center',
+				justifyContent: 'center',
+				
+			}} open={open} onClose={handleSendClose} aria-labelledby="component-modal">
+      <Box sx={{
+					width: '500px',
+					maxWidth: '90%',
+					maxHeight: '90vh',
+					overflowY: 'auto',
+					paddingBottom: '16px',
+					backgroundColor: 'white',
+					borderRadius: 4,
+					boxShadow: 24,
+					padding: '20px',
+        	border: '2px solid black',
+				}}>
+				<Typography gutterBottom variant="h6" className=" text-center mb-2">
 					{String(component.name).toUpperCase()}
 				</Typography>
 
 				{data && typeof data === "object" ? (
 					Object.entries(data).map(([key, value]) => (
 						<div key={key} className=" text-left mb-4 ">
-							<Typography gutterBottom variant="body2" color="text.secondary" className="mb-1">
+							{/* TODO QUITAR TYPOGRAPHY?¿ */}
+							{/* <Typography gutterBottom variant="body2" color="text.secondary" className="mb-1">
 								<strong>{key}:</strong>
-							</Typography>
+							</Typography> */}
 							<TextField
 								variant="outlined"
 								fullWidth
