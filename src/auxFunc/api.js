@@ -166,7 +166,7 @@ export const getDeployments = async (deplo) => {
 export const getLibraryTypes = async () => {
     try {
      
-        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/library_references_types`;
+        const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/references_types`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
     
