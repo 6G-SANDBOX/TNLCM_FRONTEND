@@ -1,6 +1,12 @@
 import axios from "axios";
 import { getAccessTokenFromSessionStorage } from "../auxFunc/jwt";
 
+const sitesBranch= process.env.REACT_APP_SITES_BRANCH;
+const deploymentSite= process.env.REACT_APP_DEPLOYMENT_SITE;
+const libraryRef= process.env.REACT_APP_LIBRARY_REF;
+const libraryValue = process.env.REACT_APP_LIBRARY_REF_VALUE;
+const siteToken= process.env.REACT_APP_DEPLOYMENT_SITE_TOKEN;
+
 export const createTrialNetwork = async (formData,url) => {
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
@@ -202,15 +208,21 @@ export const getLibraryValues = async (type) => {
       }
 }
 
-export const getComponents= async (type, value) => {
+export const getComponents= async () => {
   //Need to be delayed due to the backend
-
-  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/${type}/${value}`
-  const response = await fetch(url);
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/`+sitesBranch+`/`+deploymentSite + `?deployment_site_token=`+ siteToken ;
+  const access_token = await getAccessTokenFromSessionStorage();
+  const auth = `Bearer ${access_token}`;
+  const response = await axios.get(url, {
+    headers: {
+      Authorization: auth,
+      "Content-Type": "application/json",
+    },
+  });
   return response || {components : []};
 }
 
-export const getComponent = async (type, value,name) => {
+export const getComponent = async (name) => {
   //Need to be delayed due to the backend
 
   const access_token = await getAccessTokenFromSessionStorage();
@@ -219,7 +231,7 @@ export const getComponent = async (type, value,name) => {
     const bearerJwt = `Bearer ${access_token}`;
     
     try {
-      const response = await axios.get(`${url}/library/${type}/${value}/${name}`, {
+      const response = await axios.get(`${url}/library/`+ libraryRef + `/` +  libraryValue +  `/${name}`, {
         headers: {
           Authorization: bearerJwt,
           "Content-Type": "application/json",

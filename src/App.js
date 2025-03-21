@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { getAccessTokenFromSessionStorage } from "./auxFunc/jwt";
-import CreateTN from "./components/CreateTN";
+import CreateTN2 from "./components/CreateTN2";
 import Dashboard from "./components/Dashboard";
 import Login from "./components/Login";
 import Network from "./components/Network";
@@ -46,7 +46,7 @@ function App() {
         {/* Route for create trial network */}
          <Route
           path="/dashboard/createTN"
-          element={isAuthenticated ? <CreateTN /> : <Navigate to="/" />}
+          element={isAuthenticated ? <CreateTN2 /> : <Navigate to="/" />}
         />
         {/* Route for editing a TN */}
         <Route
