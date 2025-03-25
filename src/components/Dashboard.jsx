@@ -12,7 +12,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true); // Loading state handler
   const [error, setError] = useState(null); // Error state handler
   const [currentPage, setCurrentPage] = useState(1); // Actual page
-  const [itemsPerPage] = useState(8); // Nuember of items per page
+  const [itemsPerPage] = useState(8); // Number of items per page
   const [alturaRestante, setAlturaRestante] = useState(0); // Height of the table
   const [activeCount, setActiveCount] = useState(0);
   const fileInputRef2 = useRef(null);
@@ -35,7 +35,7 @@ const Dashboard = () => {
       
       selectedIds.forEach((id) => {
         const network = data.trial_networks.find((network) => network.tn_id === id);
-        if (network && (network.state === "validated" || network.state === "destroyed")) {
+        if (network && (network.state === "validated" || network.state === "destroyed" || network.state === "created")) {
           validIds.push(id);
         } else {
           invalidIds.push(id);
@@ -44,7 +44,7 @@ const Dashboard = () => {
   
       // Show an alert if there are invalid IDs
       if (invalidIds.length > 0) {
-        alert(`Can not be purged the nexts TNs becouse their state is not "validated" or "destroyed": ${invalidIds.join(", ")}`);
+        alert(`Can not be purged the nexts TNs becouse their state is not "validated", "destroyed" or "created": ${invalidIds.join(", ")}`);
       }
   
       // Update the state before making the requests
@@ -171,8 +171,6 @@ const Dashboard = () => {
       try {
         const access_token = await getAccessTokenFromSessionStorage();
         if (access_token) {
-          
-  
           const response = await getTrialNetworks();
           setData(response.data);
           const trialNetworks = response.data.trial_networks;
@@ -380,26 +378,26 @@ const Dashboard = () => {
                   </Link>
                   </td>
                   <td className="py-2">{formatDate(network.date_created_utc)}</td>
-                  <td className="py-2">{network.deployment_site}</td>
+                  <td className="py-2">{network.state === "created" ?  "Not deployed yet" : network.deployment_site}</td>
                   <td className="py-2">
                   <span
-                      className={[
-                        changingStatesIdS.includes(network.tn_id)
-                          ? "" // No background color when changing state
-                          : network.state === "failed" || network.state === "destroyed"
-                          ? "bg-red-100 text-red-500"
-                          : network.state === "validated"
-                          ? "bg-blue-100 text-blue-500"
-                          : network.state === "suspended"
-                          ? "bg-yellow-100 text-yellow-500"
-                          : network.state === "created"
-                          ? "bg-gray-100 text-gray-500"
-                          : "bg-green-100 text-green-500",
-                        "py-1 px-3 rounded-full text-xs",
-                      ].join(" ")}
-                    >
-                    {changingStatesIdS.includes(network.tn_id) ? (
-                      <img src="loading.gif" alt="loading" className="flex w-6 h-6 justify-center items-center" />
+                    className={[
+                      changingStatesIdS.includes(network.tn_id)
+                        ? "" // No background color when changing state
+                        : network.state === "failed" || network.state === "destroyed"
+                        ? "bg-red-100 text-red-500"
+                        : network.state === "validated"
+                        ? "bg-blue-100 text-blue-500"
+                        : network.state === "suspended"
+                        ? "bg-yellow-100 text-yellow-500"
+                        : network.state === "created"
+                        ? "bg-gray-100 text-gray-500"
+                        : "bg-green-100 text-green-500",
+                      "py-1 px-3 rounded-full text-xs",
+                    ].join(" ")}
+                  >
+                  { network.state.includes("ing") ? (
+                    <img src="loading.gif" alt="loading" className="flex w-6 h-6 justify-center items-center" />
                     ) : (
                       network.state
                     )}

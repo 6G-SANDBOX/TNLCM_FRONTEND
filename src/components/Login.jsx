@@ -16,6 +16,7 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevents the default form submission behavior
+    
     if (!user && !password) {
       setError("Username and password are required.");
       return;
@@ -26,8 +27,9 @@ const Login = () => {
       setError("Password is required.");
       return;
     }
+
     try {
-      const response = await loginUser(user, password, { timeout: 5000 }); // Five seconds timeout
+      const response = await loginUser(user, password, { timeout: 2000 }); // Five seconds timeout
   
       // Supposing server sent us a JSON with access_token and refresh_token
       const accessToken = response.data.access_token;

@@ -149,9 +149,6 @@ export  const getSites = async () => {
 
 export const getDeployments = async (deplo) => {
     try {
-        const delay = Math.floor(Math.random() * 4000) + 1000;
-        await new Promise(resolve => setTimeout(resolve, delay));
-
         const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/${deplo}`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
@@ -209,7 +206,6 @@ export const getLibraryValues = async (type) => {
 }
 
 export const getComponents= async () => {
-  //Need to be delayed due to the backend
   let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/`+sitesBranch+`/`+deploymentSite + `?deployment_site_token=`+ siteToken ;
   const access_token = await getAccessTokenFromSessionStorage();
   const auth = `Bearer ${access_token}`;
@@ -223,8 +219,6 @@ export const getComponents= async () => {
 }
 
 export const getComponent = async (name) => {
-  //Need to be delayed due to the backend
-
   const access_token = await getAccessTokenFromSessionStorage();
   if (access_token) {
     const url = process.env.REACT_APP_TNLCM_BACKEND_API;
