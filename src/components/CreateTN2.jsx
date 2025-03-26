@@ -58,7 +58,6 @@ const CreateTN2 = () => {
           },
         };
         return updatedForm;
-     
       });
   }, []);
   
@@ -140,7 +139,7 @@ const CreateTN2 = () => {
   
           {/* Content in the right */}
           
-          <div className="w-1/2 flex flex-col items-center mr-auto"> 
+          <div className="w-1/2 flex flex-col items-center mr-auto">
             {selectedComponent && Object.entries(selectedComponent).length > 0 ? (
               <>
                 <h2 className="text-xl font-bold mb-4">Selected Components</h2>

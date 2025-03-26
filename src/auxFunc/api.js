@@ -115,7 +115,6 @@ export const getUser = async () => {
       const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/user`;
       const access_token = await getAccessTokenFromSessionStorage();
       const auth = `Bearer ${access_token}`;
-  
       const response = await axios.get(url, {
         headers: {
           Authorization: auth,
@@ -133,7 +132,6 @@ export  const getSites = async () => {
       const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/branches`;
       const access_token = await getAccessTokenFromSessionStorage();
       const auth = `Bearer ${access_token}`;
-  
       const response = await axios.get(url, {
         headers: {
           Authorization: auth,
@@ -152,7 +150,6 @@ export const getDeployments = async (deplo) => {
         const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/${deplo}`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;
-    
         const response = await axios.get(url, {
           headers: {
             Authorization: auth,
@@ -168,7 +165,6 @@ export const getDeployments = async (deplo) => {
 
 export const getLibraryTypes = async () => {
     try {
-     
         const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/references_types`;
         const access_token = await getAccessTokenFromSessionStorage();
         const auth = `Bearer ${access_token}`;

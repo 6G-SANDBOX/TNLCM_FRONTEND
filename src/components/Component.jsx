@@ -1,4 +1,4 @@
-import { Box, Button, Modal, TextField, Typography } from "@mui/material";
+import { Box, Button, MenuItem, Modal, Select, TextField, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { getComponent } from "../auxFunc/api";
 
@@ -90,18 +90,43 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 						<Typography variant="body2" color="text.secondary" className="text-sm" sx = {{padding: '6px'}} >
 							{value.description}
 						</Typography>
-						<TextField
-							variant="outlined"
-							fullWidth
-							value={fieldValues[key] || ""}
-							label={key}
-							placeholder={String(value.default_value)}
-							onChange={handleChange(key)}
-							type={value.type === "str" ? "text" : "text"}
-							className="mb-2"
-						/>
-						
+						{value.type === "str" ?
+							<TextField
+								variant="outlined"
+								fullWidth
+								value={fieldValues[key] || ""}
+								label={key}
+								placeholder={String(value.default_value)}
+								onChange={handleChange(key)}
+								type={value.type === "str" ? "text" : "text"}
+								className="mb-2"
+							/>
+							:  value.type === "int" ?
+							<TextField
+								variant="outlined"
+								fullWidth
+								value={fieldValues[key] || ""}
+								label={key}
+								placeholder={String(value.default_value)}
+								onChange={handleChange(key)}
+								type={"number"}
+								className="mb-2"
+							/>
+							:  value.type ==="bool" ?
+							//TODO FIX THISS
+							<Select
+								value={fieldValues[key] || ""}
+								onChange={handleChange(key)}
+								label={key}
+								displayEmpty
+								fullWidth
+								>
+								<MenuItem  default value="true">True</MenuItem>
+								<MenuItem value="false">False</MenuItem>
+							</Select> : ""
+						}
 					</div>
+						
 				))
 			) : ""}
 		
