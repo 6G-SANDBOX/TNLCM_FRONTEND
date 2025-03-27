@@ -1,4 +1,4 @@
-import { Box, Button, ButtonBase, Card, CardContent, CardMedia, TextField, Typography } from "@mui/material";
+import { Box, Button, ButtonBase, Card, CardContent, CardMedia, Modal, TextField, Typography } from "@mui/material";
 import React, { useCallback, useEffect, useState } from 'react';
 import { getComponents } from '../auxFunc/api';
 import Component from "./Component";
@@ -12,6 +12,8 @@ const CreateTN2 = () => {
   const [selectedComponent, setSelectedComponent] = useState({});
   const [temporalData, setTemporalData] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
+  const [modalErrorOpen, setModalErrorOpen] = useState(false);
+const [errorMessage, setErrorMessage] = useState('');
 
   // UseEffect to fetch components
   useEffect(() => {
@@ -33,15 +35,77 @@ const CreateTN2 = () => {
 
   const handleClick = (component, key, defaultValue) => {
     if (defaultValue || key) {
-      setTemporalData(defaultValue);
-      setfocusedComponent({ id: key, name: component });
-      setModalOpen(true);
+        setTemporalData(defaultValue);
+        setfocusedComponent({ id: key, name: component });
+        setModalOpen(true);
     } else {
-      const id = Date.now();
-      setfocusedComponent({ id, name: component });
-      setModalOpen(true);
+        const restrictedComponents = ["tn_bastion", "tn_vxlan", "tn_init", "tsn"];
+        // Check if the component is restricted
+        if (restrictedComponents.includes(component)) {
+            const componentExists = Object.values(selectedComponent).some(
+                (entry) => entry.type === component
+            );
+            if (componentExists) {
+                setModalErrorOpen(true);
+                setErrorMessage(`Error: The component ${component} already exists.`);
+                return;
+            }
+            // Special case for tn_init
+            if (component === "tn_init") {
+              const hasTnInit = Object.values(selectedComponent).some(entry => entry.type === "tn_init");
+              const hasTnVxlan = Object.values(selectedComponent).some(entry => entry.type === "tn_vxlan");
+              const hasTnBastion = Object.values(selectedComponent).some(entry => entry.type === "tn_bastion");
+              if (hasTnInit) {
+                setModalErrorOpen(true);
+                setErrorMessage("Error: Cannot add tn_init because it already exists.");
+                return;
+              }
+              if (hasTnVxlan || hasTnBastion) {
+                setModalErrorOpen(true);
+                setErrorMessage("Error: Cannot add tn_init because tn_vxlan or tn_bastion already exist.");
+                return;
+              }
+            }
+            // Special case for tn_vxlan
+            if (component === "tn_vxlan") {
+                const hasTnVxlan = Object.values(selectedComponent).some(entry => entry.type === "tn_vxlan");
+                const hasTnInit = Object.values(selectedComponent).some(entry => entry.type === "tn_init");
+                if (hasTnVxlan || hasTnInit) {
+                    setModalErrorOpen(true);
+                    setErrorMessage("Error: Cannot add more tn_vxlan, already one or a tn_init exist.");
+                    return;
+                }
+            }
+            //Special case for tn_bastion
+            if (component === "tn_bastion") {
+              const hasTnBastion = Object.values(selectedComponent).some(entry => entry.type === "tn_bastion");
+              const hasTnInit = Object.values(selectedComponent).some(entry => entry.type === "tn_init");
+              if (hasTnBastion || hasTnInit) {
+                  setModalErrorOpen(true);
+                  setErrorMessage("Error: Cannot add more tn_bastion, already one or a tn_init exist.");
+                  return;
+              }
+            }
+            // TSN only allows one
+            if (component === "tsn" && Object.values(selectedComponent).some(entry => entry.type === "tsn")) {
+                setModalErrorOpen(true);
+                setErrorMessage("Error: Cannot add more than one tsn.");
+                return;
+            }
+        }
+        // Otherwise, add the component
+        const id = Date.now();
+        setfocusedComponent({ id, name: component });
+        setModalOpen(true);
     }
   };
+
+
+  const handleCloseErrorModal = () => {
+    setModalErrorOpen(false);
+    setErrorMessage('');
+  };
+
   
   const handleClose = () => {
     setfocusedComponent({});
@@ -73,12 +137,19 @@ const CreateTN2 = () => {
 
   function filterAndFormatEntries(typesList) {
     return Object.entries(selectedComponent)
-        .filter(([_, value]) => typesList.includes(value.type)) // Filter per type
+        .filter(([_, value]) => {
+            // If its a vxlan, allow also to select tn_init due to tn_init contains the vxlan
+            if (value.type === 'tn_vxlan') {
+                return typesList.includes(value.type) || typesList.includes('tn_init');
+            }
+            return typesList.includes(value.type);
+        })
         .map(([_, value]) => {
-            // Make the result if it has a name
+            // Si tiene un nombre en los campos, formatear el resultado
             return value.fields?.name ? `${value.type}-${value.fields.name}` : value.type;
         });
-  }
+}
+
   
   return (
     <div>
@@ -146,9 +217,31 @@ const CreateTN2 = () => {
   
           {/* Modal */}
           <Component open={modalOpen} handleClose={handleClose} component={focusedComponent} onChange={handleSelect} handleRemove={handleRemoveId} defaultValues={temporalData} filter={filterAndFormatEntries}/>
-  
+
+          {/* Modal Error for opening existant components */}
+          <Modal open={modalErrorOpen} onClose={handleCloseErrorModal} className="flex items-center justify-center">
+            <Box sx={{
+                width: '400px',
+                maxWidth: '90%',
+                padding: '20px',
+                backgroundColor: 'white',
+                borderRadius: 4,
+                boxShadow: 24,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column'
+            }}>
+              <Typography variant="h6" color="error">
+                  {errorMessage}
+              </Typography>
+              <Button onClick={handleCloseErrorModal} variant="contained" color="primary" sx={{ marginTop: 2 }}>
+                  Close
+              </Button>
+            </Box>
+          </Modal>
+
           {/* Content in the right */}
-          
           <div className="w-1/2 flex flex-col items-center mr-auto">
             {selectedComponent && Object.entries(selectedComponent).length > 0 ? (
               <>
