@@ -23,6 +23,7 @@ const CreateTN2 = () => {
         setError("Error while retrieving components: " + err.message);
       }
     };
+    console.log(selectedComponent)
     fetchComponents();
   }, [selectedComponent, temporalData]);
   
@@ -69,6 +70,15 @@ const CreateTN2 = () => {
       return updatedForm;
     });
   }, []);
+
+  function filterAndFormatEntries(typesList) {
+    return Object.entries(selectedComponent)
+        .filter(([_, value]) => typesList.includes(value.type)) // Filter per type
+        .map(([_, value]) => {
+            // Make the result if it has a name
+            return value.fields?.name ? `${value.type}-${value.fields.name}` : value.type;
+        });
+  }
   
   return (
     <div>
@@ -129,13 +139,13 @@ const CreateTN2 = () => {
                   </ButtonBase>
                 ))
               ) : (
-                <p className="text-gray-500">No components found.</p>
+                <img src="/loading.gif" alt="Loading..." style={{ width: '50px' }}/>
               )}
             </Box>
           </Box>
   
           {/* Modal */}
-          <Component open={modalOpen} handleClose={handleClose} component={focusedComponent} onChange={handleSelect} handleRemove={handleRemoveId} defaultValues={temporalData} />
+          <Component open={modalOpen} handleClose={handleClose} component={focusedComponent} onChange={handleSelect} handleRemove={handleRemoveId} defaultValues={temporalData} filter={filterAndFormatEntries}/>
   
           {/* Content in the right */}
           
@@ -197,5 +207,7 @@ const CreateTN2 = () => {
   );
   
 };
+
+
 
 export default CreateTN2;

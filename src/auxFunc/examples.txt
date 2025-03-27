@@ -11,7 +11,7 @@ Ueransim => Special fields includes  special handling
 Berlin_ran => Double select
 Iswireless_radio => Simple select
 Ixc_endpoint => Simple checkbox
-Open5gx_VM => Doubles chechbox
+Open5gs_VM => Doubles chechbox
 Open5gs_k8s => Simple select
 
 -------------EXAMPLES OF ERROR VALDIATION--------------------------

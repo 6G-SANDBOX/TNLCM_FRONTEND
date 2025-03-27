@@ -1,8 +1,8 @@
-import { Box, Button, MenuItem, Modal, Select, TextField, Typography } from "@mui/material";
+import { Box, Button, Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Modal, Select, TextField, Typography } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import { getComponent } from "../auxFunc/api";
 
-const Component = ({ open, handleClose, component, onChange, handleRemove, defaultValues }) => {
+const Component = ({ open, handleClose, component, onChange, handleRemove, defaultValues, filter }) => {
     const [data, setData] = useState([]);
 	const [fieldValues, setFieldValues] = useState({});
 	const [details, setDetails] = useState(false);
@@ -51,6 +51,23 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		setDetails(!details);
 	}
 
+	const handleCheckbox = (event, key) => {
+        const { name, checked } = event.target;
+        setFieldValues((prevState) => {
+            const updatedValues = { ...prevState };
+            if (checked) {
+                if (updatedValues[key]) {
+                    updatedValues[key] = [...updatedValues[key], name];
+                } else {
+                    updatedValues[key] = [name];
+                }
+            } else {
+                updatedValues[key] = updatedValues[key]?.filter(val => val !== name);
+            }
+            return updatedValues;
+        });
+    };
+
   return (
     <Modal sx={{
 				display: 'flex',
@@ -82,53 +99,93 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 			</Typography>
 			)}
 
-
-			
 			{details && data && typeof data === "object" ? (
-				Object.entries(data.component?.input || []).map(([key, value]) => (
-					<div key={key} className="text-left mb-4 ">
-						<Typography variant="body2" color="text.secondary" className="text-sm" sx = {{padding: '6px'}} >
-							{value.description}
-						</Typography>
-						{value.type === "str" ?
-							<TextField
-								variant="outlined"
-								fullWidth
-								value={fieldValues[key] || ""}
-								label={key}
-								placeholder={String(value.default_value)}
-								onChange={handleChange(key)}
-								type={value.type === "str" ? "text" : "text"}
-								className="mb-2"
-							/>
-							:  value.type === "int" ?
-							<TextField
-								variant="outlined"
-								fullWidth
-								value={fieldValues[key] || ""}
-								label={key}
-								placeholder={String(value.default_value)}
-								onChange={handleChange(key)}
-								type={"number"}
-								className="mb-2"
-							/>
-							:  value.type ==="bool" ?
-							//TODO FIX THISS
-							<Select
-								value={fieldValues[key] || ""}
-								onChange={handleChange(key)}
-								label={key}
-								displayEmpty
-								fullWidth
-								>
-								<MenuItem  default value="true">True</MenuItem>
-								<MenuItem value="false">False</MenuItem>
-							</Select> : ""
-						}
-					</div>
-						
-				))
-			) : ""}
+				<>
+					<TextField
+						variant="outlined"
+						fullWidth
+						value={fieldValues["name"] || ""}
+						label={"Name"}
+						onChange={handleChange("name")}
+						type="text"
+						className="mb-2"
+					/>
+					{data.component?.input && typeof data.component.input === "object" ? (
+						Object.entries(data.component.input).map(([key, value]) => (
+							<div key={key} className="text-left mb-4">
+								<Typography variant="body2" color="text.secondary" className="text-sm" sx={{ padding: '6px' }}>
+									{value.description}
+								</Typography>
+								{value.type === "str" ? (
+									<TextField
+										variant="outlined"
+										fullWidth
+										value={fieldValues[key] || ""}
+										label={key}
+										placeholder={String(value.default_value)}
+										onChange={handleChange(key)}
+										type="text"
+										className="mb-2"
+									/>
+								) : value.type === "int" ? (
+									<TextField
+										variant="outlined"
+										fullWidth
+										value={fieldValues[key] || ""}
+										label={key}
+										placeholder={String(value.default_value)}
+										onChange={handleChange(key)}
+										type="number"
+										className="mb-2"
+									/>
+								) : value.type === "bool" ? (
+									<FormControl fullWidth>
+										<InputLabel id={`${key}-label`}>{key}</InputLabel>
+										<Select
+											labelId={`${key}-label`}
+											label={key}
+											value={fieldValues[key] || ""}
+											onChange={handleChange(key)}
+										>
+											<MenuItem value="true">True</MenuItem>
+											<MenuItem value="false">False</MenuItem>
+										</Select>
+									</FormControl>
+								) : value.type.match(/^list\[(.+)\]$/) ? (
+									<FormGroup>
+										<InputLabel>{key}</InputLabel>
+										{filter(parseTypeString(value.type)).map((option) => (
+										<FormControlLabel
+											key={option}
+											control={
+											<Checkbox
+												checked={fieldValues[key]?.includes(option) || false}
+												onChange={(e) => handleCheckbox(e, key)}
+												name={option}
+											/>
+											}
+											label={option}
+										/>
+										))}
+									</FormGroup>
+								) : (
+									<FormControl fullWidth>
+									<InputLabel>{key}</InputLabel>
+									<Select value={fieldValues[key] || ""} onChange={handleChange(key)} label={key}>
+										{filter(parseOrSeparatedString(value.type)).map((option) => (
+										<MenuItem key={option} value={option}>
+											{option}
+										</MenuItem>
+										))}
+									</Select>
+									</FormControl>
+								)}
+							</div>
+						))
+					) : null}
+				</>
+			) : null}
+
 		
 			<Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
 				<Button onClick={handleSendClose} variant="contained" color="primary">
@@ -160,4 +217,20 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
   );
 };
 
+function parseTypeString(typeStr) {
+    // Verifica si el string tiene el formato "list[...]"
+    const match = typeStr.match(/^list\[(.+)\]$/);
+    if (!match) return []; // Retorna un array vacío si no coincide el formato
+
+    // Extrae el contenido dentro de los corchetes
+    const content = match[1];
+
+    // Divide por " or " para obtener los tipos individuales y elimina espacios extra
+    return content.split(" or ").map(type => type.trim());
+}
+
+function parseOrSeparatedString(typeStr) {
+    // Divide solo si hay " or ", de lo contrario devuelve un array con un solo elemento
+    return typeStr.includes(" or ") ? typeStr.split(" or ").map(type => type.trim()) : [typeStr.trim()];
+}
 export default Component;
