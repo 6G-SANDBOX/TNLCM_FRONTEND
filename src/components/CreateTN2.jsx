@@ -13,7 +13,7 @@ const CreateTN2 = () => {
   const [temporalData, setTemporalData] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [modalErrorOpen, setModalErrorOpen] = useState(false);
-const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   // UseEffect to fetch components
   useEffect(() => {
@@ -25,15 +25,16 @@ const [errorMessage, setErrorMessage] = useState('');
         setError("Error while retrieving components: " + err.message);
       }
     };
-    console.log(selectedComponent)
     fetchComponents();
-  }, [selectedComponent, temporalData]);
-  
+  }, [temporalData]);
+
+  // Filter components based on the search query
   const filteredComponents = components.filter(component =>
     component.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleClick = (component, key, defaultValue) => {
+    // If the component is already selected, open the modal with the data
     if (defaultValue || key) {
         setTemporalData(defaultValue);
         setfocusedComponent({ id: key, name: component });
@@ -100,19 +101,20 @@ const [errorMessage, setErrorMessage] = useState('');
     }
   };
 
-
+  // Handle the error modal
   const handleCloseErrorModal = () => {
     setModalErrorOpen(false);
     setErrorMessage('');
   };
 
-  
+  // Close the component modal
   const handleClose = () => {
     setfocusedComponent({});
     setModalOpen(false);
     setTemporalData({});
   };
 
+  // Callback to handle the selection of a component (Function sent to the modal)
   const handleSelect = useCallback((id, fieldName, value) => {
     setSelectedComponent((prevForms) => {
         const updatedForm = {
@@ -126,7 +128,7 @@ const [errorMessage, setErrorMessage] = useState('');
       });
   }, []);
   
-
+  // Callback to remove a component from the selected components (Function sent to the modal)
   const handleRemoveId = useCallback((id) => {
     setSelectedComponent((prevForms) => {
       const updatedForm = { ...prevForms };
@@ -135,6 +137,7 @@ const [errorMessage, setErrorMessage] = useState('');
     });
   }, []);
 
+  // Filter and format the selected components to send the data to the modal
   function filterAndFormatEntries(typesList) {
     return Object.entries(selectedComponent)
         .filter(([_, value]) => {
@@ -215,7 +218,7 @@ const [errorMessage, setErrorMessage] = useState('');
             </Box>
           </Box>
   
-          {/* Modal */}
+          {/* Component Modal */}
           <Component open={modalOpen} handleClose={handleClose} component={focusedComponent} onChange={handleSelect} handleRemove={handleRemoveId} defaultValues={temporalData} filter={filterAndFormatEntries}/>
 
           {/* Modal Error for opening existant components */}
@@ -287,6 +290,7 @@ const [errorMessage, setErrorMessage] = useState('');
           </div>
         </div>
         
+        {/* Add Button */}
         <Button  variant="contained" style={{ backgroundColor: '#6B21A8', }}>
            Add
         </Button>

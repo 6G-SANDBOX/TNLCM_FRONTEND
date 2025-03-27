@@ -13,13 +13,16 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 			const result = await getComponent(component.name);
 			setData(result);
 		};
+		// If the modal is open, fetch the data
 		if (open) fetchData();
+		// If we come with default values, set them
 		if (defaultValues.added) {
 			setVersion(true);
 			setFieldValues(defaultValues.fields);
 		};
 	}, [component, open, onChange, defaultValues]);
 
+	// Close the modal and reset the data
 	const handleSendClose = () => {
 		setData([]);
 		setFieldValues({});
@@ -28,11 +31,13 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		setVersion(false);
 	}
 
+	// Remove the component from the list
 	const handleSendRemove = () => {
 		handleRemove(component.id);
 		handleSendClose();
 	}
 
+	// Handle the change of the input fields
 	const handleChange = (key) => (event) => {
 		setFieldValues({
 		...fieldValues,
@@ -40,6 +45,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		});
   	}
 
+	// Add/Save the component to the list
 	const handleAdd = () => {
 		onChange(component.id, "fields", fieldValues);
 		onChange(component.id, "type", component.name);
@@ -47,10 +53,12 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		handleSendClose();
 	}
 
+	// Show/Hide the details of the component
 	const handleDetails = () => {
 		setDetails(!details);
 	}
 
+	// Handle the checkbox input fields
 	const handleCheckbox = (event, key) => {
         const { name, checked } = event.target;
         setFieldValues((prevState) => {
@@ -86,9 +94,11 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 			padding: '20px',
 			border: '2px solid black',
 		}}>
+			{/* Title */}
 			<Typography gutterBottom variant="h4" className=" text-center mb-2">
 				{String(component.name).toUpperCase()}
 			</Typography>
+			{/* Description or Loader*/}
 			{!data.component?.metadata?.long_description ? (
 			<div className=" justify-center flex">
 				<img src="/loading.gif" alt="Loading..." style={{ width: '50px' }}/>
@@ -98,7 +108,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 				{String(data.component?.metadata?.long_description)}
 			</Typography>
 			)}
-
+			{/* Details */}
 			{details && data && typeof data === "object" ? (
 				<>
 					<TextField
@@ -186,7 +196,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 				</>
 			) : null}
 
-		
+			{/* Buttons */}
 			<Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
 				<Button onClick={handleSendClose} variant="contained" color="primary">
 					Close
@@ -218,19 +228,19 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 };
 
 function parseTypeString(typeStr) {
-    // Verifica si el string tiene el formato "list[...]"
+    // Check if the format is "list[...]"
     const match = typeStr.match(/^list\[(.+)\]$/);
-    if (!match) return []; // Retorna un array vacío si no coincide el formato
+    if (!match) return []; // Return an empty array if the format is not correct
 
-    // Extrae el contenido dentro de los corchetes
+    // Extract the content inside the brackets
     const content = match[1];
 
-    // Divide por " or " para obtener los tipos individuales y elimina espacios extra
+    // Split the content by " or " and trim the results
     return content.split(" or ").map(type => type.trim());
 }
 
 function parseOrSeparatedString(typeStr) {
-    // Divide solo si hay " or ", de lo contrario devuelve un array con un solo elemento
+    // Split the type string by " or " and trim
     return typeStr.includes(" or ") ? typeStr.split(" or ").map(type => type.trim()) : [typeStr.trim()];
 }
 export default Component;
