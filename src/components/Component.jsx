@@ -7,6 +7,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 	const [fieldValues, setFieldValues] = useState({});
 	const [details, setDetails] = useState(false);
 	const [version, setVersion] = useState(false);
+	const [dependencies, setDependencies] = useState([]);
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -45,11 +46,30 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		});
   	}
 
+	const handleSelect = (key) => (event) => {
+		setFieldValues({
+		...fieldValues,
+		[key]: event.target.value,
+		});
+		setDependencies((prevState) => {
+			const updatedDependencies = [...prevState];
+			if (event.target.value) {
+				updatedDependencies.push(event.target.value);
+			}
+			else {
+				updatedDependencies.pop(event.target.value);
+			}
+			return updatedDependencies;
+		});
+
+  	}
+
 	// Add/Save the component to the list
 	const handleAdd = () => {
 		onChange(component.id, "fields", fieldValues);
 		onChange(component.id, "type", component.name);
 		onChange(component.id, "added", "true");
+		onChange(component.id, "dependencies", dependencies);
 		handleSendClose();
 	}
 
@@ -74,6 +94,16 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
             }
             return updatedValues;
         });
+		setDependencies((prevState) => {
+			const updatedDependencies = [...prevState];
+			if (checked) {
+				updatedDependencies.push(name);
+			}
+			else {
+				updatedDependencies.pop(name);
+			}
+			return updatedDependencies;
+		});
     };
 
   return (
@@ -181,7 +211,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 								) : (
 									<FormControl fullWidth>
 									<InputLabel>{key}</InputLabel>
-									<Select value={fieldValues[key] || ""} onChange={handleChange(key)} label={key}>
+									<Select value={fieldValues[key] || ""} onChange={handleSelect(key)} label={key}>
 										{filter(parseOrSeparatedString(value.type)).map((option) => (
 										<MenuItem key={option} value={option}>
 											{option}
@@ -231,12 +261,11 @@ function parseTypeString(typeStr) {
     // Check if the format is "list[...]"
     const match = typeStr.match(/^list\[(.+)\]$/);
     if (!match) return []; // Return an empty array if the format is not correct
-
     // Extract the content inside the brackets
     const content = match[1];
-
-    // Split the content by " or " and trim the results
-    return content.split(" or ").map(type => type.trim());
+	// Split the content by "or" and trim the results
+	const res = content.split(" or ").map(type => type.trim())
+    return res;
 }
 
 function parseOrSeparatedString(typeStr) {

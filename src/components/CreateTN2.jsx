@@ -1,6 +1,7 @@
 import { Box, Button, ButtonBase, Card, CardContent, CardMedia, Modal, TextField, Typography } from "@mui/material";
 import React, { useCallback, useEffect, useState } from 'react';
 import { getComponents } from '../auxFunc/api';
+import convertJsonToYaml from '../auxFunc/yamlHandler';
 import Component from "./Component";
 import TopNavigator from "./TopNavigator";
 
@@ -137,21 +138,43 @@ const CreateTN2 = () => {
     });
   }, []);
 
+  const handleValidate = () => {
+
+    // Execute the petition to the server
+    (async () => {
+      try {
+        const tnInit = Object.values(selectedComponent).some((component) => component.type === "tn_init");
+        console.log(tnInit);
+        const yamlString = convertJsonToYaml(selectedComponent,tnInit);
+        console.log(yamlString);
+      } catch (error) {
+        console.log(error);
+        
+      }
+      
+
+    })();
+  }
+
+
   // Filter and format the selected components to send the data to the modal
   function filterAndFormatEntries(typesList) {
-    return Object.entries(selectedComponent)
+    const res = Object.entries(selectedComponent)
         .filter(([_, value]) => {
-            // If its a vxlan, allow also to select tn_init due to tn_init contains the vxlan
-            if (value.type === 'tn_vxlan') {
-                return typesList.includes(value.type) || typesList.includes('tn_init');
+            // Si el componente es 'tn_vxlan', también permitir seleccionar 'tn_init'
+            if (typesList.includes('tn_vxlan') && value.type === 'tn_init') {
+                return value;
             }
+            // Para cualquier otro componente, solo permitir si el tipo está en typesList
             return typesList.includes(value.type);
         })
         .map(([_, value]) => {
             // Si tiene un nombre en los campos, formatear el resultado
             return value.fields?.name ? `${value.type}-${value.fields.name}` : value.type;
         });
+    return res;
 }
+
 
   
   return (
@@ -290,10 +313,17 @@ const CreateTN2 = () => {
           </div>
         </div>
         
-        {/* Add Button */}
-        <Button  variant="contained" style={{ backgroundColor: '#6B21A8', }}>
-           Add
-        </Button>
+        <div className="flex gap-4 mt-4">
+          {/* Validate Button */}
+          <Button onClick={handleValidate} variant="contained" style={{ backgroundColor: '#6B21A8', }}>
+            Validate
+          </Button>
+
+          {/* Save Button */}
+          <Button  variant="contained" style={{ backgroundColor: '#6B21A8', }}>
+            Save
+          </Button>
+        </div>
       
         {/* Error if something is wrong */}
         {error && <p className="flex flex-col items-center justify-center text-red-500 mt-4">{error}</p>}
