@@ -174,7 +174,6 @@ const CreateTN = (networkData) => {
       try {
         processedDefaultValues.current = defaultValues;
         const parsedData = yaml.load(yamlContent); // Parse to YAML object
-        //TODO MAYBE IN THE FUTURE THIS WILL BE FROM A MODAL
         prevLibType.current = "branch";
         prevLibValue.current = "develop";
         setFormData((prevFormData) => ({

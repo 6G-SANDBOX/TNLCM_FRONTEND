@@ -7,7 +7,7 @@ import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import { getTnMarkdown, getTrialNetwork } from '../auxFunc/api';
-import CreateTN from './CreateTN';
+import CreateTN2 from './CreateTN2';
 import TopNavigator from './TopNavigator';
 
 function Network() {
@@ -45,7 +45,7 @@ function Network() {
     ) : data.state === "created" ? (
       // If the state is "created", let edit the content
       <div>
-        <CreateTN networkData={data}/>
+        <CreateTN2 savedValues={data}/>
       </div>
     ) : (
       // If it not "created", show the content

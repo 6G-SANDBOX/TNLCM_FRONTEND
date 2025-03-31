@@ -7,7 +7,8 @@ const libraryRef= process.env.REACT_APP_LIBRARY_REF;
 const libraryValue = process.env.REACT_APP_LIBRARY_REF_VALUE;
 const siteToken= process.env.REACT_APP_DEPLOYMENT_SITE_TOKEN;
 
-export const createTrialNetwork = async (formData,url) => {
+export const createTrialNetwork = async (formData) => {
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-network?validate=True`;
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
     const response = await axios.post(url, formData, {

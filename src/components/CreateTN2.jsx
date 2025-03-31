@@ -1,11 +1,11 @@
 import { Box, Button, ButtonBase, Card, CardContent, CardMedia, Modal, TextField, Typography } from "@mui/material";
-import React, { useCallback, useEffect, useState } from 'react';
-import { getComponents } from '../auxFunc/api';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { createTrialNetwork, getComponents, saveTrialNetwork, updateTrialNetwork } from '../auxFunc/api';
 import convertJsonToYaml from '../auxFunc/yamlHandler';
 import Component from "./Component";
 import TopNavigator from "./TopNavigator";
 
-const CreateTN2 = () => {
+const CreateTN2 = (savedValues) => {
   const [components, setComponents] = useState([]);
   const [error, setError] = useState(null);
   const [focusedComponent, setfocusedComponent] = useState({});
@@ -15,6 +15,36 @@ const CreateTN2 = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [modalErrorOpen, setModalErrorOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [success, setSuccess] = useState(null);
+  const processedSavedValues = useRef(null);
+
+  useEffect(() => {
+    if (savedValues !== null && Object.keys(savedValues).length > 0) {
+      if (JSON.stringify(savedValues) === JSON.stringify(processedSavedValues.current)) {
+        //If the network data is the same dont re-render again
+        return;
+      }
+      try {
+        processedSavedValues.current = savedValues;
+        Object.keys(savedValues.savedValues.raw_descriptor.trial_network).forEach((key) => {
+          const component = savedValues.savedValues.raw_descriptor.trial_network[key];
+          setSelectedComponent((prevForms) => ({
+            ...prevForms,
+            [ `${component.type}-${new Date().getTime()}`]: {
+              type: component.type,
+              fields: component.input,
+              added: true,
+              dependencies: component.dependencies,
+              // TODO FIX DEPENCENCIES???
+            },
+          }));
+        });
+      } catch (error) {
+        const res= error.response?.data?.message || error.message;
+        console.error("Error while accessing to the saved network: " + res);
+      }
+    }
+  },[savedValues]);
 
   // UseEffect to fetch components
   useEffect(() => {
@@ -22,12 +52,13 @@ const CreateTN2 = () => {
       try {
         const result = await getComponents();
         setComponents(result.data.components);
-      } catch (err) {
-        setError("Error while retrieving components: " + err.message);
+      } catch (error) {
+        const res= error.response?.data?.message || error.message;
+        setError("Error while retrieving components: " + res);
       }
     };
     fetchComponents();
-  }, [temporalData]);
+  }, [temporalData, selectedComponent]);
 
   // Filter components based on the search query
   const filteredComponents = components.filter(component =>
@@ -136,47 +167,97 @@ const CreateTN2 = () => {
       delete updatedForm[id];
       return updatedForm;
     });
+    setfocusedComponent({});
+    setTemporalData({})
   }, []);
 
-  const handleValidate = () => {
+  // Handle the save of the trial network
+  const handleSave = () => {
+     // Execute the petition to the server
+     (async () => {
+      try {
+        const tnInit = Object.values(selectedComponent).some((component) => component.type === "tn_init");
+        const yamlString = convertJsonToYaml(selectedComponent,tnInit);
+        let formDataS = new FormData();
+        const blobV = new Blob([yamlString], { type: "text/yaml" });
+        formDataS.append("descriptor", blobV, "descriptor.yaml");
+        formDataS.append("library_reference_type", process.env.REACT_APP_LIBRARY_REF);
+        formDataS.append("library_reference_value", process.env.REACT_APP_LIBRARY_REF_VALUE);
+        if (savedValues){
+          await updateTrialNetwork(formDataS, savedValues.savedValues.trialNetworkId);
+        } else {
+          await saveTrialNetwork(formDataS);
+        }
+        
+        setError("");
+        setSuccess("Trial Network saved successfully!");
+        setTimeout(() => {
+          window.location = "/dashboard";
+          setSuccess("");
+        }, 2502);
+      } catch (error) {
+        const res= error.response?.data?.message || error.message;
+        setSuccess("");
+        setError("Failed to save trial network \n" + res);
+        setTimeout(() => {
+          setError("");
+        }, 10000);
+      }
+    })();
 
+  }
+
+  // Handle the validation of the trial network
+  const handleValidate = () => {
     // Execute the petition to the server
     (async () => {
       try {
         const tnInit = Object.values(selectedComponent).some((component) => component.type === "tn_init");
-        console.log(tnInit);
         const yamlString = convertJsonToYaml(selectedComponent,tnInit);
-        console.log(yamlString);
+        let formDataV = new FormData();
+        const blobV = new Blob([yamlString], { type: "text/yaml" });
+        formDataV.append("descriptor", blobV, "descriptor.yaml");
+        formDataV.append("library_reference_type", process.env.REACT_APP_LIBRARY_REF);
+        formDataV.append("library_reference_value", process.env.REACT_APP_LIBRARY_REF_VALUE);
+        formDataV.append("sites_branch", process.env.REACT_APP_SITES_BRANCH);
+        formDataV.append("deployment_site", process.env.REACT_APP_DEPLOYMENT_SITE);
+        formDataV.append("deployment_site_token", process.env.REACT_APP_DEPLOYMENT_SITE_TOKEN);
+        await createTrialNetwork(formDataV);
+        setError("");
+        setSuccess("Trial Network validated successfully!");
+        setTimeout(() => {
+          window.location = "/dashboard";
+          setSuccess("");
+        }, 2502);
       } catch (error) {
-        console.log(error);
-        
+        const res= error.response?.data?.message || error.message;
+        setSuccess("");
+        setError("Failed to validate trial network \n" + res);
+        setTimeout(() => {
+          setError("");
+        }, 10000);
       }
-      
-
     })();
   }
-
 
   // Filter and format the selected components to send the data to the modal
   function filterAndFormatEntries(typesList) {
     const res = Object.entries(selectedComponent)
         .filter(([_, value]) => {
-            // Si el componente es 'tn_vxlan', también permitir seleccionar 'tn_init'
+            // If we are searching for tn_vxlan, allow tn_init becouse
             if (typesList.includes('tn_vxlan') && value.type === 'tn_init') {
                 return value;
             }
-            // Para cualquier otro componente, solo permitir si el tipo está en typesList
+            // For all other cases, just return it
             return typesList.includes(value.type);
         })
         .map(([_, value]) => {
-            // Si tiene un nombre en los campos, formatear el resultado
+            // If the component has a name, return it with the type, otherwise just return the type
             return value.fields?.name ? `${value.type}-${value.fields.name}` : value.type;
         });
     return res;
-}
+  }
 
-
-  
   return (
     <div>
       <TopNavigator />
@@ -244,7 +325,7 @@ const CreateTN2 = () => {
           {/* Component Modal */}
           <Component open={modalOpen} handleClose={handleClose} component={focusedComponent} onChange={handleSelect} handleRemove={handleRemoveId} defaultValues={temporalData} filter={filterAndFormatEntries}/>
 
-          {/* Modal Error for opening existant components */}
+          {/* Modal Error when opening existant components */}
           <Modal open={modalErrorOpen} onClose={handleCloseErrorModal} className="flex items-center justify-center">
             <Box sx={{
                 width: '400px',
@@ -320,13 +401,16 @@ const CreateTN2 = () => {
           </Button>
 
           {/* Save Button */}
-          <Button  variant="contained" style={{ backgroundColor: '#6B21A8', }}>
+          <Button onClick={handleSave} variant="contained" style={{ backgroundColor: '#6B21A8', }}>
             Save
           </Button>
         </div>
       
         {/* Error if something is wrong */}
         {error && <p className="flex flex-col items-center justify-center text-red-500 mt-4">{error}</p>}
+        {/* Success message if everything is fine */}
+        {success && <p className="flex flex-col items-center justify-center text-green-500 mt-4">{success}</p>}
+
       </div>
       
   

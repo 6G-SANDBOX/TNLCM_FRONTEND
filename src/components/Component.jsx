@@ -30,6 +30,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		handleClose();
 		setDetails(false);
 		setVersion(false);
+		setDependencies([]);
 	}
 
 	// Remove the component from the list
