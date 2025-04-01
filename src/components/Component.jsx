@@ -194,8 +194,9 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 									</FormControl>
 								) : value.type.match(/^list\[(.+)\]$/) ? (
 									<FormGroup>
-										<InputLabel>{key}</InputLabel>
-										{filter(parseTypeString(value.type)).map((option) => (
+									<InputLabel>{key}</InputLabel>
+									{filter(parseTypeString(value.type)).length > 0 ? (
+										filter(parseTypeString(value.type)).map((option) => (
 										<FormControlLabel
 											key={option}
 											control={
@@ -207,7 +208,13 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 											}
 											label={option}
 										/>
-										))}
+										))
+									) : (
+										// TODO VER SI FUNCIONA
+										<Typography variant="body2" color="textSecondary">
+										Create new components for being able to see them here
+										</Typography>
+									)}
 									</FormGroup>
 								) : (
 									<FormControl fullWidth>
