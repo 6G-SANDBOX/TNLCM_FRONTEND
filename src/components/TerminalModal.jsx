@@ -15,7 +15,7 @@ const TerminalModal = ({ isOpen, onClose, vmId }) => {
     setError(null);
 
     try {
-       const response = getLogs(vmId);
+       const response = await getLogs(vmId);
       // If the response contains a log string, split it by new lines
       if (typeof response.data.log_content === "string") {
         const logLines = response.data.log_content.split("\n");

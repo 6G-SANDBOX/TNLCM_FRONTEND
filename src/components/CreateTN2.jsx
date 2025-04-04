@@ -1,5 +1,7 @@
 import { Box, Button, ButtonBase, Card, CardContent, CardMedia, Modal, TextField, Typography } from "@mui/material";
+import yaml from 'js-yaml';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocation } from "react-router-dom";
 import { createTrialNetwork, getComponents, saveTrialNetwork, updateTrialNetwork } from '../auxFunc/api';
 import convertJsonToYaml from '../auxFunc/yamlHandler';
 import Component from "./Component";
@@ -7,9 +9,9 @@ import TopNavigator from "./TopNavigator";
 
 const CreateTN2 = (savedValues) => {
   const [components, setComponents] = useState([]);
-  const [error, setError] = useState(null);
   const [focusedComponent, setfocusedComponent] = useState({});
   const [modalOpen, setModalOpen] = useState(false);
+  const [error, setError] = useState(null);
   const [selectedComponent, setSelectedComponent] = useState({});
   const [temporalData, setTemporalData] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -17,7 +19,50 @@ const CreateTN2 = (savedValues) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [success, setSuccess] = useState(null);
   const processedSavedValues = useRef(null);
+  const location = useLocation();
+  const fileValues = location.state?.file;// If we are coming here with a file, get it
 
+  // UseEffect to fetch the components if we are coming with a file
+  useEffect(() => {
+    if (fileValues) {
+      if (JSON.stringify(fileValues) === JSON.stringify(processedSavedValues.current)) {
+        //If the network data is the same dont re-render again
+        return;
+      }
+    
+    const reader = new FileReader();
+    reader.onload = () => {
+      const yamlDescriptor = reader.result;
+      try {
+        processedSavedValues.current = fileValues;
+        const parsedData = yaml.load(yamlDescriptor);
+        Object.keys(parsedData.trial_network).forEach((key) => {
+          const component = parsedData.trial_network[key];
+          const updatedInput = {
+            ...component.input,
+            name: component.name,
+          }
+          setSelectedComponent((prevForms) => ({
+            ...prevForms,
+            [ `${component.type}-${new Date().getTime()}`]: {
+              type: component.type,
+              fields: updatedInput,
+              added: true,
+              dependencies: component.dependencies,
+              // TODO FIX DEPENCENCIES???
+            },
+          }));
+        });
+      } catch (error) {
+          const res= error.response?.data?.message || error.message;
+          setError("Error while loading the descriptor: " + res);
+      }
+    }
+    reader.readAsText(fileValues);
+  }
+  }, [fileValues]);
+
+  // UseEffect to fetch the components if we are editing a saved trial network
   useEffect(() => {
     if (savedValues !== null && Object.keys(savedValues).length > 0) {
       if (JSON.stringify(savedValues) === JSON.stringify(processedSavedValues.current)) {
@@ -26,13 +71,23 @@ const CreateTN2 = (savedValues) => {
       }
       try {
         processedSavedValues.current = savedValues;
+        if (savedValues.savedValues.raw_descriptor.trial_network === undefined
+          || savedValues.savedValues.raw_descriptor.trial_network === null
+          || savedValues.savedValues.raw_descriptor.trial_network.length === 0) {
+          return;
+        }
+
         Object.keys(savedValues.savedValues.raw_descriptor.trial_network).forEach((key) => {
           const component = savedValues.savedValues.raw_descriptor.trial_network[key];
+          const updatedInput = {
+            ...component.input,
+            name: component.name,
+          }
           setSelectedComponent((prevForms) => ({
             ...prevForms,
             [ `${component.type}-${new Date().getTime()}`]: {
               type: component.type,
-              fields: component.input,
+              fields: updatedInput,
               added: true,
               dependencies: component.dependencies,
               // TODO FIX DEPENCENCIES???
@@ -188,8 +243,6 @@ const CreateTN2 = (savedValues) => {
         } else {
           await saveTrialNetwork(formDataS);
         }
-        
-        setError("");
         setSuccess("Trial Network saved successfully!");
         setTimeout(() => {
           window.location = "/dashboard";
@@ -198,10 +251,8 @@ const CreateTN2 = (savedValues) => {
       } catch (error) {
         const res= error.response?.data?.message || error.message;
         setSuccess("");
-        setError("Failed to save trial network \n" + res);
-        setTimeout(() => {
-          setError("");
-        }, 10000);
+        setModalErrorOpen(true);
+        setErrorMessage("Error: Can not save the TN due to: " + res);
       }
     })();
 
@@ -223,7 +274,7 @@ const CreateTN2 = (savedValues) => {
         formDataV.append("deployment_site", process.env.REACT_APP_DEPLOYMENT_SITE);
         formDataV.append("deployment_site_token", process.env.REACT_APP_DEPLOYMENT_SITE_TOKEN);
         await createTrialNetwork(formDataV);
-        setError("");
+
         setSuccess("Trial Network validated successfully!");
         setTimeout(() => {
           window.location = "/dashboard";
@@ -232,10 +283,8 @@ const CreateTN2 = (savedValues) => {
       } catch (error) {
         const res= error.response?.data?.message || error.message;
         setSuccess("");
-        setError("Failed to validate trial network \n" + res);
-        setTimeout(() => {
-          setError("");
-        }, 10000);
+        setModalErrorOpen(true);
+        setErrorMessage("Error: Can not save the TN due to: " + res);
       }
     })();
   }

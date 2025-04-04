@@ -75,7 +75,7 @@ const Dashboard = () => {
       
       selectedIds.forEach((id) => {
         const network = data.trial_networks.find((network) => network.tn_id === id);
-        if (network && ((network.state === "activated") || (network.state === "failed"))) {
+        if (network && ((network.state === "activated") || (network.state.includes("failed")))) {
           validIds.push(id);
         } else {
           invalidIds.push(id);
@@ -263,7 +263,6 @@ const Dashboard = () => {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
-  
     // Make the new format
     return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
   };
@@ -369,22 +368,29 @@ const Dashboard = () => {
                       id= {`checkbox-${network.tn_id}`}
                       onChange={() => handleCheckboxChange(network.tn_id)}
                       checked={selectedIds.includes(network.tn_id)}
-                      disabled={changingStatesIdS.includes(network.tn_id)}
+                      disabled={changingStatesIdS.includes(network.tn_id) || network.state.includes("ing")}
                     />
                   </td>
                   <td className="py-2">
-                  <Link to={`/dashboard/${network.tn_id}`}>
-                    <button className="text-purple-600 hover:underline">{network.tn_id}</button>
-                  </Link>
+                  {["created", "activated"].includes(network.state) ? (
+                    <Link to={`/dashboard/${network.tn_id}`}>
+                      <button className="text-purple-600 hover:underline">
+                        {network.tn_id}
+                      </button>
+                    </Link>
+                  ) : (
+                    <button className="text-gray-400 cursor-not-allowed" disabled>
+                      {network.tn_id}
+                    </button>
+                  )}
                   </td>
                   <td className="py-2">{formatDate(network.date_created_utc)}</td>
                   <td className="py-2">{network.state === "created" ?  "Not deployed yet" : network.deployment_site}</td>
                   <td className="py-2">
                   <span
                     className={[
-                      changingStatesIdS.includes(network.tn_id)
-                        ? "" // No background color when changing state
-                        : network.state === "failed" || network.state === "destroyed"
+                      network.state.includes("ing") ? ""
+                        : network.state.includes("failed") || network.state.includes("destroyed")
                         ? "bg-red-100 text-red-500"
                         : network.state === "validated"
                         ? "bg-blue-100 text-blue-500"

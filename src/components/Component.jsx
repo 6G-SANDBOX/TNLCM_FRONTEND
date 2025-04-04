@@ -8,6 +8,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 	const [details, setDetails] = useState(false);
 	const [version, setVersion] = useState(false);
 	const [dependencies, setDependencies] = useState([]);
+	const exceptions = ["tn_init", "tsn", "tn_bastion", "tn_vxlan"];
 
 	useEffect(() => {
 		const fetchData = async () => {
@@ -47,6 +48,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		});
   	}
 
+	// Handle the select input fields
 	const handleSelect = (key) => (event) => {
 		setFieldValues({
 		...fieldValues,
@@ -67,6 +69,10 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 
 	// Add/Save the component to the list
 	const handleAdd = () => {
+		if (!exceptions.includes(component.name) && !fieldValues["name"]) {
+			alert("Please fill the name field");
+			return;
+		}
 		onChange(component.id, "fields", fieldValues);
 		onChange(component.id, "type", component.name);
 		onChange(component.id, "added", "true");
@@ -142,15 +148,18 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 			{/* Details */}
 			{details && data && typeof data === "object" ? (
 				<>
-					<TextField
-						variant="outlined"
-						fullWidth
-						value={fieldValues["name"] || ""}
-						label={"Name"}
-						onChange={handleChange("name")}
-						type="text"
-						className="mb-2"
-					/>
+					{!exceptions.includes(component.name) && (
+						<TextField
+							variant="outlined"
+							fullWidth
+							value={fieldValues["name"] || ""}
+							label={"Name"}
+							onChange={handleChange("name")}
+							type="text"
+							className="mb-2"
+							error={!fieldValues["name"]}
+						/>
+					)}
 					{data.component?.input && typeof data.component.input === "object" ? (
 						Object.entries(data.component.input).map(([key, value]) => (
 							<div key={key} className="text-left mb-4">
@@ -194,7 +203,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 									</FormControl>
 								) : value.type.match(/^list\[(.+)\]$/) ? (
 									<FormGroup>
-									<InputLabel>{key}</InputLabel>
+									<InputLabel sx={{ fontWeight: 700 }}>{key}</InputLabel>
 									{filter(parseTypeString(value.type)).length > 0 ? (
 										filter(parseTypeString(value.type)).map((option) => (
 										<FormControlLabel
@@ -211,14 +220,14 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										))
 									) : (
 										// TODO VER SI FUNCIONA
-										<Typography variant="body2" color="textSecondary">
+										<Typography variant="body1" color="textSecondary">
 										Create new components for being able to see them here
 										</Typography>
 									)}
 									</FormGroup>
 								) : (
 									<FormControl fullWidth>
-									<InputLabel>{key}</InputLabel>
+									<InputLabel sx={{ fontWeight: 700 }}>{key}</InputLabel>
 									<Select value={fieldValues[key] || ""} onChange={handleSelect(key)} label={key}>
 										{filter(parseOrSeparatedString(value.type)).map((option) => (
 										<MenuItem key={option} value={option}>
