@@ -273,8 +273,9 @@ const CreateTN2 = (savedValues) => {
         formDataV.append("sites_branch", process.env.REACT_APP_SITES_BRANCH);
         formDataV.append("deployment_site", process.env.REACT_APP_DEPLOYMENT_SITE);
         formDataV.append("deployment_site_token", process.env.REACT_APP_DEPLOYMENT_SITE_TOKEN);
+        console.log(formDataV.values());
+        console.log(yamlString);
         await createTrialNetwork(formDataV);
-
         setSuccess("Trial Network validated successfully!");
         setTimeout(() => {
           window.location = "/dashboard";
