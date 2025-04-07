@@ -75,7 +75,7 @@ export const getTrialNetwork = async (id) => {
 export const purgeTN = async (id) => {
     const access_token = await getAccessTokenFromSessionStorage();
     const auth = `Bearer ${access_token}`;
-    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}}/trial-networks/${id}/purge`
+    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/purge`
     const response = await axios.delete(url, {
         headers: {
             Authorization: auth,
@@ -203,11 +203,12 @@ export const getLibraryValues = async (type) => {
 }
 
 export const getComponents= async () => {
-  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/`+sitesBranch+`/`+deploymentSite + `?deployment_site_token=`+ siteToken ;
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/`+sitesBranch+`/`+deploymentSite;
   const access_token = await getAccessTokenFromSessionStorage();
   const auth = `Bearer ${access_token}`;
   const response = await axios.get(url, {
     headers: {
+      "Deployment-Site-Token": siteToken,
       Authorization: auth,
       "Content-Type": "application/json",
     },

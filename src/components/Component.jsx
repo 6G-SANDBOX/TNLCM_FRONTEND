@@ -146,6 +146,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 			</Typography>
 			)}
 			{/* Details */}
+			{/* TODO SI TIENE CHOICES */}
 			{details && data && typeof data === "object" ? (
 				<>
 					{!exceptions.includes(component.name) && (
@@ -163,10 +164,28 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 					{data.component?.input && typeof data.component.input === "object" ? (
 						Object.entries(data.component.input).map(([key, value]) => (
 							<div key={key} className="text-left mb-4">
-								<Typography variant="body2" color="text.secondary" className="text-sm" sx={{ padding: '6px' }}>
+								<Typography variant="body1" color="text.secondary" className="text-sm" sx={{ padding: '6px' }}>
 									{value.description}
 								</Typography>
 								{value.type === "str" ? (
+									value.choices ? (
+										<FormControl fullWidth>
+											<InputLabel id={`${key}-label`}>{key}</InputLabel>
+											<Select
+												labelId={`${key}-label`}
+												id="select"
+												value={fieldValues[key] || ""}
+												onChange={handleChange(key)}
+												label={key}
+											>
+											{value.choices.map((choice, index) => (
+											<MenuItem key={index} value={choice}>
+												{choice}
+											</MenuItem>
+											))}
+											</Select>
+										</FormControl>
+									) : (
 									<TextField
 										variant="outlined"
 										fullWidth
@@ -176,7 +195,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										onChange={handleChange(key)}
 										type="text"
 										className="mb-2"
-									/>
+									/>)
 								) : value.type === "int" ? (
 									<TextField
 										variant="outlined"
@@ -203,7 +222,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 									</FormControl>
 								) : value.type.match(/^list\[(.+)\]$/) ? (
 									<FormGroup>
-									<InputLabel sx={{ fontWeight: 700 }}>{key}</InputLabel>
+									<InputLabel sx={{ fontWeight: 700 }}>{key}: </InputLabel>
 									{filter(parseTypeString(value.type)).length > 0 ? (
 										filter(parseTypeString(value.type)).map((option) => (
 										<FormControlLabel
@@ -219,7 +238,6 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										/>
 										))
 									) : (
-										// TODO VER SI FUNCIONA
 										<Typography variant="body1" color="textSecondary">
 										Create new components for being able to see them here
 										</Typography>

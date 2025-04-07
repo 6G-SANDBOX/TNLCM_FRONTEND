@@ -57,8 +57,7 @@ const Dashboard = () => {
       });
   
       // Make all with Promise.allSettled
-       await Promise.allSettled(purgeRequest);
-  
+      await Promise.allSettled(purgeRequest);
       // Set the state after all requests are completed
       setChangingStatesIdS((prevState) => prevState.filter((id) => !validIds.includes(id)));
   

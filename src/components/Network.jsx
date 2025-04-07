@@ -1,36 +1,42 @@
+import yaml from 'js-yaml';
 import { useEffect, useState } from 'react';
-import ReactMarkdown from "react-markdown";
 import { useParams } from 'react-router-dom';
-
-import { Light as SyntaxHighlighter } from "react-syntax-highlighter";
-import { atomOneDark } from "react-syntax-highlighter/dist/esm/styles/hljs";
-import rehypeRaw from "rehype-raw";
-import remarkGfm from "remark-gfm";
-import { getTnMarkdown, getTrialNetwork } from '../auxFunc/api';
-import CreateTN2 from './CreateTN2';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { coyWithoutShadows } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Estilo de ejemplo
+import { getTrialNetwork } from '../auxFunc/api';
+import CreateTN from './CreateTN';
+import MarkdownRenderer from './MarkdownRenderer';
 import TopNavigator from './TopNavigator';
 
 function Network() {
   const { id } = useParams();  // We get the `id` parameter from the URL
   const [data, setData] = useState(null);
   const [markdown, setMarkdown] = useState(null);
+  const [descriptor, setDescriptor] = useState(null);
+  const [showMarkdown, setShowMarkdown] = useState(false);
+  const [dictionary, setDictionary] = useState({});
 
   useEffect(() => {
-    
     const getData = async () => {
         try {
             const response = await getTrialNetwork(id);
             setData(response.data);
+            console.log(response.data);
             if (response.data.state === "activated") {
-              const markdownReq= await getTnMarkdown(id);
-              setMarkdown(markdownReq.data);
+              setMarkdown(response.data.report);
+              setDescriptor(yaml.dump(response.data.sorted_descriptor,null, 2));
+              let tempDictionary = response.data;
+              delete tempDictionary.report;
+              delete tempDictionary.sorted_descriptor;
+              delete tempDictionary.deployed_descriptor;
+              delete tempDictionary.raw_descriptor;
+              setDictionary(tempDictionary);
             };
         } catch (error) {
             console.error(error);
         }
     };
     getData();
-  
   }, [id]);
 
   //TODO: Add the rest of the code here
@@ -45,52 +51,67 @@ function Network() {
     ) : data.state === "created" ? (
       // If the state is "created", let edit the content
       <div>
-        <CreateTN2 savedValues={data}/>
+        <CreateTN savedValues={data}/>
       </div>
     ) : (
-      // If it not "created", show the content
-      <div>
+      <div className='h-full bg-gray-100'>
         <TopNavigator />
-        <div className="p-6 bg-gray-100 min-h-screen flex justify-center">
-        <div className="prose lg:prose-xl bg-white p-6 rounded-2xl shadow-lg ">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
-            components={{
-              code({ node, inline, className, children, ...props }) {
-                const match = /language-(\w+)/.exec(className || "");
-                return !inline && match ? (
-                  <SyntaxHighlighter
-                    style={atomOneDark}
-                    language={match[1]}
-                    PreTag="div"
-                  >
-                    {String(children).replace(/\n$/, "")}
-                  </SyntaxHighlighter>
-                ) : (
-                  <code className="bg-gray-200 px-1 rounded-md" {...props}>
-                    {children}
-                  </code>
-                );
-              },
-              blockquote({ children }) {
-                return (
-                  <blockquote className="border-l-4 border-blue-500 pl-4 italic text-gray-600">
-                    {children}
-                  </blockquote>
-                );
-              }
-            }}
-          >
-            {markdown}
-          </ReactMarkdown>
-        </div>
-      </div>
+      
+        {/* Show markdown or main content */}
+        {showMarkdown ? (<MarkdownRenderer content={markdown} />)
+        :(
+          <div className="flex items-center ">
+
+            {/* Left Content */}
+            <div className="p-6 w-1/2 flex flex-col justify-center space-y-4">
+                <SyntaxHighlighter
+                  className= "overflow-x-auto p-6"
+                  language="yaml"
+                  style={coyWithoutShadows}
+                  customStyle={{ whiteSpace: 'pre-wrap' }}
+                >
+                  {yaml.dump(dictionary)}
+                </SyntaxHighlighter>
+                <SyntaxHighlighter
+                  className= "overflow-x-auto p-6"
+                  language="yaml"
+                  style={coyWithoutShadows}
+                  customStyle={{ whiteSpace: 'pre-wrap' }}
+                >
+                  {descriptor}
+                </SyntaxHighlighter>
+            </div>
+
+            {/* Right Content */}
+            <div className="p-20 w-1/2 flex flex-col justify-center space-y-20">
+              <button
+                onClick={() => setShowMarkdown(!showMarkdown)}
+                className="bg-blue-500 text-white py-6 rounded-xl"
+              >
+                Show Report
+              </button>
+              <button className="bg-blue-500 text-white py-6 rounded-xl">
+                ELCM
+              </button>
+              <button className="bg-blue-500 text-white py-6 rounded-xl">
+                DOWNLOAD DESCRIPTOR
+              </button>
+              <button className="bg-blue-500 text-white py-6 rounded-xl">
+                VPN
+              </button>
+              <button className="bg-blue-500 text-white py-6 rounded-xl">
+                CAMPAIGN MANAGER
+              </button>
+            </div>
+
+
+          </div>
+        )}
       </div>
     )}
     </div>
   );
-  
+   
 }
 
 export default Network;
