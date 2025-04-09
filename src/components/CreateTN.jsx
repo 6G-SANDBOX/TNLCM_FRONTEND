@@ -106,7 +106,6 @@ const CreateTN = (savedValues) => {
         const result = await getComponents();
         setComponents(result.data.components);
       } catch (error) {
-        console.log(error);
         const res= error.response?.data?.message || error.message;
         setError("Error while retrieving components: " + res);
       }
@@ -272,11 +271,6 @@ const CreateTN = (savedValues) => {
         formDataV.append("sites_branch", String(process.env.REACT_APP_SITES_BRANCH));
         formDataV.append("deployment_site", String(process.env.REACT_APP_DEPLOYMENT_SITE));
         formDataV.append("deployment_site_token", String(process.env.REACT_APP_DEPLOYMENT_SITE_TOKEN));
-        for (let [key, value] of formDataV.entries()) {
-          console.log(key, value);
-        }
-        
-        console.log(yamlString);
         await createTrialNetwork(formDataV);
         setSuccess("Trial Network validated successfully!");
         setTimeout(() => {

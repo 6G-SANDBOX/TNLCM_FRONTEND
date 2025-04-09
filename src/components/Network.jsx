@@ -2,7 +2,7 @@ import yaml from 'js-yaml';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { coyWithoutShadows } from 'react-syntax-highlighter/dist/esm/styles/prism'; // Estilo de ejemplo
+import { coyWithoutShadows } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { getTrialNetwork } from '../auxFunc/api';
 import CreateTN from './CreateTN';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -21,7 +21,7 @@ function Network() {
         try {
             const response = await getTrialNetwork(id);
             setData(response.data);
-            console.log(response.data);
+            // The report only will be available if the state is "activated"
             if (response.data.state === "activated") {
               setMarkdown(response.data.report);
               setDescriptor(yaml.dump(response.data.sorted_descriptor,null, 2));
@@ -33,11 +33,28 @@ function Network() {
               setDictionary(tempDictionary);
             };
         } catch (error) {
-            console.error(error);
+            const res= error.response?.data?.message || error.message;
+            console.error(res);
         }
     };
     getData();
   }, [id]);
+  
+  const handleDownload = (yamlString, fileName = "descriptor.yaml") => {
+    const blob = new Blob([yamlString], { type: "text/yaml;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    // Create a link element and trigger the download
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+
+    // Clear up the URL object and remove the link element
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
 
   //TODO: Add the rest of the code here
 
@@ -58,7 +75,10 @@ function Network() {
         <TopNavigator />
       
         {/* Show markdown or main content */}
-        {showMarkdown ? (<MarkdownRenderer content={markdown} />)
+        {/* TODO Button for download markdown in pdf */}
+        {showMarkdown ? (
+          <MarkdownRenderer content={markdown} />
+        )
         :(
           <div className="flex items-center ">
 
@@ -84,27 +104,22 @@ function Network() {
 
             {/* Right Content */}
             <div className="p-20 w-1/2 flex flex-col justify-center space-y-20">
-              <button
-                onClick={() => setShowMarkdown(!showMarkdown)}
-                className="bg-blue-500 text-white py-6 rounded-xl"
-              >
+              <button onClick={() => setShowMarkdown(!showMarkdown)} className="bg-blue-500 text-white py-6 rounded-xl">
                 Show Report
               </button>
               <button className="bg-blue-500 text-white py-6 rounded-xl">
-                ELCM
+                ELCM GUI
+              </button>
+              <button onClick={handleDownload(descriptor)} className="bg-blue-500 text-white py-6 rounded-xl">
+                Download Descriptor
               </button>
               <button className="bg-blue-500 text-white py-6 rounded-xl">
-                DOWNLOAD DESCRIPTOR
+                Start VPN
               </button>
               <button className="bg-blue-500 text-white py-6 rounded-xl">
-                VPN
-              </button>
-              <button className="bg-blue-500 text-white py-6 rounded-xl">
-                CAMPAIGN MANAGER
+                Campaign Manager
               </button>
             </div>
-
-
           </div>
         )}
       </div>

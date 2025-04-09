@@ -146,9 +146,9 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 			</Typography>
 			)}
 			{/* Details */}
-			{/* TODO SI TIENE CHOICES */}
 			{details && data && typeof data === "object" ? (
 				<>
+					{/* Name Field */}
 					{!exceptions.includes(component.name) && (
 						<TextField
 							variant="outlined"
@@ -169,6 +169,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 								</Typography>
 								{value.type === "str" ? (
 									value.choices ? (
+										// Choice Field
 										<FormControl fullWidth>
 											<InputLabel id={`${key}-label`}>{key}</InputLabel>
 											<Select
@@ -186,6 +187,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 											</Select>
 										</FormControl>
 									) : (
+										// Text Field
 									<TextField
 										variant="outlined"
 										fullWidth
@@ -197,6 +199,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										className="mb-2"
 									/>)
 								) : value.type === "int" ? (
+									// Number Field
 									<TextField
 										variant="outlined"
 										fullWidth
@@ -208,6 +211,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										className="mb-2"
 									/>
 								) : value.type === "bool" ? (
+									// Boolean Field
 									<FormControl fullWidth>
 										<InputLabel id={`${key}-label`}>{key}</InputLabel>
 										<Select
@@ -221,6 +225,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										</Select>
 									</FormControl>
 								) : value.type.match(/^list\[(.+)\]$/) ? (
+									// Checkbox Field
 									<FormGroup>
 									<InputLabel sx={{ fontWeight: 700 }}>{key}: </InputLabel>
 									{filter(parseTypeString(value.type)).length > 0 ? (
@@ -238,12 +243,13 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										/>
 										))
 									) : (
-										<Typography variant="body1" color="textSecondary">
+										<Typography variant="body2" color="textSecondary">
 										Create new components for being able to see them here
 										</Typography>
 									)}
 									</FormGroup>
 								) : (
+									// Select Field
 									<FormControl fullWidth>
 									<InputLabel sx={{ fontWeight: 700 }}>{key}</InputLabel>
 									<Select value={fieldValues[key] || ""} onChange={handleSelect(key)} label={key}>

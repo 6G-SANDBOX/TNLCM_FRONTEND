@@ -55,7 +55,6 @@ const convertJsonToYaml = (json,tnInit) => {
                         if (Array.isArray(value)) {
                             yamlString += `      ${key}: \n`
                             value.forEach((item) => {
-                                // TODO Esto o coma separated list?
                                 yamlString += `        - "${item}"\n`
                             });
                         }
