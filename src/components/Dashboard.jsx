@@ -1,4 +1,4 @@
-import { faDesktop, faNetworkWired, faTerminal } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus, faCircleXmark, faDesktop, faFile, faNetworkWired, faPause, faPlay, faTerminal, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from "react-router-dom";
@@ -304,13 +304,13 @@ const Dashboard = () => {
                 className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
                 onClick={() => (window.location = "/dashboard/createTN")}
               >
-                Create new Network
+                Create new Network   <FontAwesomeIcon icon={faCirclePlus} />
               </button>
               <button
                 className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
                 onClick={handleButtonClick2}
               >
-                Edit Network via File
+                Edit Network via File   <FontAwesomeIcon icon={faFile} />
               </button>
               <input
                 type="file"
@@ -323,12 +323,12 @@ const Dashboard = () => {
             {/* Deploy button */}
             <button
               className={`py-2 px-4 rounded-lg shadow-sm text-white font-semibold
-                bg-gradient-to-r from-green-700 to-yellow-700
+                bg-gradient-to-r from-green-600 to-yellow-600
                 bg-[position:-30%_0]
                 hover:opacity-80 transition-all duration-600`}
               onClick={handleDeployClick}
             >
-              Turn On/Off Networks
+              <FontAwesomeIcon icon={faPlay}/>   <FontAwesomeIcon icon={faPause}/>
             </button>
 
             {/* Destroy button*/}
@@ -336,7 +336,7 @@ const Dashboard = () => {
               className="bg-red-700 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-red-500"
               onClick={handleDestroyClick}
             >
-              Destroy Networks
+              <FontAwesomeIcon icon={faCircleXmark} />
             </button>
 
             {/* Purge button */}
@@ -344,7 +344,7 @@ const Dashboard = () => {
               className="bg-red-800 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-red-500"
               onClick={handlePurgeClick}
             >
-              Purge Networks
+              <FontAwesomeIcon icon={faTrash} />
             </button>
           </div>
           <table className="w-full text-left border-collapse ">

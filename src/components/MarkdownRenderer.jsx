@@ -8,8 +8,8 @@ const MarkdownRenderer = ({content}) => {
 return (
     <div className="prose lg:prose-l max-w-none p-4">
         <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        rehypePlugins={[rehypeHighlight]}
+            remarkPlugins={[remarkGfm]}
+            rehypePlugins={[rehypeHighlight]}
         >
         {content}
         </ReactMarkdown>

@@ -106,6 +106,7 @@ const CreateTN = (savedValues) => {
         const result = await getComponents();
         setComponents(result.data.components);
       } catch (error) {
+        console.log(error);
         const res= error.response?.data?.message || error.message;
         setError("Error while retrieving components: " + res);
       }
