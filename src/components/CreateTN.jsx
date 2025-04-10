@@ -282,6 +282,7 @@ const CreateTN = (savedValues) => {
         const res= error.response?.data?.message || error.message;
         setSuccess("");
         setModalErrorOpen(true);
+        console.log(error);
         setErrorMessage("Error: Can not save the TN due to: " + res);
       }
     })();

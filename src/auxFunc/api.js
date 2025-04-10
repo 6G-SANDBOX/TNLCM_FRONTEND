@@ -195,13 +195,14 @@ export const getLibraryValues = async (type) => {
             "Content-Type": "application/json",
           },
         });
-        return response.data || {libraryTypes : []};
+        return response.data || {libraryValues : []};
       } catch (err) {
         console.error("Error while retrieving all the library values:", err.response?.data?.message || err.message);
-        return {libraryTypes : []};
+        return {libraryValues : []};
       }
 }
 
+// TODO Poner como query?
 export const getComponents= async () => {
   let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/`+sitesBranch+`/`+deploymentSite;
   const access_token = await getAccessTokenFromSessionStorage();
@@ -250,8 +251,6 @@ export const getTnMarkdown = async (id) => {
   });
   return response;
 }
-
-
 
 export async function loginUser(username, password, config = {}) {
   const authString = `${username}:${password}`;
@@ -335,7 +334,6 @@ export const refreshToken= async () => {
     throw new Error("Failed to fetch a new access token: " + error.message);
   }
 };
-
 
 export async function getLogs(vmId) {
   const access_token = await getAccessTokenFromSessionStorage();

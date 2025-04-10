@@ -1,5 +1,8 @@
+import html2canvas from "html2canvas";
 import yaml from 'js-yaml';
-import { useEffect, useState } from 'react';
+import jsPDF from "jspdf";
+import { marked } from "marked";
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { coyWithoutShadows } from 'react-syntax-highlighter/dist/esm/styles/prism';
@@ -8,6 +11,7 @@ import CreateTN from './CreateTN';
 import MarkdownRenderer from './MarkdownRenderer';
 import TopNavigator from './TopNavigator';
 
+
 function Network() {
   const { id } = useParams();  // We get the `id` parameter from the URL
   const [data, setData] = useState(null);
@@ -15,6 +19,7 @@ function Network() {
   const [descriptor, setDescriptor] = useState(null);
   const [showMarkdown, setShowMarkdown] = useState(false);
   const [dictionary, setDictionary] = useState({});
+  const printRef = useRef();
 
   useEffect(() => {
     const getData = async () => {
@@ -39,8 +44,38 @@ function Network() {
     };
     getData();
   }, [id]);
+
+  const handlePDF = async () => {
+    const element = printRef.current;
+
+    const canvas = await html2canvas(element, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const imgProps = pdf.getImageProperties(imgData);
+    const imgHeight = (imgProps.height * pageWidth) / imgProps.width;
+
+    let heightLeft = imgHeight;
+    let position = 0;
+
+    pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+    heightLeft -= pageHeight;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight;
+      pdf.addPage();
+      // TODO Image generates a blank page
+      pdf.addImage(imgData, "PNG", 0, position, pageWidth, imgHeight);
+      heightLeft -= pageHeight;
+    }
+
+    pdf.save("report.pdf");
+  };
   
-  const handleDownload = (yamlString, fileName = "descriptor.yaml") => {
+  const handleDescriptor = (yamlString, fileName = "descriptor.yaml") => {
     const blob = new Blob([yamlString], { type: "text/yaml;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
 
@@ -55,8 +90,6 @@ function Network() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
-
-  //TODO: Add the rest of the code here
 
   return (
       <div>
@@ -75,9 +108,16 @@ function Network() {
         <TopNavigator />
       
         {/* Show markdown or main content */}
-        {/* TODO Button for download markdown in pdf */}
         {showMarkdown ? (
-          <MarkdownRenderer content={markdown} />
+          <div className="flex justify-center items-center h-full">
+            <MarkdownRenderer markdown={markdown} />
+          <div className="p-4">
+            <div className="prose max-w-none" ref={printRef} dangerouslySetInnerHTML={{ __html: marked(markdown) }} />
+              <button onClick={() =>handlePDF()} className="mt-4 px-4 py-2 bg-blue-600 text-white rounded">
+                Download PDF
+              </button>
+            </div>
+          </div>
         )
         :(
           <div className="flex items-center ">
@@ -110,7 +150,7 @@ function Network() {
               <button className="bg-blue-500 text-white py-6 rounded-xl">
                 ELCM GUI
               </button>
-              <button onClick={handleDownload(descriptor)} className="bg-blue-500 text-white py-6 rounded-xl">
+              <button onClick={() => handleDescriptor(descriptor)} className="bg-blue-500 text-white py-6 rounded-xl">
                 Download Descriptor
               </button>
               <button className="bg-blue-500 text-white py-6 rounded-xl">

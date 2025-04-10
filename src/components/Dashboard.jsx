@@ -409,7 +409,13 @@ const Dashboard = () => {
                   </span>
                   </td>
                   <td className="py-2">
-                    <button className="text-purple-600 hover:underline" onClick={() => handleOpenLogs(network.tn_id)} ><FontAwesomeIcon icon={faTerminal} /></button>
+                  <button
+                    className={`text-purple-600 hover:underline ${network.state === "created" ? "opacity-50 cursor-not-allowed" : ""}`}
+                    onClick={() => network.state !== "created" && handleOpenLogs(network.tn_id)}
+                    disabled={network.state === "created"}
+                  >
+                    <FontAwesomeIcon icon={faTerminal} />
+                  </button>
                   </td>
                 </tr>
               ))}
