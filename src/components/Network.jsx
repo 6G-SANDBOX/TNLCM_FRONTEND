@@ -72,6 +72,7 @@ function Network() {
   }, [id]);
 
   // This function handles the PDF generation
+  // TODO fix
   const handlePDF = async () => {
     const element = printRef.current;
     const canvas = await html2canvas(element, { scale: 2 });
