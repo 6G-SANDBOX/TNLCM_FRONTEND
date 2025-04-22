@@ -1,19 +1,38 @@
 import { Box, Button, Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Modal, Select, TextField, Typography } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getComponent } from "../auxFunc/api";
 
 const Component = ({ open, handleClose, component, onChange, handleRemove, defaultValues, filter }) => {
-    const [data, setData] = useState([]);
+    const [data, setData] = useState(null);
 	const [fieldValues, setFieldValues] = useState({});
 	const [details, setDetails] = useState(false);
 	const [version, setVersion] = useState(false);
 	const [dependencies, setDependencies] = useState([]);
+	const [name, setName] = useState("");
+	const [error, setError] = useState(false);
 	const exceptions = ["tn_init", "tsn", "tn_bastion", "tn_vxlan"];
 
+	// Close the modal and reset the data
+	const handleSendClose = useCallback(() => {
+		setData(null);
+		setName("");
+		setError(false);
+		setFieldValues({});
+		handleClose();
+		setDetails(false);
+		setVersion(false);
+		setDependencies([]);
+	}, [handleClose]);
+
+	// UseEffect to fetch the data when the modal is open
 	useEffect(() => {
 		const fetchData = async () => {
-			const result = await getComponent(component.name);
-			setData(result);
+				const result = await getComponent(component.name);
+				setData(result);
+				if (!result) {
+					setError(true);
+				}
+				setName(component.name);
 		};
 		// If the modal is open, fetch the data
 		if (open) fetchData();
@@ -22,17 +41,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 			setVersion(true);
 			setFieldValues(defaultValues.fields);
 		};
-	}, [component, open, onChange, defaultValues]);
-
-	// Close the modal and reset the data
-	const handleSendClose = () => {
-		setData([]);
-		setFieldValues({});
-		handleClose();
-		setDetails(false);
-		setVersion(false);
-		setDependencies([]);
-	}
+	}, [component, open, onChange, defaultValues, handleSendClose]);
 
 	// Remove the component from the list
 	const handleSendRemove = () => {
@@ -70,7 +79,9 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 	// Add/Save the component to the list
 	const handleAdd = () => {
 		if (!exceptions.includes(component.name) && !fieldValues["name"]) {
-			alert("Please fill the name field");
+			return;
+		}
+		if(handleValidate()) {
 			return;
 		}
 		onChange(component.id, "fields", fieldValues);
@@ -79,6 +90,19 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		onChange(component.id, "dependencies", dependencies);
 		handleSendClose();
 	}
+
+	const handleValidate = () => {
+		let isNotValid = false;
+		if (data.component?.input && typeof data.component.input === "object") {
+			Object.entries(data.component.input).forEach(([key, value]) => {
+				if (value.required_when && !fieldValues[key]) {
+					isNotValid = true;
+				}
+			});
+		}
+	  
+		return isNotValid;
+	  };
 
 	// Show/Hide the details of the component
 	const handleDetails = () => {
@@ -113,7 +137,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		});
     };
 
-  return (
+  if (data) return (
     <Modal sx={{
 				display: 'flex',
 				alignItems: 'center',
@@ -133,7 +157,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		}}>
 			{/* Title */}
 			<Typography gutterBottom variant="h4" className=" text-center mb-2">
-				{String(component.name).toUpperCase()}
+				{name.toUpperCase()}
 			</Typography>
 			{/* Description or Loader*/}
 			{!data.component?.metadata?.long_description ? (
@@ -178,6 +202,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 												value={fieldValues[key] || ""}
 												onChange={handleChange(key)}
 												label={key}
+												error={!fieldValues[key] && value.required_when}
 											>
 											{value.choices.map((choice, index) => (
 											<MenuItem key={index} value={choice}>
@@ -197,6 +222,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										onChange={handleChange(key)}
 										type="text"
 										className="mb-2"
+										error={!fieldValues[key] && value.required_when}
 									/>)
 								) : value.type === "int" ? (
 									// Number Field
@@ -209,6 +235,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										onChange={handleChange(key)}
 										type="number"
 										className="mb-2"
+										error={!fieldValues[key] && value.required_when}
 									/>
 								) : value.type === "bool" ? (
 									// Boolean Field
@@ -219,6 +246,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 											label={key}
 											value={fieldValues[key] || ""}
 											onChange={handleChange(key)}
+											error={!fieldValues[key] && value.required_when}
 										>
 											<MenuItem value="true">True</MenuItem>
 											<MenuItem value="false">False</MenuItem>
@@ -226,7 +254,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 									</FormControl>
 								) : value.type.match(/^list\[(.+)\]$/) ? (
 									// Checkbox Field
-									<FormGroup>
+									<FormGroup sx={{ border: (!fieldValues[key] && value.required_when) ? '1px solid red' : 'none', p: 1, borderRadius: 1 }}>
 									<InputLabel sx={{ fontWeight: 700 }}>{key}: </InputLabel>
 									{filter(parseTypeString(value.type)).length > 0 ? (
 										filter(parseTypeString(value.type)).map((option) => (
@@ -237,6 +265,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 												checked={fieldValues[key]?.includes(option) || false}
 												onChange={(e) => handleCheckbox(e, key)}
 												name={option}
+												error={!fieldValues[key] && value.required_when}
 											/>
 											}
 											label={option}
@@ -252,7 +281,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 									// Select Field
 									<FormControl fullWidth>
 									<InputLabel sx={{ fontWeight: 700 }}>{key}</InputLabel>
-									<Select value={fieldValues[key] || ""} onChange={handleSelect(key)} label={key}>
+									<Select value={fieldValues[key] || ""} onChange={handleSelect(key)} label={key} error={!fieldValues[key] && value.required_when}>
 										{filter(parseOrSeparatedString(value.type)).map((option) => (
 										<MenuItem key={option} value={option}>
 											{option}
@@ -292,7 +321,48 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 				}
 				
 			</Box>
+		</Box>
+    </Modal>
+  );
 
+  if (!data) return (
+	<Modal sx={{
+		display: 'flex',
+		alignItems: 'center',
+		justifyContent: 'center',
+	}} open={open} onClose={handleSendClose} aria-labelledby="component-modal">
+		<Box sx={{
+			width: '500px',
+			maxWidth: '90%',
+			maxHeight: '90vh',
+			overflowY: 'auto',
+			paddingBottom: '16px',
+			backgroundColor: 'white',
+			borderRadius: 4,
+			boxShadow: 24,
+			padding: '20px',
+			border: '2px solid black',
+		}}>
+			{/* Title */}
+			<Typography gutterBottom variant="h4" className=" text-center mb-2">
+				{name.toUpperCase()}
+			</Typography>
+			{/* Description*/}
+			{!error ? (
+				<div className=" justify-center flex">
+					<img src="/loading.gif" alt="Loading..." style={{ width: '50px' }}/>
+				</div>
+				) : (
+				<Typography variant="body1" color="text.secondary" className="text-center mb-2">
+					Component not available in the current library
+				</Typography>
+			)}
+			{/* Close Button */}
+			<Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
+				<Button onClick={handleSendClose} variant="contained" color="primary">
+					Close
+				</Button>
+			</Box>
 		</Box>
     </Modal>
   );

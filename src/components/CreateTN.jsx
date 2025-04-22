@@ -19,6 +19,7 @@ const CreateTN = (savedValues) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [success, setSuccess] = useState(null);
   const processedSavedValues = useRef(null);
+  const [tnName, setTnName] = useState('');
   const location = useLocation();
   const fileValues = location.state?.file;// If we are coming here with a file, get it
 
@@ -106,13 +107,13 @@ const CreateTN = (savedValues) => {
         const result = await getComponents();
         setComponents(result.data.components);
       } catch (error) {
-        console.log(error);
+        // Handle error
         const res= error.response?.data?.message || error.message;
         setError("Error while retrieving components: " + res);
       }
     };
     fetchComponents();
-  }, [temporalData, selectedComponent]);
+  }, [temporalData, selectedComponent, tnName]);
 
   // Filter components based on the search query
   const filteredComponents = components.filter(component =>
@@ -193,6 +194,11 @@ const CreateTN = (savedValues) => {
     setErrorMessage('');
   };
 
+  // Handle the name of the trial network
+  const handleName = (e) => {
+    setTnName(e.target.value);
+  }
+
   // Close the component modal
   const handleClose = () => {
     setfocusedComponent({});
@@ -234,10 +240,13 @@ const CreateTN = (savedValues) => {
         const yamlString = convertJsonToYaml(selectedComponent,tnInit);
         let formDataS = new FormData();
         const blobV = new Blob([yamlString], { type: "text/yaml" });
+        if (tnName.trim() !== '' && tnName !== null && tnName !== undefined) {
+          formDataS.append("tn_id", tnName);
+        }
         formDataS.append("descriptor", blobV, "descriptor.yaml");
         formDataS.append("library_reference_type", process.env.REACT_APP_LIBRARY_REF);
         formDataS.append("library_reference_value", process.env.REACT_APP_LIBRARY_REF_VALUE);
-        if (savedValues){
+        if (savedValues !== null && Object.keys(savedValues).length > 0) {
           await updateTrialNetwork(formDataS, savedValues.savedValues.trialNetworkId);
         } else {
           await saveTrialNetwork(formDataS);
@@ -249,6 +258,7 @@ const CreateTN = (savedValues) => {
         }, 2502);
       } catch (error) {
         const res= error.response?.data?.message || error.message;
+        console.log(error);
         setSuccess("");
         setModalErrorOpen(true);
         setErrorMessage("Error: Can not save the TN due to: " + res);
@@ -266,6 +276,9 @@ const CreateTN = (savedValues) => {
         const yamlString = convertJsonToYaml(selectedComponent,tnInit);
         let formDataV = new FormData();
         const blobV = new Blob([yamlString], { type: "text/yaml" });
+        if (tnName.trim() !== '' && tnName !== null && tnName !== undefined) {
+          formDataV.append("tn_id", tnName);
+        }
         formDataV.append("descriptor", blobV, "descriptor.yaml");
         formDataV.append("library_reference_type", String(process.env.REACT_APP_LIBRARY_REF));
         formDataV.append("library_reference_value", String(process.env.REACT_APP_LIBRARY_REF_VALUE));
@@ -286,6 +299,8 @@ const CreateTN = (savedValues) => {
         setErrorMessage("Error: Can not save the TN due to: " + res);
       }
     })();
+    // TODO Hacer que cuando haga click se validen las dependencias
+    //  y las que no existan(se ha borrado el componente) se borren
   }
 
   // Filter and format the selected components to send the data to the modal
@@ -310,7 +325,16 @@ const CreateTN = (savedValues) => {
     <div>
       <TopNavigator />
       <div className="flex flex-col items-center p-4">
-        <h1 className="text-2xl font-bold mb-4">Create New Trial Network</h1>
+          <h1 className="text-2xl font-bold mb-4">Create New Trial Network</h1>
+          <TextField
+            variant="outlined"
+            value={tnName || ""}
+            label="Trial Network Name"
+            placeholder="Optional"
+            onChange={handleName}
+            type="string"
+            className="mb-2"
+          />
         <div className="flex w-full gap-4">
           {/* Components List to the left */}
           <Box

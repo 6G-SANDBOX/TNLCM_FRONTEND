@@ -17,7 +17,6 @@ const Dashboard = () => {
   const [activeCount, setActiveCount] = useState(0);
   const fileInputRef2 = useRef(null);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [changingStatesIdS,setChangingStatesIdS] = useState([]);
   const [isModalOpen2, setModalOpen2] = useState(false);
   const [selectedNetworkId, setSelectedNetworkId] = useState(null);
   const navigate = useNavigate();
@@ -49,7 +48,6 @@ const Dashboard = () => {
   
       // Update the state before making the requests
       setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
-      setChangingStatesIdS((prevState) => [...prevState, ...validIds]);
   
       // Generate the PURGE requests for each ID
       const purgeRequest = validIds.map(async (id) => {
@@ -58,8 +56,7 @@ const Dashboard = () => {
   
       // Make all with Promise.allSettled
       await Promise.allSettled(purgeRequest);
-      // Set the state after all requests are completed
-      setChangingStatesIdS((prevState) => prevState.filter((id) => !validIds.includes(id)));
+
   
     } catch (error) {
       alert("Error while purging:", error);
@@ -88,7 +85,7 @@ const Dashboard = () => {
 
       // Set the states before making the requests
       setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
-      setChangingStatesIdS((prevState) => [...prevState, ...validIds]);
+
   
       // Make a DELETE request for each ID
       const deleteRequests = validIds.map(async (id) => {
@@ -97,9 +94,7 @@ const Dashboard = () => {
   
       // Wait for all requests to complete
       await Promise.all(deleteRequests);
-  
-      // After all requests are completed, update the state
-      setChangingStatesIdS((prevState) => prevState.filter((id) => !validIds.includes(id)));
+
     } catch (error) {
       alert("Error deleting networks: " + error);
     }
@@ -109,7 +104,6 @@ const Dashboard = () => {
     try {
       // Set the states before making the requests
       setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
-      setChangingStatesIdS((prevState) => [...prevState, ...selectedIds]);
   
       // Create a PUT request for each ID
       const promises = selectedIds.map(async (id) => {
@@ -117,7 +111,6 @@ const Dashboard = () => {
         try {
           await putTN(id);
           // After the request is completed, update the state
-          setChangingStatesIdS((prevState) => prevState.filter((item) => item !== id));
           return { id, status: 'success' };
         } catch (error) {
           return { id, status: 'failed', error };
@@ -367,7 +360,7 @@ const Dashboard = () => {
                       id= {`checkbox-${network.tn_id}`}
                       onChange={() => handleCheckboxChange(network.tn_id)}
                       checked={selectedIds.includes(network.tn_id)}
-                      disabled={changingStatesIdS.includes(network.tn_id) || network.state.includes("ing")}
+                      disabled={network.state.includes("ing")}
                     />
                   </td>
                   <td className="py-2">
