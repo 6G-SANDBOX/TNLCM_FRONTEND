@@ -120,6 +120,7 @@ const CreateTN = (savedValues) => {
     component.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Function to handle the click on a component
   const handleClick = (component, key, defaultValue) => {
     // If the component is already selected, open the modal with the data
     if (defaultValue || key) {

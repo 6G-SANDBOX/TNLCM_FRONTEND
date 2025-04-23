@@ -10,6 +10,7 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // Use null to indicate that we are still checking authentication status
 
   useEffect(() => {
+    // Function to check if the user is authenticated
     const checkAuthentication = async () => {
       const token = await getAccessTokenFromSessionStorage();
       if (token) {

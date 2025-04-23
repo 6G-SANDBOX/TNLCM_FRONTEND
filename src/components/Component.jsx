@@ -10,11 +10,13 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 	const [dependencies, setDependencies] = useState([]);
 	const [name, setName] = useState("");
 	const [error, setError] = useState(false);
+	const [textError, setTextError] = useState("");
 	const exceptions = ["tn_init", "tsn", "tn_bastion", "tn_vxlan"];
 
 	// Close the modal and reset the data
 	const handleSendClose = useCallback(() => {
 		setData(null);
+		setTextError("");
 		setName("");
 		setError(false);
 		setFieldValues({});
@@ -48,6 +50,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		if (!data) return;
 		for(const [key, value] of Object.entries(data?.component?.input)) {
 			if (value.type.match(/^list\[(.+)\]$/)){
+				if (!fieldValues[key]) break;
 				for (const field of fieldValues[key]) {
 					if (filter(parseTypeString(value.type)).includes(field)) {
 						setFieldValues((prevState) => {
@@ -59,6 +62,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 				}
 			} else if (value.type.includes(" or ")) {
 				const parsedOptions = parseOrSeparatedString(value.type);
+				if (!fieldValues[key]) break;
 				if (parsedOptions.includes(fieldValues[key])) {
 					setFieldValues((prevState) => {
 						const updatedValues = { ...prevState };
@@ -106,9 +110,11 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 	// Add/Save the component to the list
 	const handleAdd = () => {
 		if (!exceptions.includes(component.name) && !fieldValues["name"]) {
+			setTextError("Please fill all the required fields");
 			return;
 		}
 		if(handleValidate()) {
+			setTextError("Please fill all the required fields");
 			return;
 		}
 		onChange(component.id, "fields", fieldValues);
@@ -300,20 +306,23 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										))
 									) : (
 										<Typography variant="body2" color="textSecondary">
-										Create new components for being able to see them here
+										Create new {(parseTypeString(value.type)).join(', ')} for being able to see them here
 										</Typography>
 									)}
 									</FormGroup>
-								) : value.type.includes(" or ") ? (
+								) : value.type.includes(" or ") || value.type.split(" ").length===1 ? (
 									// Select Field
 									<FormControl fullWidth>
 									<InputLabel sx={{ fontWeight: 700 }}>{key}</InputLabel>
 									<Select value={fieldValues[key] || ""} onChange={handleSelect(key)} label={key} error={(!fieldValues[key] && value.required_when)}>
-										{filter(parseOrSeparatedString(value.type)).map((option) => (
+										{filter(parseOrSeparatedString(value.type)).length>0 ? filter(parseOrSeparatedString(value.type)).map((option) => (
 										<MenuItem key={option} value={option}>
 											{option}
 										</MenuItem>
-										))}
+										))
+										: <MenuItem key={"option"} disabled value="">
+											{"Create new " + (parseOrSeparatedString(value.type)).join(', ') + " for being able to see them here"}
+										  </MenuItem> }
 									</Select>
 									</FormControl>
 								) : "" }
@@ -322,7 +331,8 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 					) : null}
 				</>
 			) : null}
-			{/* TODO Errores de cuando le das al boton de add y no pasa nada porque hay campos sin rellenar */}
+			{/* Error text */}
+			{textError && <div className="justify-center flex mb-4 text-red-500 text-sm">{textError}</div>}
 			{/* Buttons */}
 			<Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
 				<Button onClick={handleSendClose} variant="contained" color="primary">
