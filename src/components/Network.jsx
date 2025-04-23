@@ -11,7 +11,6 @@ import CreateTN from './CreateTN';
 import MarkdownRenderer from './MarkdownRenderer';
 import TopNavigator from './TopNavigator';
 
-
 function Network() {
   const { id } = useParams();  // We get the `id` parameter from the URL
   const [data, setData] = useState(null);
@@ -23,6 +22,7 @@ function Network() {
   const [vpn , setVpn] = useState(false);
   const printRef = useRef();
 
+  //UseEffect to fetch the data from the API and search for ELCM and VPN nodes
   useEffect(() => {
     // This function checks if the descriptor contains an ELCM node
     const searchELCM = async (desc) => {
@@ -72,63 +72,49 @@ function Network() {
   }, [id]);
 
   // This function handles the PDF generation
-  // TODO fix
   const handlePDF = async () => {
     const element = printRef.current;
     const canvas = await html2canvas(element, { scale: 2 });
     const imgData = canvas.toDataURL("image/png");
-  
     const pdf = new jsPDF("p", "mm", "a4");
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
-  
-    const margin = 10; // margen en mm
-    const usableWidth = pageWidth - margin * 2; // ancho usable considerando márgenes
-  
-    const imgProps = pdf.getImageProperties(imgData); // Propiedades de la imagen generada
-    const totalImgHeight = (imgProps.height * usableWidth) / imgProps.width; // Altura total de la imagen ajustada al ancho de la página
-  
-    let heightLeft = totalImgHeight; // Altura restante de la imagen que falta por agregar
+    const margin = 10; // Margin for the PDF
+    const usableWidth = pageWidth - margin * 2; // Height usable for the image
+    const imgProps = pdf.getImageProperties(imgData); // Propierties of the image
+    const totalImgHeight = (imgProps.height * usableWidth) / imgProps.width; // Height of the image
+    let heightLeft = totalImgHeight; // Height left to add to the PDF
     let position = margin;
-  
-    // Primera página: agregar la imagen hasta que se llene la página
-    const firstPageHeight = pageHeight - margin * 2; // Altura disponible en la primera página
+    // First page
+    const firstPageHeight = pageHeight - margin * 2; // Height of the first page
     pdf.addImage(imgData, "PNG", margin, position, usableWidth, firstPageHeight);
-    heightLeft -= firstPageHeight; // Restamos la altura de la parte agregada
-  
-    // Agregar más páginas si la imagen sigue siendo más grande que la altura de la primera página
+    heightLeft -= firstPageHeight; // Minus the height of the first page
+    // Add the rest of the pages
     while (heightLeft > 0) {
       pdf.addPage();
-  
-      // Solo agregar la siguiente parte de la imagen
-      position = margin; // La posición comienza en el margen superior de cada página
-      const sliceHeight = pageHeight - margin * 2; // Calculamos la altura de la parte de la imagen que cabe en la página
-  
-      // Agregar la siguiente parte de la imagen
+      // Only add the image if there is height left
+      position = margin; // The position of the image in the page
+      const sliceHeight = pageHeight - margin * 2; // Calculate the slice height
+      // Add the image to the PDF
       pdf.addImage(imgData, "PNG", margin, position, usableWidth, sliceHeight);
-  
-      heightLeft -= sliceHeight; // Restamos la altura de la parte que hemos agregado
+      heightLeft -= sliceHeight; // Minus the height of the slice
     }
   
-    // Guardar el archivo PDF
+    // Save the PDF
     pdf.save("report.pdf");
   };
-  
-  
   
   
   // This function handles the download of the descriptor
   const handleDescriptor = (yamlString, fileName = "descriptor.yaml") => {
     const blob = new Blob([yamlString], { type: "text/yaml;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-
     // Create a link element and trigger the download
     const link = document.createElement("a");
     link.href = url;
     link.setAttribute("download", fileName);
     document.body.appendChild(link);
     link.click();
-
     // Clear up the URL object and remove the link element
     document.body.removeChild(link);
     URL.revokeObjectURL(url);

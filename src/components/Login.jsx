@@ -29,14 +29,14 @@ const Login = () => {
     }
 
     try {
-      const response = await loginUser(user, password, { timeout: 2000 }); // Five seconds timeout
+      const response = await loginUser(user, password, { timeout: 2000 }); // Two seconds timeout
   
       // Supposing server sent us a JSON with access_token and refresh_token
       const accessToken = response.data.access_token;
       const refreshToken = response.data.refresh_token;
   
       // Save access_token in sessionStorage (only for this session)
-      sessionStorage.setItem("access_token", accessToken);
+      sessionStorage.setItem("access_token", accessToken); 
       // Save refresh_token in localStorage (multiple sessions)
       localStorage.setItem("refresh_token", refreshToken);
       

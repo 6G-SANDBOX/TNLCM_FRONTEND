@@ -258,7 +258,6 @@ const CreateTN = (savedValues) => {
         }, 2502);
       } catch (error) {
         const res= error.response?.data?.message || error.message;
-        console.log(error);
         setSuccess("");
         setModalErrorOpen(true);
         setErrorMessage("Error: Can not save the TN due to: " + res);
@@ -267,11 +266,30 @@ const CreateTN = (savedValues) => {
 
   }
 
+  // Handle if the fields of the selected components are eno longer available
+  const handleDependencies = () => {
+    let bool = false;
+    for (const [key,component] of Object.entries(selectedComponent)) {
+      for (const dependency of component.dependencies) {
+        const splited= dependency.split("-");
+        if (splited.length > 1) {
+          bool = Object.values(selectedComponent).some(entry => entry.type === splited[0] && entry.fields.name === splited[1]);
+        } else if (splited.length === 1) {
+          bool = Object.values(selectedComponent).some(entry => entry.type === splited[0]);
+        }
+        if (!bool) {
+          selectedComponent[key].dependencies = selectedComponent[key].dependencies.filter(dep => dep !== dependency);
+        }
+      }
+    }
+  }
+
   // Handle the validation of the trial network
   const handleValidate = () => {
     // Execute the petition to the server
     (async () => {
       try {
+        handleDependencies();
         const tnInit = Object.values(selectedComponent).some((component) => component.type === "tn_init");
         const yamlString = convertJsonToYaml(selectedComponent,tnInit);
         let formDataV = new FormData();
@@ -295,12 +313,9 @@ const CreateTN = (savedValues) => {
         const res= error.response?.data?.message || error.message;
         setSuccess("");
         setModalErrorOpen(true);
-        console.log(error);
         setErrorMessage("Error: Can not save the TN due to: " + res);
       }
     })();
-    // TODO Hacer que cuando haga click se validen las dependencias
-    //  y las que no existan(se ha borrado el componente) se borren
   }
 
   // Filter and format the selected components to send the data to the modal

@@ -43,6 +43,33 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		};
 	}, [component, open, onChange, defaultValues, handleSendClose]);
 
+	// UseEffect to delete the fields that are no longer available
+	useEffect(() => {
+		if (!data) return;
+		for(const [key, value] of Object.entries(data?.component?.input)) {
+			if (value.type.match(/^list\[(.+)\]$/)){
+				for (const field of fieldValues[key]) {
+					if (filter(parseTypeString(value.type)).includes(field)) {
+						setFieldValues((prevState) => {
+							const updatedValues = { ...prevState };
+							updatedValues[key] = updatedValues[key]?.filter(val => val !== field);
+							return updatedValues;
+						});
+					}
+				}
+			} else if (value.type.includes(" or ")) {
+				const parsedOptions = parseOrSeparatedString(value.type);
+				if (parsedOptions.includes(fieldValues[key])) {
+					setFieldValues((prevState) => {
+						const updatedValues = { ...prevState };
+						updatedValues[key] = updatedValues[key]?.filter(val => val !== fieldValues[key]);
+						return updatedValues;
+					});
+				}
+			}
+		}
+	},[data, fieldValues, filter]);
+
 	// Remove the component from the list
 	const handleSendRemove = () => {
 		handleRemove(component.id);
@@ -100,7 +127,6 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 				}
 			});
 		}
-	  
 		return isNotValid;
 	  };
 
@@ -137,6 +163,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 		});
     };
 
+	// HTML Content
   if (data) return (
     <Modal sx={{
 				display: 'flex',
@@ -202,7 +229,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 												value={fieldValues[key] || ""}
 												onChange={handleChange(key)}
 												label={key}
-												error={!fieldValues[key] && value.required_when}
+												error={(!fieldValues[key] && value.required_when)}
 											>
 											{value.choices.map((choice, index) => (
 											<MenuItem key={index} value={choice}>
@@ -222,7 +249,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										onChange={handleChange(key)}
 										type="text"
 										className="mb-2"
-										error={!fieldValues[key] && value.required_when}
+										error={(!fieldValues[key] && value.required_when)}
 									/>)
 								) : value.type === "int" ? (
 									// Number Field
@@ -235,7 +262,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										onChange={handleChange(key)}
 										type="number"
 										className="mb-2"
-										error={!fieldValues[key] && value.required_when}
+										error={(!fieldValues[key] && value.required_when)}
 									/>
 								) : value.type === "bool" ? (
 									// Boolean Field
@@ -246,7 +273,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 											label={key}
 											value={fieldValues[key] || ""}
 											onChange={handleChange(key)}
-											error={!fieldValues[key] && value.required_when}
+											error={(!fieldValues[key] && value.required_when)}
 										>
 											<MenuItem value="true">True</MenuItem>
 											<MenuItem value="false">False</MenuItem>
@@ -265,7 +292,7 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 												checked={fieldValues[key]?.includes(option) || false}
 												onChange={(e) => handleCheckbox(e, key)}
 												name={option}
-												error={!fieldValues[key] && value.required_when}
+												error={(!fieldValues[key] && value.required_when)}
 											/>
 											}
 											label={option}
@@ -277,11 +304,11 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										</Typography>
 									)}
 									</FormGroup>
-								) : (
+								) : value.type.includes(" or ") ? (
 									// Select Field
 									<FormControl fullWidth>
 									<InputLabel sx={{ fontWeight: 700 }}>{key}</InputLabel>
-									<Select value={fieldValues[key] || ""} onChange={handleSelect(key)} label={key} error={!fieldValues[key] && value.required_when}>
+									<Select value={fieldValues[key] || ""} onChange={handleSelect(key)} label={key} error={(!fieldValues[key] && value.required_when)}>
 										{filter(parseOrSeparatedString(value.type)).map((option) => (
 										<MenuItem key={option} value={option}>
 											{option}
@@ -289,13 +316,13 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 										))}
 									</Select>
 									</FormControl>
-								)}
+								) : "" }
 							</div>
 						))
 					) : null}
 				</>
 			) : null}
-
+			{/* TODO Errores de cuando le das al boton de add y no pasa nada porque hay campos sin rellenar */}
 			{/* Buttons */}
 			<Box sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}>
 				<Button onClick={handleSendClose} variant="contained" color="primary">
@@ -310,16 +337,9 @@ const Component = ({ open, handleClose, component, onChange, handleRemove, defau
 					{details ? "Hide" : "Show"} Details
 				</Button>
 
-				{version ?
-					<Button onClick={handleAdd} variant="contained" color="primary">
-					Save
-					</Button>
-				:	<Button onClick={handleAdd} variant="contained" color="primary">
-					Add
-					</Button>
-
-				}
-				
+				<Button onClick={handleAdd} variant="contained" color="primary">
+					{version ? "Save" : "Add"}
+				</Button>
 			</Box>
 		</Box>
     </Modal>
