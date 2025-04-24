@@ -169,7 +169,6 @@ export const getLibraryTypes = async () => {
       const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/references_types`;
       const access_token = await getAccessTokenFromSessionStorage();
       const auth = `Bearer ${access_token}`;
-  
       const response = await axios.get(url, {
         headers: {
           Authorization: auth,
@@ -221,7 +220,6 @@ export const getComponent = async (name) => {
   if (access_token) {
     const url = process.env.REACT_APP_TNLCM_BACKEND_API;
     const bearerJwt = `Bearer ${access_token}`;
-    
     try {
       const response = await axios.get(`${url}/library/`+ libraryRef + `/` +  libraryValue +  `/${name}`, {
         headers: {
@@ -254,7 +252,6 @@ export async function loginUser(username, password, config = {}) {
   const authString = `${username}:${password}`;
   const encodedAuth = window.btoa(unescape(encodeURIComponent(authString))); // Special encoding for base64
   const basicAuthHeader = `Basic ${encodedAuth}`;
-
   try {
     const url =`${process.env.REACT_APP_TNLCM_BACKEND_API}/user/login`;
     // Make the POST request to the login endpoint

@@ -1,15 +1,9 @@
-import { faBars, faUserCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  Box,
-  Button,
-  Modal,
-  TextField,
-  Typography,
-} from "@mui/material";
-import React, { useEffect, useState } from 'react';
-import { changePwd, getUser } from '../auxFunc/api';
-import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
+import { faBars, faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Box, Button, Modal, TextField, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { changePwd, getUser } from "../auxFunc/api";
+import { getAccessTokenFromSessionStorage } from "../auxFunc/jwt";
 
 const ProfileModal = ({ isOpen, onClose, userInfo }) => {
   // Conditionally render the modal
@@ -28,13 +22,13 @@ const ProfileModal = ({ isOpen, onClose, userInfo }) => {
     }
   }, [isOpen]);
   // If the user info is not loaded yet, show "Loading..."
-  const username = userInfo ? userInfo.username : 'Loading...';
-  const organization = userInfo ? userInfo.org : 'Loading...';
-  const email = userInfo ? userInfo.email : 'Loading...';
+  const username = userInfo ? userInfo.username : "Loading...";
+  const organization = userInfo ? userInfo.org : "Loading...";
+  const email = userInfo ? userInfo.email : "Loading...";
   // Handle the save button click
   const handleSave = async () => {
     setSuccess("");
-    if (!oldPassword || !newPassword)  {
+    if (!oldPassword || !newPassword) {
       setError("All fields are required.");
       return;
     }
@@ -65,16 +59,25 @@ const ProfileModal = ({ isOpen, onClose, userInfo }) => {
           boxShadow: 24,
           p: 4,
           borderRadius: 4,
-          border: '2px solid black',
+          border: "2px solid black",
         }}
       >
-
         {userInfo ? (
           <Box sx={{ mb: 3 }}>
-            <Typography variant="h6"><strong>Username:</strong> {username}</Typography>
-            <Typography variant="h6"><strong>Email:</strong> {email}</Typography>
-            <Typography variant="h6"><strong>Organization:</strong> {organization}</Typography>
-            <Typography variant="h6" gutterBottom style={{ textDecoration: 'underline' }}>
+            <Typography variant="h6">
+              <strong>Username:</strong> {username}
+            </Typography>
+            <Typography variant="h6">
+              <strong>Email:</strong> {email}
+            </Typography>
+            <Typography variant="h6">
+              <strong>Organization:</strong> {organization}
+            </Typography>
+            <Typography
+              variant="h6"
+              gutterBottom
+              style={{ textDecoration: "underline" }}
+            >
               <strong>Change Password :</strong>
             </Typography>
             <TextField
@@ -164,7 +167,7 @@ const TopNavigator = () => {
 
   const handleListClick = () => {
     if (!isAuthenticated) return;
-    window.location = '/dashboard';
+    window.location = "/dashboard";
   };
 
   const handleLogout = () => {
@@ -173,17 +176,26 @@ const TopNavigator = () => {
     setIsAuthenticated(false);
     setMenuVisible(false);
     setTimeout(() => {
-      window.location = '/';
+      window.location = "/";
     }, 1001);
   };
 
   return (
-    <div id="topNavigator" className="bg-purple-600 h-16 flex items-center justify-between px-4 shadow-md">
-      <button className="text-white text-lg focus:outline-none" onClick={handleListClick}>
+    <div
+      id="topNavigator"
+      className="bg-purple-600 h-16 flex items-center justify-between px-4 shadow-md"
+    >
+      <button
+        className="text-white text-lg focus:outline-none"
+        onClick={handleListClick}
+      >
         <FontAwesomeIcon icon={faBars} />
       </button>
       <div className="relative">
-        <button className="text-white text-lg focus:outline-none" onClick={handleProfileClick}>
+        <button
+          className="text-white text-lg focus:outline-none"
+          onClick={handleProfileClick}
+        >
           <FontAwesomeIcon icon={faUserCircle} />
         </button>
         {menuVisible && isAuthenticated && (
@@ -203,7 +215,11 @@ const TopNavigator = () => {
           </div>
         )}
       </div>
-      <ProfileModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} userInfo={userInfo} />
+      <ProfileModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        userInfo={userInfo}
+      />
     </div>
   );
 };

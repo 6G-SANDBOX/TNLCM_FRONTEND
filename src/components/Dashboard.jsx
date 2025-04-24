@@ -1,11 +1,21 @@
-import { faCirclePlus, faCircleXmark, faDesktop, faFile, faNetworkWired, faPause, faPlay, faTerminal, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  faCirclePlus,
+  faCircleXmark,
+  faDesktop,
+  faFile,
+  faNetworkWired,
+  faPause,
+  faPlay,
+  faTerminal,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { deleteTN, getTrialNetworks, purgeTN, putTN } from '../auxFunc/api';
-import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
-import TerminalModal from './TerminalModal';
-import TopNavigator from './TopNavigator';
+import { deleteTN, getTrialNetworks, purgeTN, putTN } from "../auxFunc/api";
+import { getAccessTokenFromSessionStorage } from "../auxFunc/jwt";
+import TerminalModal from "./TerminalModal";
+import TopNavigator from "./TopNavigator";
 
 const Dashboard = () => {
   const [data, setData] = useState({ trial_networks: [] }); // Api data storing
@@ -31,33 +41,44 @@ const Dashboard = () => {
       // Filter valid and invalid IDs
       const validIds = [];
       const invalidIds = [];
-      
+
       selectedIds.forEach((id) => {
-        const network = data.trial_networks.find((network) => network.tn_id === id);
-        if (network && (network.state === "validated" || network.state === "destroyed" || network.state === "created")) {
+        const network = data.trial_networks.find(
+          (network) => network.tn_id === id
+        );
+        if (
+          network &&
+          (network.state === "validated" ||
+            network.state === "destroyed" ||
+            network.state === "created")
+        ) {
           validIds.push(id);
         } else {
           invalidIds.push(id);
         }
       });
-  
+
       // Show an alert if there are invalid IDs
       if (invalidIds.length > 0) {
-        alert(`Can not be purged the nexts TNs becouse their state is not "validated", "destroyed" or "created": ${invalidIds.join(", ")}`);
+        alert(
+          `Can not be purged the nexts TNs becouse their state is not "validated", "destroyed" or "created": ${invalidIds.join(
+            ", "
+          )}`
+        );
       }
-  
+
       // Update the state before making the requests
-      setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
-  
+      setSelectedIds((prevState) =>
+        prevState.filter((id) => !selectedIds.includes(id))
+      );
+
       // Generate the PURGE requests for each ID
       const purgeRequest = validIds.map(async (id) => {
         return await purgeTN(id);
       });
-  
+
       // Make all with Promise.allSettled
       await Promise.allSettled(purgeRequest);
-
-  
     } catch (error) {
       alert("Error while purging:", error);
     }
@@ -68,10 +89,15 @@ const Dashboard = () => {
       // Filter valid and invalid IDs
       const validIds = [];
       const invalidIds = [];
-      
+
       selectedIds.forEach((id) => {
-        const network = data.trial_networks.find((network) => network.tn_id === id);
-        if (network && ((network.state === "activated") || (network.state.includes("failed")))) {
+        const network = data.trial_networks.find(
+          (network) => network.tn_id === id
+        );
+        if (
+          network &&
+          (network.state === "activated" || network.state.includes("failed"))
+        ) {
           validIds.push(id);
         } else {
           invalidIds.push(id);
@@ -80,50 +106,55 @@ const Dashboard = () => {
 
       // Show an alert if there are invalid IDs
       if (invalidIds.length > 0) {
-        alert(`Can not destroy the nexts TNs becouse their state is not "activated" or "failed": ${invalidIds.join(", ")}`);
+        alert(
+          `Can not destroy the nexts TNs becouse their state is not "activated" or "failed": ${invalidIds.join(
+            ", "
+          )}`
+        );
       }
 
       // Set the states before making the requests
-      setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
+      setSelectedIds((prevState) =>
+        prevState.filter((id) => !selectedIds.includes(id))
+      );
 
-  
       // Make a DELETE request for each ID
       const deleteRequests = validIds.map(async (id) => {
         await deleteTN(id);
       });
-  
+
       // Wait for all requests to complete
       await Promise.all(deleteRequests);
-
     } catch (error) {
       alert("Error deleting networks: " + error);
     }
   };
-  
+
   const handleDeployClick = async () => {
     try {
       // Set the states before making the requests
-      setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
-  
+      setSelectedIds((prevState) =>
+        prevState.filter((id) => !selectedIds.includes(id))
+      );
+
       // Create a PUT request for each ID
       const promises = selectedIds.map(async (id) => {
         // Make the PUT request
         try {
           await putTN(id);
           // After the request is completed, update the state
-          return { id, status: 'success' };
+          return { id, status: "success" };
         } catch (error) {
-          return { id, status: 'failed', error };
+          return { id, status: "failed", error };
         }
       });
-  
-      await Promise.allSettled(promises);
 
+      await Promise.allSettled(promises);
     } catch (error) {
       alert("Error deploying networks: " + error);
     }
   };
-  
+
   const handleCheckboxChange = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id)
@@ -137,19 +168,23 @@ const Dashboard = () => {
     fileInputRef2.current.click();
   };
 
-
   const handleFileChange2 = (event) => {
     const file = event.target.files[0]; // Get the first file
     if (file) {
       //Check the file is a YAML
-      const validExtensions = ["application/x-yaml", "text/yaml", "text/x-yaml", "application/yaml"];
+      const validExtensions = [
+        "application/x-yaml",
+        "text/yaml",
+        "text/x-yaml",
+        "application/yaml",
+      ];
       const fileExtension = file.name.split(".").pop().toLowerCase();
-  
+
       if (!validExtensions.includes(file.type) && fileExtension !== "yaml") {
         alert("Error: Only allowed YAML files (.yaml)");
         return;
       }
-  
+
       navigate("/dashboard/createTN", {
         state: { file }, // Send the file to the next page
       });
@@ -158,7 +193,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     let timeoutId; // Store the ID of the timeout
-  
+
     const fetchData = async () => {
       try {
         const access_token = await getAccessTokenFromSessionStorage();
@@ -182,7 +217,7 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
-  
+
     const scheduleNextFetch = () => {
       const randomInterval = Math.floor(Math.random() * (6 - 3 + 1) + 3) * 1000; // Make a random interval between 3 and 6 seconds
       timeoutId = setTimeout(() => {
@@ -192,7 +227,7 @@ const Dashboard = () => {
     };
     fetchData();
     scheduleNextFetch();
-  
+
     // Cleanup for the next timeout
     return () => {
       clearTimeout(timeoutId);
@@ -215,7 +250,6 @@ const Dashboard = () => {
     // Clean the interval
     return () => clearInterval(intervalId);
   }, []); // Only execute once
-  
 
   if (loading) {
     return (
@@ -226,15 +260,22 @@ const Dashboard = () => {
   }
 
   if (error) {
-    return <div className="fixed inset-0 flex justify-center items-center bg-white-600 bg-opacity-50">
-    <div className="text-red-500 text-4xl font-bold text-center">{error}</div>
-    </div>
+    return (
+      <div className="fixed inset-0 flex justify-center items-center bg-white-600 bg-opacity-50">
+        <div className="text-red-500 text-4xl font-bold text-center">
+          {error}
+        </div>
+      </div>
+    );
   }
 
   // Compute the indexes of the items to show
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = data.trial_networks.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = data.trial_networks.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   // Total pages
   const totalPages = Math.ceil(data.trial_networks.length / itemsPerPage);
@@ -247,14 +288,14 @@ const Dashboard = () => {
   // Format the date
   const formatDate = (isoDate) => {
     const date = new Date(isoDate); // ISO to Date
-  
+
     // Extract the date and time
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear(); // Año
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
     // Make the new format
     return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
   };
@@ -288,29 +329,33 @@ const Dashboard = () => {
         </div>
 
         {/* Table Section */}
-        <div id="tabla" style={{ height: `${alturaRestante}px` }} className="bg-white shadow-md rounded-lg p-6">
+        <div
+          id="tabla"
+          style={{ height: `${alturaRestante}px` }}
+          className="bg-white shadow-md rounded-lg p-6"
+        >
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold">All Networks</h2>
           </div>
           <div className="flex space-x-4 mb-4">
-              <button
-                className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
-                onClick={() => (window.location = "/dashboard/createTN")}
-              >
-                Create new Network   <FontAwesomeIcon icon={faCirclePlus} />
-              </button>
-              <button
-                className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
-                onClick={handleButtonClick2}
-              >
-                Edit Network via File   <FontAwesomeIcon icon={faFile} />
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef2}
-                onChange={handleFileChange2}
-                style={{ display: "none" }} // Hide the input
-              />
+            <button
+              className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
+              onClick={() => (window.location = "/dashboard/createTN")}
+            >
+              Create new Network <FontAwesomeIcon icon={faCirclePlus} />
+            </button>
+            <button
+              className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
+              onClick={handleButtonClick2}
+            >
+              Edit Network via File <FontAwesomeIcon icon={faFile} />
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef2}
+              onChange={handleFileChange2}
+              style={{ display: "none" }} // Hide the input
+            />
           </div>
           <div className="flex space-x-4 mb-4">
             {/* Deploy button */}
@@ -321,7 +366,8 @@ const Dashboard = () => {
                 hover:opacity-80 transition-all duration-600`}
               onClick={handleDeployClick}
             >
-              <FontAwesomeIcon icon={faPlay}/>   <FontAwesomeIcon icon={faPause}/>
+              <FontAwesomeIcon icon={faPlay} />{" "}
+              <FontAwesomeIcon icon={faPause} />
             </button>
 
             {/* Destroy button*/}
@@ -357,58 +403,80 @@ const Dashboard = () => {
                   <td className="py-2">
                     <input
                       type="checkbox"
-                      id= {`checkbox-${network.tn_id}`}
+                      id={`checkbox-${network.tn_id}`}
                       onChange={() => handleCheckboxChange(network.tn_id)}
                       checked={selectedIds.includes(network.tn_id)}
                       disabled={network.state.includes("ing")}
                     />
                   </td>
                   <td className="py-2">
-                  {["created", "activated"].includes(network.state) ? (
-                    <Link to={`/dashboard/${network.tn_id}`}>
-                      <button className="text-purple-600 hover:underline">
+                    {["created", "activated"].includes(network.state) ? (
+                      <Link to={`/dashboard/${network.tn_id}`}>
+                        <button className="text-purple-600 hover:underline">
+                          {network.tn_id}
+                        </button>
+                      </Link>
+                    ) : (
+                      <button
+                        className="text-gray-400 cursor-not-allowed"
+                        disabled
+                      >
                         {network.tn_id}
                       </button>
-                    </Link>
-                  ) : (
-                    <button className="text-gray-400 cursor-not-allowed" disabled>
-                      {network.tn_id}
-                    </button>
-                  )}
-                  </td>
-                  <td className="py-2">{formatDate(network.date_created_utc)}</td>
-                  <td className="py-2">{network.state === "created" ?  "Not deployed yet" : network.deployment_site}</td>
-                  <td className="py-2">
-                  <span
-                    className={[
-                      network.state.includes("ing") ? ""
-                        : network.state.includes("failed") || network.state.includes("destroyed")
-                        ? "bg-red-100 text-red-500"
-                        : network.state === "validated"
-                        ? "bg-blue-100 text-blue-500"
-                        : network.state === "suspended"
-                        ? "bg-yellow-100 text-yellow-500"
-                        : network.state === "created"
-                        ? "bg-gray-100 text-gray-500"
-                        : "bg-green-100 text-green-500",
-                      "py-1 px-3 rounded-full text-xs",
-                    ].join(" ")}
-                  >
-                  { network.state.includes("ing") ? (
-                    <img src="loading.gif" alt="loading" className="flex w-6 h-6 justify-center items-center" />
-                    ) : (
-                      network.state
                     )}
-                  </span>
                   </td>
                   <td className="py-2">
-                  <button
-                    className={`text-purple-600 hover:underline ${network.state === "created" ? "opacity-50 cursor-not-allowed" : ""}`}
-                    onClick={() => network.state !== "created" && handleOpenLogs(network.tn_id)}
-                    disabled={network.state === "created"}
-                  >
-                    <FontAwesomeIcon icon={faTerminal} />
-                  </button>
+                    {formatDate(network.date_created_utc)}
+                  </td>
+                  <td className="py-2">
+                    {network.state === "created"
+                      ? "Not deployed yet"
+                      : network.deployment_site}
+                  </td>
+                  <td className="py-2">
+                    <span
+                      className={[
+                        network.state.includes("ing")
+                          ? ""
+                          : network.state.includes("failed") ||
+                            network.state.includes("destroyed")
+                          ? "bg-red-100 text-red-500"
+                          : network.state === "validated"
+                          ? "bg-blue-100 text-blue-500"
+                          : network.state === "suspended"
+                          ? "bg-yellow-100 text-yellow-500"
+                          : network.state === "created"
+                          ? "bg-gray-100 text-gray-500"
+                          : "bg-green-100 text-green-500",
+                        "py-1 px-3 rounded-full text-xs",
+                      ].join(" ")}
+                    >
+                      {network.state.includes("ing") ? (
+                        <img
+                          src="loading.gif"
+                          alt="loading"
+                          className="flex w-6 h-6 justify-center items-center"
+                        />
+                      ) : (
+                        network.state
+                      )}
+                    </span>
+                  </td>
+                  <td className="py-2">
+                    <button
+                      className={`text-purple-600 hover:underline ${
+                        network.state === "created"
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        network.state !== "created" &&
+                        handleOpenLogs(network.tn_id)
+                      }
+                      disabled={network.state === "created"}
+                    >
+                      <FontAwesomeIcon icon={faTerminal} />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -423,14 +491,27 @@ const Dashboard = () => {
             />
           )}
           {/* Page */}
-          <div className={`flex  justify-between items-center mt-4 text-sm text-gray-500`}>
-            <p>Showing data {data.trial_networks.length>0? indexOfFirstItem+1 : 0 } to {indexOfLastItem<data.trial_networks.length ? indexOfLastItem : data.trial_networks.length} of {data.trial_networks.length} entries</p>
+          <div
+            className={`flex  justify-between items-center mt-4 text-sm text-gray-500`}
+          >
+            <p>
+              Showing data{" "}
+              {data.trial_networks.length > 0 ? indexOfFirstItem + 1 : 0} to{" "}
+              {indexOfLastItem < data.trial_networks.length
+                ? indexOfLastItem
+                : data.trial_networks.length}{" "}
+              of {data.trial_networks.length} entries
+            </p>
             <div className="flex space-x-2">
               {Array.from({ length: totalPages }, (_, index) => (
                 <button
                   key={index + 1}
                   onClick={() => handlePageChange(index + 1)}
-                  className={`py-1 px-3 rounded-lg ${currentPage === index + 1 ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}
+                  className={`py-1 px-3 rounded-lg ${
+                    currentPage === index + 1
+                      ? "bg-purple-600 text-white"
+                      : "bg-gray-200"
+                  }`}
                 >
                   {index + 1}
                 </button>

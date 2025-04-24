@@ -36,7 +36,7 @@ const convertJsonToYaml = (json,tnInit) => {
             // TODO si tengo tn_vxlan no escribo y para todos los componentes poner que dependan de tn_init menos el mismo
             component.dependencies.forEach((dependency) => {
                 //If the dependency is tn_init, then it will be added tn_vxlan as a dependency
-                tnInit && dependency === "tn_vxlan" ? yamlString += `      - "tn_init"\n` : yamlString += `      - "${dependency}"\n`
+                (tnInit && (dependency === "tn_vxlan")) ? yamlString += `      - "tn_init"\n` : yamlString += `      - "${dependency}"\n`
             });
         } else {
             yamlString += ` []\n`

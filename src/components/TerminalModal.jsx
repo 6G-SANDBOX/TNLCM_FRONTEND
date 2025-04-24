@@ -15,7 +15,7 @@ const TerminalModal = ({ isOpen, onClose, vmId }) => {
     setError(null);
 
     try {
-       const response = await getLogs(vmId);
+      const response = await getLogs(vmId);
       // If the response contains a log string, split it by new lines
       if (typeof response.data.log_content === "string") {
         const logLines = response.data.log_content.split("\n");
@@ -60,7 +60,7 @@ const TerminalModal = ({ isOpen, onClose, vmId }) => {
               className="text-yellow-400 hover:text-yellow-500"
               onClick={fetchLogs}
             >
-            <FontAwesomeIcon icon={faArrowsRotate}/>
+              <FontAwesomeIcon icon={faArrowsRotate} />
             </button>
             <button
               className="text-red-400 hover:text-red-500"

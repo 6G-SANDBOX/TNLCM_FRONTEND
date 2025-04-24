@@ -4,19 +4,17 @@ import ReactMarkdown from "react-markdown";
 import rehypeHighlight from "rehype-highlight";
 import remarkGfm from "remark-gfm";
 
-const MarkdownRenderer = ({content}) => {
-return (
+const MarkdownRenderer = ({ content }) => {
+  return (
     <div className="prose lg:prose-l max-w-none p-4">
-        <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeHighlight]}
-        >
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        rehypePlugins={[rehypeHighlight]}
+      >
         {content}
-        </ReactMarkdown>
+      </ReactMarkdown>
     </div>
-    );
+  );
 };
 
 export default MarkdownRenderer;
-
-

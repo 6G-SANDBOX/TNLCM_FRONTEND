@@ -13,10 +13,9 @@ const Login = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevents the default form submission behavior
-    
+
     if (!user && !password) {
       setError("Username and password are required.");
       return;
@@ -30,16 +29,16 @@ const Login = () => {
 
     try {
       const response = await loginUser(user, password, { timeout: 2000 }); // Two seconds timeout
-  
+
       // Supposing server sent us a JSON with access_token and refresh_token
       const accessToken = response.data.access_token;
       const refreshToken = response.data.refresh_token;
-  
+
       // Save access_token in sessionStorage (only for this session)
-      sessionStorage.setItem("access_token", accessToken); 
+      sessionStorage.setItem("access_token", accessToken);
       // Save refresh_token in localStorage (multiple sessions)
       localStorage.setItem("refresh_token", refreshToken);
-      
+
       setSuccess("Login successful!");
       setError(""); // Clean error message
       setTimeout(() => {
@@ -62,14 +61,11 @@ const Login = () => {
         setError("Network error. Please check your internet connection.");
       } else {
         // Other errors
-        setError( "Login failed. Please try again later.");
+        setError("Login failed. Please try again later.");
       }
       setSuccess(""); // Clean success message
     }
   };
-  
-
-
 
   return (
     <div className="bg-white font-sans min-h-screen flex flex-col relative">
@@ -81,7 +77,10 @@ const Login = () => {
             <form onSubmit={handleLogin} className="w-full space-y-4">
               {/* Mail input */}
               <div className="w-full mb-4">
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Username
                 </label>
                 <div className="relative">
@@ -94,14 +93,19 @@ const Login = () => {
                     onChange={(e) => setUser(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   />
-                  <FontAwesomeIcon icon={faEnvelope} className="absolute right-3 top-3 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faEnvelope}
+                    className="absolute right-3 top-3 text-gray-400"
+                  />
                 </div>
               </div>
 
-
               {/* Password input */}
               <div className="w-full mb-6">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -114,13 +118,20 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   />
-                  <FontAwesomeIcon icon={faLock} className="absolute right-3 top-3 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faLock}
+                    className="absolute right-3 top-3 text-gray-400"
+                  />
                 </div>
               </div>
 
               {/* Error or succesful messages */}
-              {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
-              {success && <div className="mb-4 text-green-500 text-sm">{success}</div>}
+              {error && (
+                <div className="mb-4 text-red-500 text-sm">{error}</div>
+              )}
+              {success && (
+                <div className="mb-4 text-green-500 text-sm">{success}</div>
+              )}
 
               {/* Buttons */}
               <div className="flex space-x-4">
@@ -161,5 +172,3 @@ const Login = () => {
 };
 
 export default Login;
-
-
