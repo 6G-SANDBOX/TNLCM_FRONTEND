@@ -1,4 +1,4 @@
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 
 // Check if the token is expired
 export async function isTokenExpired(token) {
@@ -9,9 +9,9 @@ export async function isTokenExpired(token) {
 // Get the access token from the session storage and check if it has expired
 export async function getAccessTokenFromSessionStorage() {
   let accessToken = sessionStorage.getItem("access_token");
-  
+
   // If the token is expired, try to get a new one using the refresh token
-  if (accessToken && await isTokenExpired(accessToken)) {
+  if (accessToken && (await isTokenExpired(accessToken))) {
     const data = await setAccessTokenUsingRefreshToken();
     sessionStorage.setItem("access_token", data["access_token"]);
     accessToken = data["access_token"];
@@ -33,5 +33,4 @@ async function setAccessTokenUsingRefreshToken() {
     throw new Error("No refresh token found.");
   }
   return refreshToken();
-  
 }

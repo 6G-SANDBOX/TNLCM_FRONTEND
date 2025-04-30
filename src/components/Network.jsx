@@ -1,6 +1,5 @@
-import html2canvas from "html2canvas";
+import html2pdf from "html2pdf.js";
 import yaml from "js-yaml";
-import jsPDF from "jspdf";
 import { marked } from "marked";
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -8,7 +7,6 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coyWithoutShadows } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { getTrialNetwork } from "../auxFunc/api";
 import CreateTN from "./CreateTN";
-import MarkdownRenderer from "./MarkdownRenderer";
 import TopNavigator from "./TopNavigator";
 
 function Network() {
@@ -73,42 +71,30 @@ function Network() {
 
   // This function handles the PDF generation
   const handlePDF = async () => {
-    const element = printRef.current;
-    const canvas = await html2canvas(element, { scale: 2 });
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
-    const margin = 10; // Margin for the PDF
-    const usableWidth = pageWidth - margin * 2; // Height usable for the image
-    const imgProps = pdf.getImageProperties(imgData); // Propierties of the image
-    const totalImgHeight = (imgProps.height * usableWidth) / imgProps.width; // Height of the image
-    let heightLeft = totalImgHeight; // Height left to add to the PDF
-    let position = margin;
-    // First page
-    const firstPageHeight = pageHeight - margin * 2; // Height of the first page
-    pdf.addImage(
-      imgData,
-      "PNG",
-      margin,
-      position,
-      usableWidth,
-      firstPageHeight
+    const node = printRef.current;
+    // Wait for all images to load before generating the PDF
+    const images = node.querySelectorAll("img");
+    await Promise.all(
+      Array.from(images).map(
+        (img) =>
+          new Promise((resolve, reject) => {
+            if (img.complete && img.naturalHeight !== 0) {
+              resolve();
+            } else {
+              img.onload = resolve;
+              img.onerror = reject;
+            }
+          })
+      )
     );
-    heightLeft -= firstPageHeight; // Minus the height of the first page
-    // Add the rest of the pages
-    while (heightLeft > 0) {
-      pdf.addPage();
-      // Only add the image if there is height left
-      position = margin; // The position of the image in the page
-      const sliceHeight = pageHeight - margin * 2; // Calculate the slice height
-      // Add the image to the PDF
-      pdf.addImage(imgData, "PNG", margin, position, usableWidth, sliceHeight);
-      heightLeft -= sliceHeight; // Minus the height of the slice
-    }
-
-    // Save the PDF
-    pdf.save("report.pdf");
+    const opt = {
+      margin: 10,
+      filename: `${data.tn_id}-report.pdf`,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    };
+    html2pdf().set(opt).from(node).save();
   };
 
   // This function handles the download of the descriptor
@@ -144,24 +130,21 @@ function Network() {
 
           {/* Show markdown or main content */}
           {showMarkdown ? (
-            <div className="flex justify-center items-center h-full">
-              <MarkdownRenderer markdown={markdown} />
-              <div className="p-4">
-                <div
-                  className="prose max-w-none"
-                  ref={printRef}
-                  dangerouslySetInnerHTML={{ __html: marked(markdown) }}
-                />
-                <button
-                  onClick={() => handlePDF()}
-                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded "
-                >
-                  Download PDF
-                </button>
-              </div>
+            <div className="flex flex-col justify-center items-center h-full">
+              <div
+                className="p-4 prose max-w-none"
+                ref={printRef}
+                dangerouslySetInnerHTML={{ __html: marked(markdown) }}
+              />
+              <button
+                onClick={() => handlePDF()}
+                className=" mt-4 px-4 py-2 bg-blue-600 text-white rounded "
+              >
+                Download PDF
+              </button>
             </div>
           ) : (
-            <div className="flex items-center ">
+            <div className="flex ">
               {/* Left Content */}
               <div className="p-6 w-1/2 flex flex-col justify-center space-y-4">
                 <SyntaxHighlighter
@@ -183,7 +166,8 @@ function Network() {
               </div>
 
               {/* Right Content */}
-              <div className="p-20 w-1/2 flex flex-col justify-center space-y-20">
+              {/* TODO VPN, Campagin and elcm */}
+              <div className="p-16 w-1/2 flex flex-col space-y-16">
                 <button
                   onClick={() => setShowMarkdown(!showMarkdown)}
                   className="bg-blue-500 text-white py-6 rounded-xl"
@@ -216,7 +200,14 @@ function Network() {
                 >
                   Start VPN
                 </button>
-                <button className="bg-blue-500 text-white py-6 rounded-xl">
+                <button
+                  disabled
+                  className={
+                    !elcm
+                      ? "bg-gray-500 text-white py-6 rounded-xl cursor-not-allowed"
+                      : "bg-blue-500 text-white py-6 rounded-xl"
+                  }
+                >
                   Campaign Manager
                 </button>
               </div>

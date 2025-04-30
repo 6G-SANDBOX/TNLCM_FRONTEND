@@ -1,21 +1,21 @@
 import axios from "axios";
 import { getAccessTokenFromSessionStorage } from "../auxFunc/jwt";
 
-const sitesBranch= process.env.REACT_APP_SITES_BRANCH;
-const deploymentSite= process.env.REACT_APP_DEPLOYMENT_SITE;
-const libraryRef= process.env.REACT_APP_LIBRARY_REF;
+const sitesBranch = process.env.REACT_APP_SITES_BRANCH;
+const deploymentSite = process.env.REACT_APP_DEPLOYMENT_SITE;
+const libraryRef = process.env.REACT_APP_LIBRARY_REF;
 const libraryValue = process.env.REACT_APP_LIBRARY_REF_VALUE;
-const siteToken= process.env.REACT_APP_DEPLOYMENT_SITE_TOKEN;
+const siteToken = process.env.REACT_APP_DEPLOYMENT_SITE_TOKEN;
 
 export const createTrialNetwork = async (formData) => {
   let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-network?validate=True`;
   const access_token = await getAccessTokenFromSessionStorage();
   const auth = `Bearer ${access_token}`;
   const response = await axios.post(url, formData, {
-      headers: {
-          Authorization: auth,
-          "Content-Type": "multipart/form-data",
-      },
+    headers: {
+      Authorization: auth,
+      "Content-Type": "multipart/form-data",
+    },
   });
   return response;
 };
@@ -25,91 +25,95 @@ export const saveTrialNetwork = async (formData) => {
   const auth = `Bearer ${access_token}`;
   let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-network?validate=False`;
   const response = await axios.post(url, formData, {
-      headers: {
-          Authorization: auth,
-          "Content-Type": "multipart/form-data",
-      },
+    headers: {
+      Authorization: auth,
+      "Content-Type": "multipart/form-data",
+    },
   });
   return response;
 };
 
-export const updateTrialNetwork = async (formData,id) => {
+export const updateTrialNetwork = async (formData, id) => {
   const access_token = await getAccessTokenFromSessionStorage();
   const auth = `Bearer ${access_token}`;
-  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/update`
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/update`;
   const response = await axios.put(url, formData, {
-      headers: {
-          Authorization: auth,
-          "Content-Type": "multipart/form-data",
-      },
+    headers: {
+      Authorization: auth,
+      "Content-Type": "multipart/form-data",
+    },
   });
   return response;
 };
 
 export const getTrialNetworks = async () => {
-    const access_token = await getAccessTokenFromSessionStorage();
-    const auth = `Bearer ${access_token}`;
-    let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks`
-    const response = await axios.get(url, {
-        headers: {
-            Authorization: auth,
-            "Content-Type": "application/json",
-        },
-    });
-    return response;
-}
+  const access_token = await getAccessTokenFromSessionStorage();
+  const auth = `Bearer ${access_token}`;
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks`;
+  const response = await axios.get(url, {
+    headers: {
+      Authorization: auth,
+      "Content-Type": "application/json",
+    },
+  });
+  return response;
+};
 
 export const getTrialNetwork = async (id) => {
   const access_token = await getAccessTokenFromSessionStorage();
   const auth = `Bearer ${access_token}`;
-  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}`
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}`;
   const response = await axios.get(url, {
-      headers: {
-          Authorization: auth,
-          "Content-Type": "application/json",
-      },
+    headers: {
+      Authorization: auth,
+      "Content-Type": "application/json",
+    },
   });
   return response;
-}
+};
 
 export const purgeTN = async (id) => {
   const access_token = await getAccessTokenFromSessionStorage();
   const auth = `Bearer ${access_token}`;
-  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/purge`
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/purge`;
   const response = await axios.delete(url, {
-      headers: {
-          Authorization: auth,
-          "Content-Type": "application/json",
-      },
+    headers: {
+      Authorization: auth,
+      "Content-Type": "application/json",
+    },
   });
   return response;
-}
+};
 
 export const deleteTN = async (id) => {
   const access_token = await getAccessTokenFromSessionStorage();
   const auth = `Bearer ${access_token}`;
-  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/destroy`
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/destroy`;
   const response = await axios.delete(url, {
-      headers: {
-          Authorization: auth,
-          "Content-Type": "application/json",
-      },
+    headers: {
+      Authorization: auth,
+      "Content-Type": "application/json",
+    },
   });
   return response;
-}
+};
 
 export const putTN = async (id) => {
   const access_token = await getAccessTokenFromSessionStorage();
   const auth = `Bearer ${access_token}`;
-  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/activate`
-  const response = await axios.put(url,{}, {
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/activate`;
+  const response = await axios.put(
+    url,
+    {},
+    {
       headers: {
-          Authorization: auth,
-          "Content-Type": "application/json",
+        Authorization: auth,
+        "Content-Type": "application/json",
       },
-  });
+    }
+  );
   return response;
-}
+};
 
 export const getUser = async () => {
   try {
@@ -124,11 +128,14 @@ export const getUser = async () => {
     });
     return response.data;
   } catch (err) {
-    console.error("Error while retrieving user info:", err.response?.data?.message || err.message);
+    console.error(
+      "Error while retrieving user info:",
+      err.response?.data?.message || err.message
+    );
   }
 };
-  
-export  const getSites = async () => {
+
+export const getSites = async () => {
   try {
     const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/branches`;
     const access_token = await getAccessTokenFromSessionStorage();
@@ -139,70 +146,86 @@ export  const getSites = async () => {
         "Content-Type": "application/json",
       },
     });
-    return response.data || {sites : []};
+    return response.data || { sites: [] };
   } catch (err) {
-    console.error("Error while retrieving all the sites:", err.response?.data?.message || err.message);
-    return {sites : []};
+    console.error(
+      "Error while retrieving all the sites:",
+      err.response?.data?.message || err.message
+    );
+    return { sites: [] };
   }
-}
+};
 
 export const getDeployments = async (deplo) => {
   try {
-      const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/${deplo}`;
-      const access_token = await getAccessTokenFromSessionStorage();
-      const auth = `Bearer ${access_token}`;
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: auth,
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data || {deployments : []};
-    } catch (err) {
-      console.error("Error while retrieving all the directories from the branch:", err.response?.data?.message || err.message);
-      return {deployments : []};
-    }
+    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/${deplo}`;
+    const access_token = await getAccessTokenFromSessionStorage();
+    const auth = `Bearer ${access_token}`;
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: auth,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data || { deployments: [] };
+  } catch (err) {
+    console.error(
+      "Error while retrieving all the directories from the branch:",
+      err.response?.data?.message || err.message
+    );
+    return { deployments: [] };
   }
+};
 
 export const getLibraryTypes = async () => {
   try {
-      const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/references_types`;
-      const access_token = await getAccessTokenFromSessionStorage();
-      const auth = `Bearer ${access_token}`;
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: auth,
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data || {libraryTypes : []};
-    } catch (err) {
-      console.error("Error while retrieving all the library types:", err.response?.data?.message || err.message);
-      return {libraryTypes : []};
-    }
-}
+    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/references_types`;
+    const access_token = await getAccessTokenFromSessionStorage();
+    const auth = `Bearer ${access_token}`;
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: auth,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data || { libraryTypes: [] };
+  } catch (err) {
+    console.error(
+      "Error while retrieving all the library types:",
+      err.response?.data?.message || err.message
+    );
+    return { libraryTypes: [] };
+  }
+};
 
 export const getLibraryValues = async (type) => {
   try {
-      const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/${type}`;
-      const access_token = await getAccessTokenFromSessionStorage();
-      const auth = `Bearer ${access_token}`;
-  
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: auth,
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data || {libraryValues : []};
-    } catch (err) {
-      console.error("Error while retrieving all the library values:", err.response?.data?.message || err.message);
-      return {libraryValues : []};
-    }
-}
+    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/library/${type}`;
+    const access_token = await getAccessTokenFromSessionStorage();
+    const auth = `Bearer ${access_token}`;
 
-export const getComponents= async () => {
-  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/`+sitesBranch+`/`+deploymentSite;
+    const response = await axios.get(url, {
+      headers: {
+        Authorization: auth,
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data || { libraryValues: [] };
+  } catch (err) {
+    console.error(
+      "Error while retrieving all the library values:",
+      err.response?.data?.message || err.message
+    );
+    return { libraryValues: [] };
+  }
+};
+
+export const getComponents = async () => {
+  let url =
+    `${process.env.REACT_APP_TNLCM_BACKEND_API}/sites/` +
+    sitesBranch +
+    `/` +
+    deploymentSite;
   const access_token = await getAccessTokenFromSessionStorage();
   const auth = `Bearer ${access_token}`;
   const response = await axios.get(url, {
@@ -212,8 +235,8 @@ export const getComponents= async () => {
       "Content-Type": "application/json",
     },
   });
-  return response || {components : []};
-}
+  return response || { components: [] };
+};
 
 export const getComponent = async (name) => {
   const access_token = await getAccessTokenFromSessionStorage();
@@ -221,12 +244,15 @@ export const getComponent = async (name) => {
     const url = process.env.REACT_APP_TNLCM_BACKEND_API;
     const bearerJwt = `Bearer ${access_token}`;
     try {
-      const response = await axios.get(`${url}/library/`+ libraryRef + `/` +  libraryValue +  `/${name}`, {
-        headers: {
-          Authorization: bearerJwt,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await axios.get(
+        `${url}/library/` + libraryRef + `/` + libraryValue + `/${name}`,
+        {
+          headers: {
+            Authorization: bearerJwt,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       return response.data;
     } catch (error) {
       console.error(`Error fetching data for ${name}:`, error);
@@ -238,22 +264,22 @@ export const getComponent = async (name) => {
 export const getTnMarkdown = async (id) => {
   const access_token = await getAccessTokenFromSessionStorage();
   const auth = `Bearer ${access_token}`;
-  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/report/content`
+  let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/trial-networks/${id}/report/content`;
   const response = await axios.get(url, {
-      headers: {
-          Authorization: auth,
-          "Content-Type": "application/json",
-      },
+    headers: {
+      Authorization: auth,
+      "Content-Type": "application/json",
+    },
   });
   return response;
-}
+};
 
 export async function loginUser(username, password, config = {}) {
   const authString = `${username}:${password}`;
   const encodedAuth = window.btoa(unescape(encodeURIComponent(authString))); // Special encoding for base64
   const basicAuthHeader = `Basic ${encodedAuth}`;
   try {
-    const url =`${process.env.REACT_APP_TNLCM_BACKEND_API}/user/login`;
+    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/user/login`;
     // Make the POST request to the login endpoint
     const response = await axios.post(
       url,
@@ -271,7 +297,10 @@ export async function loginUser(username, password, config = {}) {
     return response;
   } catch (err) {
     // Make sure to return the error
-    console.error("Error while logging:", err.response?.data?.message || err.message);
+    console.error(
+      "Error while logging:",
+      err.response?.data?.message || err.message
+    );
   }
 }
 
@@ -281,9 +310,12 @@ export const createAccount = async (accountData) => {
     const response = await axios.post(url, accountData);
     return response;
   } catch (err) {
-    console.error("Error while creating the account:", err.response?.data?.message || err.message);
+    console.error(
+      "Error while creating the account:",
+      err.response?.data?.message || err.message
+    );
   }
-}
+};
 
 export const changePwd = async (oldPwd, newPwd, username) => {
   try {
@@ -303,21 +335,24 @@ export const changePwd = async (oldPwd, newPwd, username) => {
     });
     return response.data;
   } catch (err) {
-    console.error("Error while changing password:", err.response?.data?.message || err.message);
+    console.error(
+      "Error while changing password:",
+      err.response?.data?.message || err.message
+    );
   }
 };
 
-export const refreshToken= async () => {
+export const refreshToken = async () => {
   try {
-    const url =process.env.REACT_APP_TNLCM_BACKEND_API;
+    const url = process.env.REACT_APP_TNLCM_BACKEND_API;
     const response = await axios.post(
       `${url}/user/refresh`,
       {},
       {
         headers: {
-          "Accept": "application/json",
+          Accept: "application/json",
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${refreshToken}`,
+          Authorization: `Bearer ${refreshToken}`,
         },
       }
     );

@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
 import { getAccessTokenFromSessionStorage } from "./auxFunc/jwt";
 import CreateTN from "./components/CreateTN";
 import Dashboard from "./components/Dashboard";
@@ -45,14 +50,14 @@ function App() {
           element={isAuthenticated ? <Dashboard /> : <Navigate to="/" />}
         />
         {/* Route for create trial network */}
-         <Route
+        <Route
           path="/dashboard/createTN"
           element={isAuthenticated ? <CreateTN /> : <Navigate to="/" />}
         />
         {/* Route for editing a TN */}
         <Route
           path="/dashboard/:id"
-          element={isAuthenticated ? <Network/> : <Navigate to="/" />}
+          element={isAuthenticated ? <Network /> : <Navigate to="/" />}
         />
       </Routes>
     </Router>
