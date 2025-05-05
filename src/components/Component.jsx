@@ -1,16 +1,16 @@
 import {
-	Box,
-	Button,
-	Checkbox,
-	FormControl,
-	FormControlLabel,
-	FormGroup,
-	InputLabel,
-	MenuItem,
-	Modal,
-	Select,
-	TextField,
-	Typography,
+  Box,
+  Button,
+  Checkbox,
+  FormControl,
+  FormControlLabel,
+  FormGroup,
+  InputLabel,
+  MenuItem,
+  Modal,
+  Select,
+  TextField,
+  Typography,
 } from "@mui/material";
 import React, { useCallback, useEffect, useState } from "react";
 import { getComponent } from "../auxFunc/api";
@@ -296,7 +296,7 @@ const Component = ({
                             fullWidth
                             value={fieldValues[key] || ""}
                             label={key}
-                            placeholder={String(value.default_value)}
+                            placeholder={String(value.default_value) || ""}
                             onChange={handleChange(key)}
                             type="text"
                             className="mb-2"
@@ -310,7 +310,7 @@ const Component = ({
                           fullWidth
                           value={fieldValues[key] || ""}
                           label={key}
-                          placeholder={String(value.default_value)}
+                          placeholder={String(value.default_value) || ""}
                           onChange={handleChange(key)}
                           type="number"
                           className="mb-2"

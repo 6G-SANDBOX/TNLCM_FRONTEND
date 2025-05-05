@@ -1,27 +1,3 @@
-function isBoolean(value) {
-  return value === true || value === false;
-}
-function isNotEmpty(value) {
-  return (
-    (typeof value === "string" && value.trim().length > 0) ||
-    (typeof value === "number" && !isNaN(value))
-  );
-}
-function capitalizeFirstLetter(str) {
-  return str === true ? "True" : str === false ? "False" : str;
-}
-function hasValues(diccionario) {
-  return Object.entries(diccionario)
-    .filter(([key]) => key !== "name") // Ignore name
-    .some(
-      ([, value]) =>
-        value !== undefined &&
-        value !== null &&
-        value !== "" &&
-        !(Array.isArray(value) && value.length === 0)
-    );
-}
-
 const convertJsonToYaml = (json, tnInit) => {
   let yamlString = "trial_network:\n"; // First line
   Object.entries(json).forEach(([key, component]) => {
@@ -78,11 +54,38 @@ const convertJsonToYaml = (json, tnInit) => {
         }
       });
     } else {
-      //If the component has no data, then it will be added an empty input
+      //If the component has no data, then it will be added with an empty input
       yamlString += ` {}\n`;
     }
   });
   return yamlString;
 };
+
+function isBoolean(value) {
+  return value === true || value === false;
+}
+
+function isNotEmpty(value) {
+  return (
+    (typeof value === "string" && value.trim().length > 0) ||
+    (typeof value === "number" && !isNaN(value))
+  );
+}
+
+function capitalizeFirstLetter(str) {
+  return str === true ? "True" : str === false ? "False" : str;
+}
+
+function hasValues(diccionario) {
+  return Object.entries(diccionario)
+    .filter(([key]) => key !== "name") // Ignore name
+    .some(
+      ([, value]) =>
+        value !== undefined &&
+        value !== null &&
+        value !== "" &&
+        !(Array.isArray(value) && value.length === 0)
+    );
+}
 
 export default convertJsonToYaml;

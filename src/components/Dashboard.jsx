@@ -330,7 +330,7 @@ const Dashboard = () => {
 
         {/* Table Section */}
         <div
-          id="tabla"
+          id="table"
           style={{ height: `${alturaRestante}px` }}
           className="bg-white shadow-md rounded-lg p-6"
         >
@@ -348,7 +348,7 @@ const Dashboard = () => {
               className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
               onClick={handleButtonClick2}
             >
-              Edit Network via File <FontAwesomeIcon icon={faFile} />
+              Create Network via File <FontAwesomeIcon icon={faFile} />
             </button>
             <input
               type="file"
@@ -361,9 +361,9 @@ const Dashboard = () => {
             {/* Deploy button */}
             <button
               className={`py-2 px-4 rounded-lg shadow-sm text-white font-semibold
-                bg-gradient-to-r from-green-600 to-yellow-600
+                bg-gradient-to-r from-green-700 to-yellow-700
                 bg-[position:-30%_0]
-                hover:opacity-80 transition-all duration-600`}
+                hover:opacity-80 transition-all duration-700`}
               onClick={handleDeployClick}
             >
               <FontAwesomeIcon icon={faPlay} />{" "}

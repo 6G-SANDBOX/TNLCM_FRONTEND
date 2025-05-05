@@ -18,6 +18,7 @@ function Network() {
   const [dictionary, setDictionary] = useState({});
   const [elcm, setElcm] = useState(false);
   const [vpn, setVpn] = useState(false);
+  const [showDescriptor, setShowDescriptor] = useState(false);
   const printRef = useRef();
 
   //UseEffect to fetch the data from the API and search for ELCM and VPN nodes
@@ -58,6 +59,9 @@ function Network() {
           delete tempDictionary.sorted_descriptor;
           delete tempDictionary.deployed_descriptor;
           delete tempDictionary.raw_descriptor;
+          for (const key in tempDictionary.jenkins_deploy.builds) {
+            delete tempDictionary.jenkins_deploy?.builds[key]?.build_console;
+          }
           setDictionary(tempDictionary);
         }
       } catch (error) {
@@ -95,6 +99,12 @@ function Network() {
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
     };
     html2pdf().set(opt).from(node).save();
+  };
+
+  const handleBack = () => {
+    // Handle back button click
+    setShowMarkdown(!showMarkdown);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // This function handles the download of the descriptor
@@ -136,12 +146,20 @@ function Network() {
                 ref={printRef}
                 dangerouslySetInnerHTML={{ __html: marked(markdown) }}
               />
-              <button
-                onClick={() => handlePDF()}
-                className=" mt-4 px-4 py-2 bg-blue-600 text-white rounded "
-              >
-                Download PDF
-              </button>
+              <div className="space-x-8">
+                <button
+                  onClick={handleBack}
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
+                >
+                  Hide Report
+                </button>
+                <button
+                  onClick={() => handlePDF()}
+                  className=" mt-4 px-4 py-2 bg-blue-600 text-white rounded "
+                >
+                  Download PDF
+                </button>
+              </div>
             </div>
           ) : (
             <div className="flex ">
@@ -155,18 +173,20 @@ function Network() {
                 >
                   {yaml.dump(dictionary)}
                 </SyntaxHighlighter>
-                <SyntaxHighlighter
-                  className="overflow-x-auto p-6"
-                  language="yaml"
-                  style={coyWithoutShadows}
-                  customStyle={{ whiteSpace: "pre-wrap" }}
-                >
-                  {descriptor}
-                </SyntaxHighlighter>
+                {showDescriptor && (
+                  <SyntaxHighlighter
+                    className="overflow-x-auto p-6"
+                    language="yaml"
+                    style={coyWithoutShadows}
+                    customStyle={{ whiteSpace: "pre-wrap" }}
+                  >
+                    {descriptor}
+                  </SyntaxHighlighter>
+                )}
               </div>
 
               {/* Right Content */}
-              {/* TODO VPN, Campagin and elcm */}
+              {/* TODO VPN, Campagin*/}
               <div className="p-16 w-1/2 flex flex-col space-y-16">
                 <button
                   onClick={() => setShowMarkdown(!showMarkdown)}
@@ -181,14 +201,9 @@ function Network() {
                       ? "bg-gray-500 text-white py-6 rounded-xl cursor-not-allowed"
                       : "bg-blue-500 text-white py-6 rounded-xl"
                   }
+                  onClick={()  => window.open('http://elcm-exp.wygp.6gsandbox.uma.test.internal:5000/auth/login', '_blank')}
                 >
                   ELCM GUI
-                </button>
-                <button
-                  onClick={() => handleDescriptor(descriptor)}
-                  className="bg-blue-500 text-white py-6 rounded-xl"
-                >
-                  Download Descriptor
                 </button>
                 <button
                   disabled={!vpn}
@@ -209,6 +224,18 @@ function Network() {
                   }
                 >
                   Campaign Manager
+                </button>
+                <button
+                  onClick={() => setShowDescriptor(!showDescriptor)}
+                  className="bg-blue-500 text-white py-6 rounded-xl"
+                >
+                  {showDescriptor ? "Hide" : "Show"} Descriptor
+                </button>
+                <button
+                  onClick={() => handleDescriptor(descriptor)}
+                  className="bg-blue-500 text-white py-6 rounded-xl"
+                >
+                  Download Descriptor
                 </button>
               </div>
             </div>
