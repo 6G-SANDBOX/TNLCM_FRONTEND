@@ -303,7 +303,7 @@ const Component = ({
                             error={!fieldValues[key] && value.required_when}
                           />
                         )
-                      ) : value.type === "int" ? (
+                      ) : value.type === "int" || value.type === "float" ? (
                         // Number Field
                         <TextField
                           variant="outlined"
