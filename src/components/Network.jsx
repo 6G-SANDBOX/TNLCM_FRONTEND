@@ -186,7 +186,7 @@ function Network() {
               </div>
 
               {/* Right Content */}
-              {/* TODO VPN, Campagin*/}
+              {/* TODO VPN, Campaign*/}
               <div className="p-16 w-1/2 flex flex-col space-y-16">
                 <button
                   onClick={() => setShowMarkdown(!showMarkdown)}
@@ -206,11 +206,9 @@ function Network() {
                   ELCM GUI
                 </button>
                 <button
-                  disabled={!vpn}
+                  disabled
                   className={
-                    !vpn
-                      ? "bg-gray-500 text-white py-6 rounded-xl cursor-not-allowed"
-                      : "bg-blue-500 text-white py-6 rounded-xl"
+                       "bg-gray-500 text-white py-6 rounded-xl cursor-not-allowed"
                   }
                 >
                   Start VPN

@@ -296,7 +296,7 @@ const Component = ({
                             fullWidth
                             value={fieldValues[key] || ""}
                             label={key}
-                            placeholder={String(value.default_value) || ""}
+                            placeholder={value.defaultValues ?  String(value.default_value) : ""}
                             onChange={handleChange(key)}
                             type="text"
                             className="mb-2"
@@ -310,7 +310,7 @@ const Component = ({
                           fullWidth
                           value={fieldValues[key] || ""}
                           label={key}
-                          placeholder={String(value.default_value) || ""}
+                          placeholder={value.defaultValues ?  String(value.default_value) : ""}
                           onChange={handleChange(key)}
                           type="number"
                           className="mb-2"
