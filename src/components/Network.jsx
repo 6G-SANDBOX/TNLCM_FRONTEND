@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { coyWithoutShadows } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { getTrialNetwork } from "../auxFunc/api";
+import { accessVPN } from "../auxFunc/temporalParser";
 import CreateTN from "./CreateTN";
 import TopNavigator from "./TopNavigator";
 
@@ -19,6 +20,7 @@ function Network() {
   const [elcm, setElcm] = useState(false);
   const [vpn, setVpn] = useState(false);
   const [showDescriptor, setShowDescriptor] = useState(false);
+  const [vpnData, setVpnData] = useState(null);
   const printRef = useRef();
 
   //UseEffect to fetch the data from the API and search for ELCM and VPN nodes
@@ -46,6 +48,7 @@ function Network() {
       try {
         const response = await getTrialNetwork(id);
         setData(response.data);
+        setVpnData(await accessVPN(response.data.report));
         // The report only will be available if the state is "activated"
         if (response.data.state === "activated") {
           setMarkdown(response.data.report);
@@ -121,6 +124,21 @@ function Network() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   };
+
+  const handleVpnData = (filename = `wg-${data.tn_id}.conf`) => {
+    const blob = new Blob([vpnData], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+  
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+  
+    // Clear
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
 
   return (
     <div>
@@ -206,19 +224,20 @@ function Network() {
                   ELCM GUI
                 </button>
                 <button
-                  disabled
+                  disabled={!vpn}
                   className={
-                       "bg-gray-500 text-white py-6 rounded-xl cursor-not-allowed"
+                    !vpn
+                    ? "bg-gray-500 text-white py-6 rounded-xl cursor-not-allowed"
+                    : "bg-blue-500 text-white py-6 rounded-xl"
                   }
+                  onClick={() => handleVpnData()}
                 >
-                  Start VPN
+                  Get VPN Config
                 </button>
                 <button
                   disabled
                   className={
-                    !elcm
-                      ? "bg-gray-500 text-white py-6 rounded-xl cursor-not-allowed"
-                      : "bg-blue-500 text-white py-6 rounded-xl"
+                    "bg-gray-500 text-white py-6 rounded-xl cursor-not-allowed"
                   }
                 >
                   Campaign Manager

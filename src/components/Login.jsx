@@ -28,7 +28,7 @@ const Login = () => {
     }
 
     try {
-      const response = await loginUser(user, password, { timeout: 2000 }); // Two seconds timeout
+      const response = await loginUser(user, password, { timeout: 3000 }); // Three seconds timeout
 
       // Supposing server sent us a JSON with access_token and refresh_token
       const accessToken = response.data.access_token;
