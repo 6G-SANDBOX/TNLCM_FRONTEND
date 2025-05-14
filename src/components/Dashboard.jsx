@@ -10,6 +10,7 @@ import {
   faTrash,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Box, Button, Modal, Typography } from "@mui/material";
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { deleteTN, getTrialNetworks, purgeTN, putTN } from "../auxFunc/api";
@@ -30,10 +31,17 @@ const Dashboard = () => {
   const [isModalOpen2, setModalOpen2] = useState(false);
   const [selectedNetworkId, setSelectedNetworkId] = useState(null);
   const navigate = useNavigate();
-
+  const [modalErrorOpen, setModalErrorOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const handleOpenLogs = (tn_id) => {
     setSelectedNetworkId(tn_id); // Set the selected network ID
     setModalOpen2(true); // Open the modal
+  };
+
+  // Handle the error modal
+  const handleCloseErrorModal = () => {
+    setModalErrorOpen(false);
+    setErrorMessage("");
   };
 
   const handlePurgeClick = async () => {
@@ -58,10 +66,11 @@ const Dashboard = () => {
         }
       });
 
-      // Show an alert if there are invalid IDs
+      // Open the error modal if there are invalid IDs
       if (invalidIds.length > 0) {
-        alert(
-          `Can not be purged the nexts TNs becouse their state is not "validated", "destroyed" or "created": ${invalidIds.join(
+        setModalErrorOpen(true);
+        setErrorMessage(
+          `Can not purge the nexts TNs becouse their state is not "validated", "destroyed" or "created": ${invalidIds.join(
             ", "
           )}`
         );
@@ -80,7 +89,8 @@ const Dashboard = () => {
       // Make all with Promise.allSettled
       await Promise.allSettled(purgeRequest);
     } catch (error) {
-      alert("Error while purging:", error);
+      setModalErrorOpen(true);
+      setErrorMessage("Error while purging: " + error);
     }
   };
 
@@ -104,9 +114,10 @@ const Dashboard = () => {
         }
       });
 
-      // Show an alert if there are invalid IDs
+      //Open the error modal if there are invalid IDs
       if (invalidIds.length > 0) {
-        alert(
+        setModalErrorOpen(true);
+        setErrorMessage(
           `Can not destroy the nexts TNs becouse their state is not "activated" or "failed": ${invalidIds.join(
             ", "
           )}`
@@ -126,7 +137,8 @@ const Dashboard = () => {
       // Wait for all requests to complete
       await Promise.all(deleteRequests);
     } catch (error) {
-      alert("Error deleting networks: " + error);
+      setModalErrorOpen(true);
+      setErrorMessage("Error deleting networks: " + error);
     }
   };
 
@@ -151,7 +163,8 @@ const Dashboard = () => {
 
       await Promise.allSettled(promises);
     } catch (error) {
-      alert("Error deploying networks: " + error);
+      setModalErrorOpen(true);
+      setErrorMessage("Error deploying networks: " + error);
     }
   };
 
@@ -181,7 +194,8 @@ const Dashboard = () => {
       const fileExtension = file.name.split(".").pop().toLowerCase();
 
       if (!validExtensions.includes(file.type) && fileExtension !== "yaml") {
-        alert("Error: Only allowed YAML files (.yaml)");
+        setModalErrorOpen(true);
+        setErrorMessage("Error: Only allowed YAML files (.yaml)");
         return;
       }
 
@@ -218,6 +232,7 @@ const Dashboard = () => {
       }
     };
 
+    // Do a timer for refresh the data
     const scheduleNextFetch = () => {
       const randomInterval = Math.floor(Math.random() * (6 - 3 + 1) + 3) * 1000; // Make a random interval between 3 and 6 seconds
       timeoutId = setTimeout(() => {
@@ -234,6 +249,7 @@ const Dashboard = () => {
     };
   }, []);
 
+  // Handle the height of the table
   useLayoutEffect(() => {
     const updateAlturaRestante = () => {
       const topNavElement = document.getElementById("topNavigator");
@@ -517,6 +533,38 @@ const Dashboard = () => {
                 </button>
               ))}
             </div>
+            <Modal
+              open={modalErrorOpen}
+              onClose={handleCloseErrorModal}
+              className="flex items-center justify-center"
+            >
+              <Box
+                sx={{
+                  width: "400px",
+                  maxWidth: "90%",
+                  padding: "20px",
+                  backgroundColor: "white",
+                  borderRadius: 4,
+                  boxShadow: 24,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "column",
+                }}
+              >
+                <Typography variant="h6" color="error">
+                  {errorMessage}
+                </Typography>
+                <Button
+                  onClick={handleCloseErrorModal}
+                  variant="contained"
+                  color="primary"
+                  sx={{ marginTop: 2 }}
+                >
+                  Close
+                </Button>
+              </Box>
+            </Modal>
           </div>
         </div>
       </div>

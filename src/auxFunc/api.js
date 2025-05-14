@@ -297,10 +297,7 @@ export async function loginUser(username, password, config = {}) {
     return response;
   } catch (err) {
     // Make sure to return the error
-    console.error(
-      "Error while logging:",
-      err.response?.data?.message || err.message
-    );
+    throw err.response?.data?.message || err.message;
   }
 }
 
@@ -310,10 +307,7 @@ export const createAccount = async (accountData) => {
     const response = await axios.post(url, accountData);
     return response;
   } catch (err) {
-    console.error(
-      "Error while creating the account:",
-      err.response?.data?.message || err.message
-    );
+    throw err.response?.data?.message || err.message;
   }
 };
 
@@ -335,10 +329,7 @@ export const changePwd = async (oldPwd, newPwd, username) => {
     });
     return response.data;
   } catch (err) {
-    console.error(
-      "Error while changing password:",
-      err.response?.data?.message || err.message
-    );
+    throw err.response?.data?.message || err.message;
   }
 };
 

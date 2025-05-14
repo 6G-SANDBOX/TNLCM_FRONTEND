@@ -19,7 +19,6 @@ const convertJsonToYaml = (json, tnInit) => {
       component.dependencies.some((dependency) => dependency.trim() !== "")
     ) {
       yamlString += `\n`;
-      // TODO si tengo tn_vxlan no escribo y para todos los componentes poner que dependan de tn_init menos el mismo
       component.dependencies.forEach((dependency) => {
         //If the dependency is tn_init, then it will be added tn_vxlan as a dependency
         tnInit && dependency === "tn_vxlan"
@@ -27,7 +26,14 @@ const convertJsonToYaml = (json, tnInit) => {
           : (yamlString += `      - "${dependency}"\n`);
       });
     } else {
-      yamlString += ` []\n`;
+      if (component.type === "tn_init" || component.type === "tn_vxlan") {
+        yamlString += ` []\n`;
+      } else {
+        yamlString += `\n`;
+        tnInit
+          ? (yamlString += `      - "tn_init"\n`)
+          : (yamlString += `      - "tn_vxlan"\n`);
+      }
     }
     // Input of the component from the form data
     yamlString += `    input:`;

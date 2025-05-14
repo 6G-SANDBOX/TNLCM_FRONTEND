@@ -204,7 +204,7 @@ function Network() {
               </div>
 
               {/* Right Content */}
-              {/* TODO VPN, Campaign*/}
+              {/* TODO Campaign*/}
               <div className="p-16 w-1/2 flex flex-col space-y-16">
                 <button
                   onClick={() => setShowMarkdown(!showMarkdown)}

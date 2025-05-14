@@ -45,13 +45,14 @@ const Login = () => {
         window.location = "/dashboard";
       }, 1002);
     } catch (err) {
+      setSuccess(""); // Clean success message
       // Different error handling
       if (err.response) {
         // Server responded with an error status code
         if (err.response.status === 404) {
           setError("The server is not responding.");
         } else {
-          setError(err.message || "Login failed. Please try again.");
+          setError("Login failed: " + err || "Login failed. Please try again.");
         }
       } else if (err.code === "ECONNABORTED") {
         // Timeout error
@@ -61,9 +62,8 @@ const Login = () => {
         setError("Network error. Please check your internet connection.");
       } else {
         // Other errors
-        setError("Login failed. Please try again later.");
+        setError("Login failed: " + err);
       }
-      setSuccess(""); // Clean success message
     }
   };
 
