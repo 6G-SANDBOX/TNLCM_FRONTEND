@@ -1,5 +1,3 @@
-<a name="readme-top"></a>
-
 <div align="center">
 
   [![Contributors][contributors-shield]][contributors-url]
@@ -10,7 +8,9 @@
   <!-- [![MIT License][license-shield]][license-url] -->
   <!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
 
-  <a href="https://github.com/6G-SANDBOX/TNLCM"><img src="./images/logo.png" width="100" title="TNLCM"></a>
+  <a href="https://github.com/6G-SANDBOX/TNLCM_FRONTEND">
+    <img src="https://6g-sandbox.eu/wp-content/uploads/2023/01/6g-sandbox-logo-2-300x138.jpg" alt="6G-SANDBOX" title="TNLCM_FRONTEND" width="200" />
+  </a>
 
   [![TNLCM_FRONTEND][tnlcm-frontend-badge]][tnlcm-frontend-url]
 
@@ -22,59 +22,6 @@
 
 TNLCM frontend is a web application tailored for use by the platform owners and, as such, will provide information and functionality for handling all the Trial Networks in the corresponding platform. To achieve this, the frontend makes use of the APIs exposed by the TNLCM. Other frontends, for example, a simplified one tailored for Experimenters or Trial Network owners can be developed by making use of the same APIs, either by an external developer or by the 6G-SANDBOX consortium.
 
-<details>
-<summary>Table of Contents</summary>
-
-- [:rocket: Getting Started Locally](#rocket-getting-started-locally)
-  - [:inbox\_tray: Download or clone repository](#inbox_tray-download-or-clone-repository)
-  - [:wrench: Configure environment variables](#wrench-configure-environment-variables)
-  - [:file\_folder: Add node\_modules folder](#file_folder-add-node_modules-folder)
-- [:hammer\_and\_wrench: Stack](#hammer_and_wrench-stack)
-</details>
-
-## :rocket: Getting Started Locally
-
-> [!TIP]
-> TNLCM frontend uses the following repository branches:
-> 
-> | Repository | Release                                                                |
-> | ---------- | ---------------------------------------------------------------------- |
-> | 6G-Library | [v0.4.0](https://github.com/6G-SANDBOX/6G-Library/releases/tag/v0.4.0) |
-> | TNLCM      | [v0.4.5](https://github.com/6G-SANDBOX/TNLCM/releases/tag/v0.4.5)      |
-
-### :inbox_tray: Download or clone repository
-
-Download the **main** branch from the TNLCM_FRONTEND repository.
-
-Clone repository:
-
-```sh
-git clone https://github.com/6G-SANDBOX/TNLCM_FRONTEND.git
-```
-
-### :wrench: Configure environment variables
-
-Create a `.env` file at the root level, using the structure and content provided in the [`.env.template`](../.env.template) file.
-
-Mandatory update the value of the variable according on the platform:
-- `REACT_APP_TNLCM_BACKEND_API`
-
-### :file_folder: Add node_modules folder
-
-The **node_modules** must be created inside the TNLCM_FRONTEND project:
-
-```sh
-npm install
-```
-
-To start TNLCM frontend:
-
-```sh
-npm run dev
-```
-
-Frontend will be available at http://localhost:3000
-
 ## :hammer_and_wrench: Stack
 
 - [![Node.js][nodejs-badge]][nodejs-url] - JavaScript runtime platform.
@@ -85,8 +32,6 @@ Frontend will be available at http://localhost:3000
 <a href="https://github.com/6G-SANDBOX/TNLCM_FRONTEND/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=6G-SANDBOX/TNLCM_FRONTEND" />
 </a>
-
-<p align="right"><a href="#readme-top">Back to top&#x1F53C;</a></p>
 
 <!-- Urls, Shields and Badges -->
 [tnlcm-frontend-badge]: https://img.shields.io/github/v/release/6G-SANDBOX/TNLCM_FRONTEND?label=TNLCM_FRONTEND&color=blue
