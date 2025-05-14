@@ -9,8 +9,6 @@
 //     <App />
 //   </React.StrictMode>
 // );
-
-//TODO CHANGE THIS TO STRICT MODE FOR DEVELOPMENT, IS DESACTIVATED BECOUSE STRICT MODE DO USEFFECT TWICE
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';

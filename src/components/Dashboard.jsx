@@ -1,30 +1,47 @@
-import { faDesktop, faNetworkWired, faTerminal } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import {
+  faCirclePlus,
+  faCircleXmark,
+  faDesktop,
+  faFile,
+  faNetworkWired,
+  faPause,
+  faPlay,
+  faTerminal,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Box, Button, Modal, Typography } from "@mui/material";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { deleteTN, getTrialNetworks, purgeTN, putTN } from '../auxFunc/api';
-import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
-import TerminalModal from './TerminalModal';
-import TopNavigator from './TopNavigator';
+import { deleteTN, getTrialNetworks, purgeTN, putTN } from "../auxFunc/api";
+import { getAccessTokenFromSessionStorage } from "../auxFunc/jwt";
+import TerminalModal from "./TerminalModal";
+import TopNavigator from "./TopNavigator";
 
 const Dashboard = () => {
   const [data, setData] = useState({ trial_networks: [] }); // Api data storing
   const [loading, setLoading] = useState(true); // Loading state handler
   const [error, setError] = useState(null); // Error state handler
   const [currentPage, setCurrentPage] = useState(1); // Actual page
-  const [itemsPerPage] = useState(8); // Nuember of items per page
+  const [itemsPerPage] = useState(8); // Number of items per page
   const [alturaRestante, setAlturaRestante] = useState(0); // Height of the table
   const [activeCount, setActiveCount] = useState(0);
   const fileInputRef2 = useRef(null);
   const [selectedIds, setSelectedIds] = useState([]);
-  const [changingStatesIdS,setChangingStatesIdS] = useState([]);
   const [isModalOpen2, setModalOpen2] = useState(false);
   const [selectedNetworkId, setSelectedNetworkId] = useState(null);
   const navigate = useNavigate();
-
+  const [modalErrorOpen, setModalErrorOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const handleOpenLogs = (tn_id) => {
     setSelectedNetworkId(tn_id); // Set the selected network ID
     setModalOpen2(true); // Open the modal
+  };
+
+  // Handle the error modal
+  const handleCloseErrorModal = () => {
+    setModalErrorOpen(false);
+    setErrorMessage("");
   };
 
   const handlePurgeClick = async () => {
@@ -32,38 +49,48 @@ const Dashboard = () => {
       // Filter valid and invalid IDs
       const validIds = [];
       const invalidIds = [];
-      
+
       selectedIds.forEach((id) => {
-        const network = data.trial_networks.find((network) => network.tn_id === id);
-        if (network && (network.state === "validated" || network.state === "destroyed")) {
+        const network = data.trial_networks.find(
+          (network) => network.tn_id === id
+        );
+        if (
+          network &&
+          (network.state === "validated" ||
+            network.state === "destroyed" ||
+            network.state === "created")
+        ) {
           validIds.push(id);
         } else {
           invalidIds.push(id);
         }
       });
-  
-      // Show an alert if there are invalid IDs
+
+      // Open the error modal if there are invalid IDs
       if (invalidIds.length > 0) {
-        alert(`Can not be purged the nexts TNs becouse their state is not "validated" or "destroyed": ${invalidIds.join(", ")}`);
+        setModalErrorOpen(true);
+        setErrorMessage(
+          `Can not purge the nexts TNs becouse their state is not "validated", "destroyed" or "created": ${invalidIds.join(
+            ", "
+          )}`
+        );
       }
-  
+
       // Update the state before making the requests
-      setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
-      setChangingStatesIdS((prevState) => [...prevState, ...validIds]);
-  
+      setSelectedIds((prevState) =>
+        prevState.filter((id) => !selectedIds.includes(id))
+      );
+
       // Generate the PURGE requests for each ID
       const purgeRequest = validIds.map(async (id) => {
         return await purgeTN(id);
       });
-  
+
       // Make all with Promise.allSettled
-       await Promise.allSettled(purgeRequest);
-  
-      // Set the state after all requests are completed
-      setChangingStatesIdS((prevState) => prevState.filter((id) => !validIds.includes(id)));
-  
+      await Promise.allSettled(purgeRequest);
     } catch (error) {
-      alert("Error while purging:", error);
+      setModalErrorOpen(true);
+      setErrorMessage("Error while purging: " + error);
     }
   };
 
@@ -72,66 +99,75 @@ const Dashboard = () => {
       // Filter valid and invalid IDs
       const validIds = [];
       const invalidIds = [];
-      
+
       selectedIds.forEach((id) => {
-        const network = data.trial_networks.find((network) => network.tn_id === id);
-        if (network && ((network.state === "activated") || (network.state === "failed"))) {
+        const network = data.trial_networks.find(
+          (network) => network.tn_id === id
+        );
+        if (
+          network &&
+          (network.state === "activated" || network.state.includes("failed"))
+        ) {
           validIds.push(id);
         } else {
           invalidIds.push(id);
         }
       });
 
-      // Show an alert if there are invalid IDs
+      //Open the error modal if there are invalid IDs
       if (invalidIds.length > 0) {
-        alert(`Can not destroy the nexts TNs becouse their state is not "activated" or "failed": ${invalidIds.join(", ")}`);
+        setModalErrorOpen(true);
+        setErrorMessage(
+          `Can not destroy the nexts TNs becouse their state is not "activated" or "failed": ${invalidIds.join(
+            ", "
+          )}`
+        );
       }
 
       // Set the states before making the requests
-      setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
-      setChangingStatesIdS((prevState) => [...prevState, ...validIds]);
-  
+      setSelectedIds((prevState) =>
+        prevState.filter((id) => !selectedIds.includes(id))
+      );
+
       // Make a DELETE request for each ID
       const deleteRequests = validIds.map(async (id) => {
         await deleteTN(id);
       });
-  
+
       // Wait for all requests to complete
       await Promise.all(deleteRequests);
-  
-      // After all requests are completed, update the state
-      setChangingStatesIdS((prevState) => prevState.filter((id) => !validIds.includes(id)));
     } catch (error) {
-      alert("Error deleting networks: " + error);
+      setModalErrorOpen(true);
+      setErrorMessage("Error deleting networks: " + error);
     }
   };
-  
+
   const handleDeployClick = async () => {
     try {
       // Set the states before making the requests
-      setSelectedIds((prevState) => prevState.filter((id) => !selectedIds.includes(id)));
-      setChangingStatesIdS((prevState) => [...prevState, ...selectedIds]);
-  
+      setSelectedIds((prevState) =>
+        prevState.filter((id) => !selectedIds.includes(id))
+      );
+
       // Create a PUT request for each ID
       const promises = selectedIds.map(async (id) => {
         // Make the PUT request
         try {
           await putTN(id);
           // After the request is completed, update the state
-          setChangingStatesIdS((prevState) => prevState.filter((item) => item !== id));
-          return { id, status: 'success' };
+          return { id, status: "success" };
         } catch (error) {
-          return { id, status: 'failed', error };
+          return { id, status: "failed", error };
         }
       });
-  
-      await Promise.allSettled(promises);
 
+      await Promise.allSettled(promises);
     } catch (error) {
-      alert("Error deploying networks: " + error);
+      setModalErrorOpen(true);
+      setErrorMessage("Error deploying networks: " + error);
     }
   };
-  
+
   const handleCheckboxChange = (id) => {
     setSelectedIds((prev) =>
       prev.includes(id)
@@ -145,19 +181,24 @@ const Dashboard = () => {
     fileInputRef2.current.click();
   };
 
-
   const handleFileChange2 = (event) => {
     const file = event.target.files[0]; // Get the first file
     if (file) {
       //Check the file is a YAML
-      const validExtensions = ["application/x-yaml", "text/yaml", "text/x-yaml", "application/yaml"];
+      const validExtensions = [
+        "application/x-yaml",
+        "text/yaml",
+        "text/x-yaml",
+        "application/yaml",
+      ];
       const fileExtension = file.name.split(".").pop().toLowerCase();
-  
+
       if (!validExtensions.includes(file.type) && fileExtension !== "yaml") {
-        alert("Error: Only allowed YAML files (.yaml)");
+        setModalErrorOpen(true);
+        setErrorMessage("Error: Only allowed YAML files (.yaml)");
         return;
       }
-  
+
       navigate("/dashboard/createTN", {
         state: { file }, // Send the file to the next page
       });
@@ -166,13 +207,11 @@ const Dashboard = () => {
 
   useEffect(() => {
     let timeoutId; // Store the ID of the timeout
-  
+
     const fetchData = async () => {
       try {
         const access_token = await getAccessTokenFromSessionStorage();
         if (access_token) {
-          
-  
           const response = await getTrialNetworks();
           setData(response.data);
           const trialNetworks = response.data.trial_networks;
@@ -192,7 +231,8 @@ const Dashboard = () => {
         setLoading(false);
       }
     };
-  
+
+    // Do a timer for refresh the data
     const scheduleNextFetch = () => {
       const randomInterval = Math.floor(Math.random() * (6 - 3 + 1) + 3) * 1000; // Make a random interval between 3 and 6 seconds
       timeoutId = setTimeout(() => {
@@ -202,13 +242,14 @@ const Dashboard = () => {
     };
     fetchData();
     scheduleNextFetch();
-  
+
     // Cleanup for the next timeout
     return () => {
       clearTimeout(timeoutId);
     };
   }, []);
 
+  // Handle the height of the table
   useLayoutEffect(() => {
     const updateAlturaRestante = () => {
       const topNavElement = document.getElementById("topNavigator");
@@ -225,7 +266,6 @@ const Dashboard = () => {
     // Clean the interval
     return () => clearInterval(intervalId);
   }, []); // Only execute once
-  
 
   if (loading) {
     return (
@@ -236,15 +276,22 @@ const Dashboard = () => {
   }
 
   if (error) {
-    return <div className="fixed inset-0 flex justify-center items-center bg-white-600 bg-opacity-50">
-    <div className="text-red-500 text-4xl font-bold text-center">{error}</div>
-    </div>
+    return (
+      <div className="fixed inset-0 flex justify-center items-center bg-white-600 bg-opacity-50">
+        <div className="text-red-500 text-4xl font-bold text-center">
+          {error}
+        </div>
+      </div>
+    );
   }
 
   // Compute the indexes of the items to show
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = data.trial_networks.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = data.trial_networks.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   // Total pages
   const totalPages = Math.ceil(data.trial_networks.length / itemsPerPage);
@@ -257,15 +304,14 @@ const Dashboard = () => {
   // Format the date
   const formatDate = (isoDate) => {
     const date = new Date(isoDate); // ISO to Date
-  
+
     // Extract the date and time
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
     const year = date.getFullYear(); // Año
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-  
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    const seconds = String(date.getSeconds()).padStart(2, "0");
     // Make the new format
     return `${month}/${day}/${year} ${hours}:${minutes}:${seconds}`;
   };
@@ -299,29 +345,33 @@ const Dashboard = () => {
         </div>
 
         {/* Table Section */}
-        <div id="tabla" style={{ height: `${alturaRestante}px` }} className="bg-white shadow-md rounded-lg p-6">
+        <div
+          id="table"
+          style={{ height: `${alturaRestante}px` }}
+          className="bg-white shadow-md rounded-lg p-6"
+        >
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold">All Networks</h2>
           </div>
           <div className="flex space-x-4 mb-4">
-              <button
-                className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
-                onClick={() => (window.location = "/dashboard/createTN")}
-              >
-                Create new Network
-              </button>
-              <button
-                className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
-                onClick={handleButtonClick2}
-              >
-                Edit Network via File
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef2}
-                onChange={handleFileChange2}
-                style={{ display: "none" }} // Hide the input
-              />
+            <button
+              className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
+              onClick={() => (window.location = "/dashboard/createTN")}
+            >
+              Create new Network <FontAwesomeIcon icon={faCirclePlus} />
+            </button>
+            <button
+              className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
+              onClick={handleButtonClick2}
+            >
+              Create Network via File <FontAwesomeIcon icon={faFile} />
+            </button>
+            <input
+              type="file"
+              ref={fileInputRef2}
+              onChange={handleFileChange2}
+              style={{ display: "none" }} // Hide the input
+            />
           </div>
           <div className="flex space-x-4 mb-4">
             {/* Deploy button */}
@@ -329,10 +379,11 @@ const Dashboard = () => {
               className={`py-2 px-4 rounded-lg shadow-sm text-white font-semibold
                 bg-gradient-to-r from-green-700 to-yellow-700
                 bg-[position:-30%_0]
-                hover:opacity-80 transition-all duration-600`}
+                hover:opacity-80 transition-all duration-700`}
               onClick={handleDeployClick}
             >
-              Turn On/Off Networks
+              <FontAwesomeIcon icon={faPlay} />{" "}
+              <FontAwesomeIcon icon={faPause} />
             </button>
 
             {/* Destroy button*/}
@@ -340,7 +391,7 @@ const Dashboard = () => {
               className="bg-red-700 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-red-500"
               onClick={handleDestroyClick}
             >
-              Destroy Networks
+              <FontAwesomeIcon icon={faCircleXmark} />
             </button>
 
             {/* Purge button */}
@@ -348,7 +399,7 @@ const Dashboard = () => {
               className="bg-red-800 text-white py-2 px-4 rounded-lg shadow-sm hover:bg-red-500"
               onClick={handlePurgeClick}
             >
-              Purge Networks
+              <FontAwesomeIcon icon={faTrash} />
             </button>
           </div>
           <table className="w-full text-left border-collapse ">
@@ -368,25 +419,43 @@ const Dashboard = () => {
                   <td className="py-2">
                     <input
                       type="checkbox"
-                      id= {`checkbox-${network.tn_id}`}
+                      id={`checkbox-${network.tn_id}`}
                       onChange={() => handleCheckboxChange(network.tn_id)}
                       checked={selectedIds.includes(network.tn_id)}
-                      disabled={changingStatesIdS.includes(network.tn_id)}
+                      disabled={network.state.includes("ing")}
                     />
                   </td>
                   <td className="py-2">
-                  <Link to={`/dashboard/${network.tn_id}`}>
-                    <button className="text-purple-600 hover:underline">{network.tn_id}</button>
-                  </Link>
+                    {["created", "activated"].includes(network.state) ? (
+                      <Link to={`/dashboard/${network.tn_id}`}>
+                        <button className="text-purple-600 hover:underline">
+                          {network.tn_id}
+                        </button>
+                      </Link>
+                    ) : (
+                      <button
+                        className="text-gray-400 cursor-not-allowed"
+                        disabled
+                      >
+                        {network.tn_id}
+                      </button>
+                    )}
                   </td>
-                  <td className="py-2">{formatDate(network.date_created_utc)}</td>
-                  <td className="py-2">{network.deployment_site}</td>
                   <td className="py-2">
-                  <span
+                    {formatDate(network.date_created_utc)}
+                  </td>
+                  <td className="py-2">
+                    {network.state === "created"
+                      ? "Not deployed yet"
+                      : network.deployment_site}
+                  </td>
+                  <td className="py-2">
+                    <span
                       className={[
-                        changingStatesIdS.includes(network.tn_id)
-                          ? "" // No background color when changing state
-                          : network.state === "failed" || network.state === "destroyed"
+                        network.state.includes("ing")
+                          ? ""
+                          : network.state.includes("failed") ||
+                            network.state.includes("destroyed")
                           ? "bg-red-100 text-red-500"
                           : network.state === "validated"
                           ? "bg-blue-100 text-blue-500"
@@ -398,15 +467,32 @@ const Dashboard = () => {
                         "py-1 px-3 rounded-full text-xs",
                       ].join(" ")}
                     >
-                    {changingStatesIdS.includes(network.tn_id) ? (
-                      <img src="loading.gif" alt="loading" className="flex w-6 h-6 justify-center items-center" />
-                    ) : (
-                      network.state
-                    )}
-                  </span>
+                      {network.state.includes("ing") ? (
+                        <img
+                          src="loading.gif"
+                          alt="loading"
+                          className="flex w-6 h-6 justify-center items-center"
+                        />
+                      ) : (
+                        network.state
+                      )}
+                    </span>
                   </td>
                   <td className="py-2">
-                    <button className="text-purple-600 hover:underline" onClick={() => handleOpenLogs(network.tn_id)} ><FontAwesomeIcon icon={faTerminal} /></button>
+                    <button
+                      className={`text-purple-600 hover:underline ${
+                        network.state === "created"
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
+                      }`}
+                      onClick={() =>
+                        network.state !== "created" &&
+                        handleOpenLogs(network.tn_id)
+                      }
+                      disabled={network.state === "created"}
+                    >
+                      <FontAwesomeIcon icon={faTerminal} />
+                    </button>
                   </td>
                 </tr>
               ))}
@@ -421,19 +507,64 @@ const Dashboard = () => {
             />
           )}
           {/* Page */}
-          <div className={`flex  justify-between items-center mt-4 text-sm text-gray-500`}>
-            <p>Showing data {data.trial_networks.length>0? indexOfFirstItem+1 : 0 } to {indexOfLastItem<data.trial_networks.length ? indexOfLastItem : data.trial_networks.length} of {data.trial_networks.length} entries</p>
+          <div
+            className={`flex  justify-between items-center mt-4 text-sm text-gray-500`}
+          >
+            <p>
+              Showing data{" "}
+              {data.trial_networks.length > 0 ? indexOfFirstItem + 1 : 0} to{" "}
+              {indexOfLastItem < data.trial_networks.length
+                ? indexOfLastItem
+                : data.trial_networks.length}{" "}
+              of {data.trial_networks.length} entries
+            </p>
             <div className="flex space-x-2">
               {Array.from({ length: totalPages }, (_, index) => (
                 <button
                   key={index + 1}
                   onClick={() => handlePageChange(index + 1)}
-                  className={`py-1 px-3 rounded-lg ${currentPage === index + 1 ? 'bg-purple-600 text-white' : 'bg-gray-200'}`}
+                  className={`py-1 px-3 rounded-lg ${
+                    currentPage === index + 1
+                      ? "bg-purple-600 text-white"
+                      : "bg-gray-200"
+                  }`}
                 >
                   {index + 1}
                 </button>
               ))}
             </div>
+            <Modal
+              open={modalErrorOpen}
+              onClose={handleCloseErrorModal}
+              className="flex items-center justify-center"
+            >
+              <Box
+                sx={{
+                  width: "400px",
+                  maxWidth: "90%",
+                  padding: "20px",
+                  backgroundColor: "white",
+                  borderRadius: 4,
+                  boxShadow: 24,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "column",
+                }}
+              >
+                <Typography variant="h6" color="error">
+                  {errorMessage}
+                </Typography>
+                <Button
+                  onClick={handleCloseErrorModal}
+                  variant="contained"
+                  color="primary"
+                  sx={{ marginTop: 2 }}
+                >
+                  Close
+                </Button>
+              </Box>
+            </Modal>
           </div>
         </div>
       </div>

@@ -1,125 +1,133 @@
-import { faBars, faUserCircle } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { getAccessTokenFromSessionStorage } from '../auxFunc/jwt';
+import { faBars, faUserCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Box, Button, Modal, TextField, Typography } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { changePwd, getUser } from "../auxFunc/api";
+import { getAccessTokenFromSessionStorage } from "../auxFunc/jwt";
 
 const ProfileModal = ({ isOpen, onClose, userInfo }) => {
   // Conditionally render the modal
   const [newPassword, setNewPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
   // Reset the password when the modal is closed
   useEffect(() => {
     if (!isOpen) {
+      setSuccess("");
       setNewPassword("");
+      setOldPassword("");
+      setError("");
     }
   }, [isOpen]);
   // If the user info is not loaded yet, show "Loading..."
-  const username = userInfo ? userInfo.username : 'Loading...';
-  const organization = userInfo ? userInfo.org : 'Loading...';
-  const email = userInfo ? userInfo.email : 'Loading...';
+  const username = userInfo ? userInfo.username : "Loading...";
+  const organization = userInfo ? userInfo.org : "Loading...";
+  const email = userInfo ? userInfo.email : "Loading...";
   // Handle the save button click
   const handleSave = async () => {
-    if (!newPassword) {
-      alert("Please enter a new password");
+    setSuccess("");
+    if (!oldPassword || !newPassword) {
+      setError("All fields are required.");
       return;
     }
-    const result = await changePwd(newPassword, email);
+    if (newPassword === oldPassword) {
+      setError("Passwords can not be the same.");
+      return;
+    }
+    const result = await changePwd(oldPassword, newPassword, username);
     if (result) {
-      alert("Password changed successfully");
+      setSuccess("Password changed successfully.");
       onClose();
     }
+    setError("");
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-xl shadow-2xl w-80 max-w-sm border border-gray-200">
-        <div className="mb-6">
-          {userInfo ? (
-            <div>
-              <p className="text-sm text-gray-700 mb-2">
-                <strong>Username:</strong> {username}
-              </p>
-              <p className="text-sm text-gray-700 mb-2">
-                <strong>Email:</strong> {email}
-              </p>
-              <p className="text-sm text-gray-700 mb-4">
-                <strong>Organization:</strong> {organization}
-              </p>
-            </div>
-          ) : (
-            <p className="text-sm text-gray-500 mb-4">Loading user information...</p>
-          )}
-        </div>
+    <Modal open={isOpen} onClose={onClose}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: 350,
+          bgcolor: "background.paper",
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 4,
+          border: "2px solid black",
+        }}
+      >
+        {userInfo ? (
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="h6">
+              <strong>Username:</strong> {username}
+            </Typography>
+            <Typography variant="h6">
+              <strong>Email:</strong> {email}
+            </Typography>
+            <Typography variant="h6">
+              <strong>Organization:</strong> {organization}
+            </Typography>
+            <Typography
+              variant="h6"
+              gutterBottom
+              style={{ textDecoration: "underline" }}
+            >
+              <strong>Change Password :</strong>
+            </Typography>
+            <TextField
+              label="Current Password"
+              type="password"
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              value={oldPassword}
+              onChange={(e) => setOldPassword(e.target.value)}
+            />
+            <TextField
+              label="New Password"
+              type="password"
+              fullWidth
+              margin="normal"
+              variant="outlined"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+            />
+          </Box>
+        ) : (
+          <Typography variant="h6" color="textSecondary">
+            Loading user information...
+          </Typography>
+        )}
 
-        <p className="text-sm text-gray-700 mb-2"><strong>Change Password: </strong></p>
-        <input
-          type="password"
-          placeholder="New Password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          className="w-full p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-6"
-        />
-        
-        <div className="flex justify-end gap-4">
-          <button
-            onClick={onClose}
-            className="px-5 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 focus:outline-none transition duration-300"
-          >
+        {error && (
+          <Typography variant="body2" color="error" sx={{ mt: 2 }}>
+            {error}
+          </Typography>
+        )}
+
+        {success && (
+          <Typography variant="body2" color="success.main" sx={{ mt: 2 }}>
+            {success}
+          </Typography>
+        )}
+
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+          <Button onClick={onClose} color="secondary" sx={{ mr: 2 }}>
             Close
-          </button>
-          <button
-            onClick={handleSave}
-            className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none transition duration-300"
-          >
+          </Button>
+          <Button onClick={handleSave} variant="contained" color="primary">
             Save
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
   );
-};
-
-// Send the POST request to change the password
-const changePwd = async (newPwd, mail) => {
-  try {
-    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/user/change-password`;
-    const access_token = await getAccessTokenFromSessionStorage();
-    const auth = `Bearer ${access_token}`;
-    const payload = {
-      email: mail,
-      password: newPwd
-    };
-    const response = await axios.post(url, payload, {
-      headers: {
-        Authorization: auth,
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  } catch (err) {
-    console.error("Error while changing password:", err.response?.data?.message || err.message);
-  }
-};
-
-// Send the POST request
-const getUser = async () => {
-  try {
-    const url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/user`;
-    const access_token = await getAccessTokenFromSessionStorage();
-    const auth = `Bearer ${access_token}`;
-
-    const response = await axios.get(url, {
-      headers: {
-        Authorization: auth,
-        "Content-Type": "application/json",
-      },
-    });
-    return response.data;
-  } catch (err) {
-    console.error("Error while retrieving user info:", err.response?.data?.message || err.message);
-  }
 };
 
 const TopNavigator = () => {
@@ -159,7 +167,7 @@ const TopNavigator = () => {
 
   const handleListClick = () => {
     if (!isAuthenticated) return;
-    window.location = '/dashboard';
+    window.location = "/dashboard";
   };
 
   const handleLogout = () => {
@@ -168,17 +176,26 @@ const TopNavigator = () => {
     setIsAuthenticated(false);
     setMenuVisible(false);
     setTimeout(() => {
-      window.location = '/';
+      window.location = "/";
     }, 1001);
   };
 
   return (
-    <div id="topNavigator" className="bg-purple-600 h-16 flex items-center justify-between px-4 shadow-md">
-      <button className="text-white text-lg focus:outline-none" onClick={handleListClick}>
+    <div
+      id="topNavigator"
+      className="bg-purple-600 h-16 flex items-center justify-between px-4 shadow-md"
+    >
+      <button
+        className="text-white text-lg focus:outline-none"
+        onClick={handleListClick}
+      >
         <FontAwesomeIcon icon={faBars} />
       </button>
       <div className="relative">
-        <button className="text-white text-lg focus:outline-none" onClick={handleProfileClick}>
+        <button
+          className="text-white text-lg focus:outline-none"
+          onClick={handleProfileClick}
+        >
           <FontAwesomeIcon icon={faUserCircle} />
         </button>
         {menuVisible && isAuthenticated && (
@@ -198,7 +215,11 @@ const TopNavigator = () => {
           </div>
         )}
       </div>
-      <ProfileModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} userInfo={userInfo} />
+      <ProfileModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        userInfo={userInfo}
+      />
     </div>
   );
 };

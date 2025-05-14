@@ -1,5 +1,4 @@
-import axios from "axios";
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 
 // Check if the token is expired
 export async function isTokenExpired(token) {
@@ -10,9 +9,9 @@ export async function isTokenExpired(token) {
 // Get the access token from the session storage and check if it has expired
 export async function getAccessTokenFromSessionStorage() {
   let accessToken = sessionStorage.getItem("access_token");
-  
+
   // If the token is expired, try to get a new one using the refresh token
-  if (accessToken && await isTokenExpired(accessToken)) {
+  if (accessToken && (await isTokenExpired(accessToken))) {
     const data = await setAccessTokenUsingRefreshToken();
     sessionStorage.setItem("access_token", data["access_token"]);
     accessToken = data["access_token"];
@@ -33,26 +32,5 @@ async function setAccessTokenUsingRefreshToken() {
   if (!refreshToken) {
     throw new Error("No refresh token found.");
   }
-
-  try {
-    const url =process.env.REACT_APP_TNLCM_BACKEND_API;
-    const response = await axios.post(
-      `${url}/tnlcm/user/refresh`,
-      {},
-      {
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${refreshToken}`,
-        },
-      }
-    );
-    if (!response.data || !response.data.access_token) {
-      throw new Error("Failed to refresh access token.");
-    }
-
-    return response.data; // Return the new access token
-  } catch (error) {
-    throw new Error("Failed to fetch a new access token: " + error.message);
-  }
+  return refreshToken();
 }

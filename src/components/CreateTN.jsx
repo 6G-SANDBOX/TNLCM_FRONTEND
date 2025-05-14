@@ -1,475 +1,266 @@
-import yaml from 'js-yaml';
+import {
+  Box,
+  Button,
+  ButtonBase,
+  Card,
+  CardContent,
+  CardMedia,
+  Modal,
+  TextField,
+  Typography,
+} from "@mui/material";
+import yaml from "js-yaml";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { createTrialNetwork, getComponents, getDeployments, getLibraryTypes, getLibraryValues, getSites, saveTrialNetwork } from "../auxFunc/api";
-import convertJsonToYaml from '../auxFunc/yamlHandler';
+import {
+  createTrialNetwork,
+  getComponents,
+  saveTrialNetwork,
+  updateTrialNetwork,
+} from "../auxFunc/api";
+import convertJsonToYaml from "../auxFunc/yamlHandler";
+import Component from "./Component";
 import TopNavigator from "./TopNavigator";
-import BerlinRan from "./library/Berlin_ran";
-import Elcm from "./library/Elcm";
-import IswirelessRadio from "./library/Iswireless_radio";
-import IxcEndpoint from "./library/Ixc_endpoint";
-import Ks8500Runner from "./library/Ks8500_runner";
-import LoadcoreAgent from "./library/LoadcoreAgent";
-import NokiaRadio from "./library/NokiaRadio";
-import Ocf from "./library/Ocf";
-import OneKe from "./library/OneKe";
-import Open5gcoreVM from "./library/Open5gcore_vm";
-import Open5gsK8S from "./library/Open5gs_k8s";
-import OpensandGw from "./library/Opensand_gw";
-import OpensandSat from "./library/Opensand_sat";
-import OpensandSt from "./library/Opensand_st";
-import StfUe from "./library/Stf_ue";
-import TnBastion from "./library/Tn_Bastion";
-import TnInit from "./library/Tn_Init";
-import TnVxlan from "./library/Tn_Vxlan";
-import Tsn from "./library/Tsn";
-import Ueransim from "./library/Ueransim";
-import UpfP4Sw from "./library/Upf_p4_sw";
-import VmKvm from "./library/Vm_Kvm";
-import Vnet from "./library/Vnet";
-import Xrext from "./library/Xrext";
-import NvoModal from "./nvoModal";
 
-const CreateTN = (networkData) => {
-  const [selectedComponent, setSelectedComponent] = useState([]);
-  const [formData, setFormData] = useState({
-    trialNetworkId: "",
-    deploymentSite: "",
-    libraryReferenceType: "",
-    libraryReferenceValue: "",
-    sitesReferenceType: "",
-    sitesReferenceValue: "",
-  });
-  const [allComp, setAllComp] = useState([]);
-  const [componentForms, setComponentForms] = useState({});
-  const [errors, setErrors] = useState({});
-  const [Cerrors,SetCerrors] = useState({});
-  const [childError,setChildError] = useState({});
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
-  const [sites, setSites] = useState([]);
-  const [deployement, setDeployement] = useState([]);
-  const [libraryTypes, setLibraryTypes] = useState([]);
-  const [libraryValues, setLibraryValues] = useState([]);
+const CreateTN = (savedValues) => {
+  const [components, setComponents] = useState([]);
+  const [focusedComponent, setfocusedComponent] = useState({});
+  const [modalOpen, setModalOpen] = useState(false);
+  const [error, setError] = useState(null);
+  const [selectedComponent, setSelectedComponent] = useState({});
+  const [temporalData, setTemporalData] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [modalErrorOpen, setModalErrorOpen] = useState(false);
+  const [errorMessage, setErrorMessage]    = useState("");
+  const [success, setSuccess] = useState(null);
+  const processedSavedValues = useRef(null);
+  const [tnName, setTnName] = useState("");
   const location = useLocation();
-  const defaultValues = location.state?.file;// If we are coming here with a file, get it
-  const processedNetworkData = useRef(null);
-  const processedDefaultValues = useRef(null);
-  const [ID, setID] = useState(false);
+  const fileValues = location.state?.file; // If we are coming here with a file, get it
 
-  const previousValues = useRef({
-    sitesReferenceType: formData.sitesReferenceType,
-    sitesReferenceValue: formData.sitesReferenceValue,
-    libraryReferenceType: formData.libraryReferenceType,
-    libraryTypes: null, // Initially empty
-  });
-
-  const previousLibraryTypes = useRef(null);
-
+  // UseEffect to fetch the components if we are coming with a file
   useEffect(() => {
-    
-    const fetchData = async () => {
+    if (fileValues) {
+      if (
+        JSON.stringify(fileValues) ===
+        JSON.stringify(processedSavedValues.current)
+      ) {
+        //If the network data is the same dont re-render again
+        return;
+      }
 
+      const reader = new FileReader();
+      reader.onload = () => {
+        const yamlDescriptor = reader.result;
         try {
-          if (formData.libraryReferenceType ==="" || formData.libraryReferenceValue ==="") {
-            setAllComp([]);
-            return;
-          }
-            const response = await getComponents(formData.libraryReferenceType, formData.libraryReferenceValue);
-            if (!response.ok) {
-                throw new Error(`Error while retrieving all components: ${response.status}`);
-            }
-            const result = await response.json();
-            setAllComp(result.components);
+          processedSavedValues.current = fileValues;
+          const parsedData = yaml.load(yamlDescriptor);
+          Object.keys(parsedData.trial_network).forEach((key) => {
+            const component = parsedData.trial_network[key];
+            const updatedInput = {
+              ...component.input,
+              name: component.name,
+            };
+            setSelectedComponent((prevForms) => ({
+              ...prevForms,
+              [`${component.type}-${new Date().getTime()}`]: {
+                type: component.type,
+                fields: updatedInput,
+                added: true,
+                dependencies: component.dependencies,
+              },
+            }));
+          });
         } catch (error) {
-            console.error("Error doing the fetch:", error);
+          const res = error.response?.data?.message || error.message;
+          setError("Error while loading the descriptor: " + res);
         }
-    };
-    const fetchSites = async () => {
-      const sites2 = await getSites();
-      setSites(sites2.sites);
-    };
-    const fetchDeplo= async () => {
-      const deplo = await getDeployments(formData.sitesReferenceValue);
-      setDeployement(deplo);
-    };
-    const fetchLibTypes = async () => {
-      const response = await getLibraryTypes();
-      const values= Object.values(response)[0] || []
-      if (JSON.stringify(previousLibraryTypes.current || []) !== JSON.stringify(values)) {
-            setLibraryTypes(values);
-            previousLibraryTypes.current = values;
-        }
-    };
-    const fetchLibValues = async () => {
-      const response = await getLibraryValues(formData.libraryReferenceType);
-      const values= Object.values(response)[0] || []
-      setLibraryValues(values);
-    };
-    const executeIfChanged = async () => {
-      if (!previousValues.current.libraryTypes) {
-          await fetchLibTypes(); // Always at the start
-      } else if (JSON.stringify(previousLibraryTypes.current) !== JSON.stringify(previousValues.current.libraryTypes)) {
-          await fetchLibTypes(); // Only later if it really changes
-      }
-
-      if (formData.sitesReferenceType !== previousValues.current.sitesReferenceType) {
-          await fetchSites();
-          setFormData((prevFormData) => ({
-            ...prevFormData,
-            sitesReferenceValue: "",
-          }));
-      }
-
-      if (formData.sitesReferenceValue !== previousValues.current.sitesReferenceValue) {
-          await fetchDeplo();
-          setFormData((prevFormData) => ({
-            ...prevFormData,
-            deploymentSite: "",
-          }));
-
-      }
-
-      if (formData.libraryReferenceType !== previousValues.current.libraryReferenceType) {
-          await fetchLibValues();
-          setFormData((prevFormData) => ({
-            ...prevFormData,
-            libraryReferenceValue: "",
-          }));
-      }
-
-      await fetchData();
-
-      previousValues.current = {
-          sitesReferenceType: formData.sitesReferenceType,
-          sitesReferenceValue: formData.sitesReferenceValue,
-          libraryReferenceType: formData.libraryReferenceType,
-          libraryTypes: previousLibraryTypes.current, // Use ref instead of useState due to infinite loop
       };
-  };
-
-  executeIfChanged();
-
-  if (defaultValues){
-    if (JSON.stringify(defaultValues) === JSON.stringify(processedDefaultValues.current)) {
-      //If the default value doesnt change dont re-render again
-      return;
+      reader.readAsText(fileValues);
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      const yamlContent = reader.result;
-      try {
-        processedDefaultValues.current = defaultValues;
-        const parsedData = yaml.load(yamlContent); // Parse to YAML object
-        //TODO MAYBE IN THE FUTURE THIS WILL BE FROM A MODAL
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          libraryReferenceType: "branch",
-          libraryReferenceValue: "develop",
-        }));
-        // Open each component
-        Object.keys(parsedData.trial_network).forEach((key) => {
-          const component = parsedData.trial_network[key];
-          const newComponent = {
-            id: `${component.type}-${new Date().getTime()}`,
-            label: component.type,
-            defaultValues: component.input,
-            name: component.name
-          };
-          setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
-          setComponentForms((prevForms) => ({
-            ...prevForms,
-            [newComponent.id]: {},
-          }));
-        });
-      } catch (e) {
-        console.error("Error while opening the YAML descriptor: ", e);
-      }
+  }, [fileValues]);
 
-    };
-    reader.readAsText(defaultValues);
-  } else if (networkData !== null && Object.keys(networkData).length > 0){
-      if (JSON.stringify(networkData) === JSON.stringify(processedNetworkData.current)) {
+  // UseEffect to fetch the components if we are editing a saved trial network
+  useEffect(() => {
+    if (savedValues !== null && Object.keys(savedValues).length > 0) {
+      if (
+        JSON.stringify(savedValues) ===
+        JSON.stringify(processedSavedValues.current)
+      ) {
         //If the network data is the same dont re-render again
         return;
       }
       try {
-        setID(true);
-        processedNetworkData.current = networkData;
-        //TODO In the future maybe we got this fields from the networkData
-        setFormData((prevFormData) => ({
-          ...prevFormData,
-          trialNetworkId: networkData.networkData.tn_id,
-          libraryReferenceType: "branch",
-          libraryReferenceValue: "develop",
-        }));
-        // Open each component
-        Object.keys(networkData.networkData.raw_descriptor.trial_network).forEach((key) => {
-          const component = networkData.networkData.raw_descriptor.trial_network[key];
-          const newComponent = {
-            id: `${component.type}-${new Date().getTime()}`,
-            label: component.type,
-            defaultValues: component.input,
-            name: component.name
+        processedSavedValues.current = savedValues;
+        if (
+          savedValues.savedValues.raw_descriptor.trial_network === undefined ||
+          savedValues.savedValues.raw_descriptor.trial_network === null ||
+          savedValues.savedValues.raw_descriptor.trial_network.length === 0
+        ) {
+          return;
+        }
+
+        Object.keys(
+          savedValues.savedValues.raw_descriptor.trial_network
+        ).forEach((key) => {
+          const component =
+            savedValues.savedValues.raw_descriptor.trial_network[key];
+          const updatedInput = {
+            ...component.input,
+            name: component.name,
           };
-          setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
-          setComponentForms((prevForms) => ({
+          setSelectedComponent((prevForms) => ({
             ...prevForms,
-            [newComponent.id]: {},
+            [`${component.type}-${new Date().getTime()}`]: {
+              type: component.type,
+              fields: updatedInput,
+              added: true,
+              dependencies: component.dependencies,
+            },
           }));
         });
-      } catch (e) {
-        console.error("Error while accessing to the network data: ", e);
+      } catch (error) {
+        const res = error.response?.data?.message || error.message;
+        console.error("Error while accessing to the saved network: " + res);
       }
     }
-  }, [
-    networkData,
-    defaultValues,
-    formData.sitesReferenceType,
-    formData.sitesReferenceValue,
-    formData.libraryReferenceType,
-    formData.libraryReferenceValue,
-]);
+  }, [savedValues]);
 
-  const filterVnetOrTnVxlanComponents = useCallback(() => {
-    const filteredComponents = selectedComponent.filter((component) =>
-      component.label.toLowerCase().includes('vnet') || component.label.toLowerCase().includes('tn_vxlan') || component.label.toLowerCase().includes('tn_init')
-    );
-  
-    // Return a list in format "label-name" or just "name"
-    return filteredComponents.map((component) => {
-      const componentForm = componentForms[component.id] || {};
-      if (component.label.toLowerCase().includes('tn_init')) {
-        return 'tn_vxlan';
-      }else{
-        return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
+  // UseEffect to fetch components
+  useEffect(() => {
+    const fetchComponents = async () => {
+      try {
+        const result = await getComponents();
+        setComponents(result.data.components);
+      } catch (error) {
+        // Handle error
+        const res = error.response?.data?.message || error.message;
+        setError("Error while retrieving components: " + res);
       }
-      
-    });
-  }, [selectedComponent, componentForms]);
-  
-  const filterVnetComponents = useCallback(() => {
-    const filteredComponents = selectedComponent.filter((component) =>
-      component.label.toLowerCase().includes('vnet')
-    );
-  
-    // Return a list in format "label-name" or just "name"
-    return filteredComponents.map((component) => {
-      const componentForm = componentForms[component.id] || {};
-      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
-    });
-  }, [selectedComponent, componentForms]);
-  
-  const filterOneKEComponents = useCallback(() => {
-    const filteredComponents = selectedComponent.filter((component) =>
-      component.label.toLowerCase().includes('oneke')
-    );
-  
-    // Return a list in format "label-name" or just "name"
-    return filteredComponents.map((component) => {
-      const componentForm = componentForms[component.id] || {};
-      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
-    });
-  }, [selectedComponent, componentForms]);
-
-  const filterOpen5GsAndUPFComponents = useCallback(() => {
-    const filteredComponents = selectedComponent.filter((component) =>
-      component.label.toLowerCase().includes('open5gs_vm') || component.label.toLowerCase().includes('open5gs_k8s') ||
-      component.label.toLowerCase().includes("open5gcore_vm") || component.label.toLowerCase().includes("upf_p4_sw")
-    );
-  
-    // Return a list in format "label-name" or just "name"
-    return filteredComponents.map((component) => {
-      const componentForm = componentForms[component.id] || {};
-      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
-    });
-  }, [selectedComponent, componentForms]);
-
-  const filterO5gsVMorK8SComponents = useCallback(() => {
-    const filteredComponents = selectedComponent.filter((component) =>
-      component.label.toLowerCase().includes('open5gs_vm') || component.label.toLowerCase().includes('open5gs_k8s')
-    );
-    // Return a list in format "label-name" or just "name"
-    return filteredComponents.map((component) => {
-      const componentForm = componentForms[component.id] || {};
-      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
-    });
-  }, [selectedComponent, componentForms]);
-
-  const filterO5All = useCallback(() => {
-    const filteredComponents = selectedComponent.filter((component) =>
-      component.label.toLowerCase().includes('open5gs_vm') || component.label.toLowerCase().includes('open5gs_k8s') ||
-      component.label.toLowerCase().includes("open5gcore_vm")
-    );
-    // Return a list in format "label-name" or just "name"
-    return filteredComponents.map((component) => {
-      const componentForm = componentForms[component.id] || {};
-      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
-    });
-  }, [selectedComponent, componentForms]);
-
-  const filterUeransimComponents = useCallback(() => {
-    const filteredComponents = selectedComponent.filter((component) =>
-      component.label.toLowerCase().includes('ueransim')
-    );
-  
-    // Return a list in format "label-name" or just "name"
-    return filteredComponents.map((component) => {
-      const componentForm = componentForms[component.id] || {};
-      return componentForm.name ? `${component.label}-${componentForm.name}` : `${component.label}`;
-    });
-  }, [selectedComponent, componentForms]);
-
-
-  const validateForm = () => {
-    const newErrors = {};
-    Object.keys(formData).forEach((key) => {
-      if (!formData[key].trim()) {
-        newErrors[key] = "This field is required";
-      }
-    });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-
-  const validateComps = () => {
-    const requi = getRequiredFields();
-    let newErrors = {}; // Temporal object to store the new errors
-
-    requi.forEach((component) => {
-      const matchedComponent = selectedComponent.find(
-        (comp) => comp.label === component.label &&
-                  (componentForms[comp.id]?.name === component.name)
-      );
-
-      if (matchedComponent) {
-        const componentData = componentForms[matchedComponent.id] || {};
-
-        component.requiredFields.forEach((field) => {
-          if (
-            !componentData.hasOwnProperty(field) || // The error doesnt exist
-            componentData[field] === "" ||         // Is empty
-            componentData[field] === null||      // Is null
-            (Array.isArray(componentData[field]) && componentData[field].length === 0)
-            // Or is null
-          ) {
-            // Add to new errors
-            if (!newErrors[matchedComponent.id]) {
-              newErrors[matchedComponent.id] = {};
-            }
-            newErrors[matchedComponent.id][field] = `The field "${field}" is required for "${component.label}"`;
-          }
-        });
-      }
-    });
-
-    SetCerrors(newErrors); // Update the errors
-    return Object.keys(newErrors).length === 0;
-  };
-
-  
-  const getRequiredFields = () => {
-    return selectedComponent.map((component) => {
-      const componentData = componentForms[component.id] || {};
-      return {
-        label: component.label,
-        name: componentData.name,
-        requiredFields: componentData.required || [], // Get the required fields from the component form
-      };
-    });
-  };
-  
-
-  const handleInputChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
-
-  const handleComponentClick = (label) => {
-    // Define the components that should only have one instance
-    const restrictedComponents = ["tn_bastion", "tn_vxlan", "tsn","tn_init"];
-    
-    // Check if 'tn_init' is already selected, and if the user is trying to add a restricted component
-    const isTnInitSelected = selectedComponent.some((component) => component.label === "tn_init");
-    
-    // If 'tn_init' is selected, prevent adding 'tn_bastion' or 'tn_vxlan'
-    if (isTnInitSelected && (label === "tn_bastion" || label === "tn_vxlan")) {
-      alert(`You cannot add ${label} because tn_init is already selected.`);
-      return;
-    }
-  
-    // Check if the clicked component is in the restricted list and if it's already selected
-    if (restrictedComponents.includes(label)) {
-      const isAlreadySelected = selectedComponent.some((component) => component.label === label);
-      if (isAlreadySelected) {
-        // If already selected, don't add another one
-        alert(`${label} is already selected. Only one instance of this component is allowed.`);
-        return;
-      }
-    }
-  
-    // Add the new component
-    const newComponent = {
-      id: `${label}-${new Date().getTime()}`,
-      label: label,
     };
-  
-    // Update the selected components and forms
-    setSelectedComponent((prevSelected) => [...prevSelected, newComponent]);
-    setComponentForms((prevForms) => ({
-      ...prevForms,
-      [newComponent.id]: {},
-    }));
-  };
-  
+    fetchComponents();
+  }, [temporalData, selectedComponent, tnName]);
 
-  const handleRemoveComponent = (id) => {
-    setSelectedComponent((prevSelected) => prevSelected.filter((component) => component.id !== id));
+  // Filter components based on the search query
+  const filteredComponents = components.filter((component) =>
+    component.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-    setComponentForms((prevForms) => {
-        const { [id]: removed, ...rest } = prevForms;
-        return rest;
-    });
-
-    setChildError((prevErrors) => {
-        const { [id]: removed, ...rest } = prevErrors; // Remove all the errors associated to the component
-        return rest;
-    });
-};
-
-
-  const handleChildError = useCallback((id, field, message) => {
-    setChildError((prevErrors) => {
-      const newErrors = {
-        ...prevErrors,
-        [id]: {
-          ...prevErrors[id],
-          [field]: message,
-        },
-      };
-  
-      // If the message is empty, remove the field from the object
-      if (!message) {
-        delete newErrors[id][field];
-  
-        // If the object is empty, remove the component from the object
-        if (Object.keys(newErrors[id]).length === 0) {
-          delete newErrors[id];
+  // Function to handle the click on a component
+  const handleClick = (component, key, defaultValue) => {
+    // If the component is already selected, open the modal with the data
+    if (defaultValue || key) {
+      setTemporalData(defaultValue);
+      setfocusedComponent({ id: key, name: component });
+      setModalOpen(true);
+    } else {
+      const restrictedComponents = ["tn_bastion", "tn_vxlan", "tn_init", "tsn"];
+      // Check if the component is restricted
+      if (restrictedComponents.includes(component)) {
+        const componentExists = Object.values(selectedComponent).some(
+          (entry) => entry.type === component
+        );
+        if (componentExists) {
+          setModalErrorOpen(true);
+          setErrorMessage(`Error: The component ${component} already exists.`);
+          return;
+        }
+        // Special case for tn_init
+        if (component === "tn_init") {
+          const hasTnInit = Object.values(selectedComponent).some(
+            (entry) => entry.type === "tn_init"
+          );
+          const hasTnVxlan = Object.values(selectedComponent).some(
+            (entry) => entry.type === "tn_vxlan"
+          );
+          const hasTnBastion = Object.values(selectedComponent).some(
+            (entry) => entry.type === "tn_bastion"
+          );
+          if (hasTnInit) {
+            setModalErrorOpen(true);
+            setErrorMessage(
+              "Error: Cannot add tn_init because it already exists."
+            );
+            return;
+          }
+          if (hasTnVxlan || hasTnBastion) {
+            setModalErrorOpen(true);
+            setErrorMessage(
+              "Error: Cannot add tn_init because tn_vxlan or tn_bastion already exist."
+            );
+            return;
+          }
+        }
+        // Special case for tn_vxlan
+        if (component === "tn_vxlan") {
+          const hasTnVxlan = Object.values(selectedComponent).some(
+            (entry) => entry.type === "tn_vxlan"
+          );
+          const hasTnInit = Object.values(selectedComponent).some(
+            (entry) => entry.type === "tn_init"
+          );
+          if (hasTnVxlan || hasTnInit) {
+            setModalErrorOpen(true);
+            setErrorMessage(
+              "Error: Cannot add more tn_vxlan, already one or a tn_init exist."
+            );
+            return;
+          }
+        }
+        //Special case for tn_bastion
+        if (component === "tn_bastion") {
+          const hasTnBastion = Object.values(selectedComponent).some(
+            (entry) => entry.type === "tn_bastion"
+          );
+          const hasTnInit = Object.values(selectedComponent).some(
+            (entry) => entry.type === "tn_init"
+          );
+          if (hasTnBastion || hasTnInit) {
+            setModalErrorOpen(true);
+            setErrorMessage(
+              "Error: Cannot add more tn_bastion, already one or a tn_init exist."
+            );
+            return;
+          }
+        }
+        // TSN only allows one
+        if (
+          component === "tsn" &&
+          Object.values(selectedComponent).some((entry) => entry.type === "tsn")
+        ) {
+          setModalErrorOpen(true);
+          setErrorMessage("Error: Cannot add more than one tsn.");
+          return;
         }
       }
-  
-      return newErrors;
-    });
-  }, []);
-  
+      // Otherwise, add the component
+      const id = Date.now();
+      setfocusedComponent({ id, name: component });
+      setModalOpen(true);
+    }
+  };
 
+  // Handle the error modal
+  const handleCloseErrorModal = () => {
+    setModalErrorOpen(false);
+    setErrorMessage("");
+  };
 
-  const handleComponentFormChange = useCallback((id, fieldName, value) => {
-    setComponentForms((prevForms) => {
+  // Handle the name of the trial network
+  const handleName = (e) => {
+    setTnName(e.target.value);
+  };
+
+  // Close the component modal
+  const handleClose = () => {
+    setfocusedComponent({});
+    setModalOpen(false);
+    setTemporalData({});
+  };
+
+  // Callback to handle the selection of a component (Function sent to the modal)
+  const handleSelect = useCallback((id, fieldName, value) => {
+    setSelectedComponent((prevForms) => {
       const updatedForm = {
         ...prevForms,
         [id]: {
@@ -481,448 +272,381 @@ const CreateTN = (networkData) => {
     });
   }, []);
 
-  const isChildErrorEmpty = (childError) => {
-    const valid= Object.keys(childError).length === 0 ||
-    Object.values(childError).every(value =>
-      value && Object.values(value).every(v => v === null)
-    );
-    if (!valid){
-      return Object.keys(childError)[0];
-    } else {
-      return  valid;
-    }
-  };
-  
-  const validateFields = () => {
-    const isBoolean = (value) => typeof value === 'boolean';
-    const v1= !validateComps();
-    const v2= !validateForm();
-    const v3 = isBoolean(isChildErrorEmpty(childError))
-              ? !isChildErrorEmpty(childError)
-              : isChildErrorEmpty(childError);
-    if (v1 || v2 ) {
-      window.scrollTo({
-          top: 0,
-          behavior: "smooth"
-      });
-      return true;
-    } else if (!isBoolean(v3)){
-        const scroll=document.getElementById(v3);
-        if (scroll!== null){window.scrollTo({
-          top: scroll.offsetTop,
-          behavior: "smooth"
-        });
-      }
-        return true;
-    } else{
-      return false;
-    }
-  }
+  // Callback to remove a component from the selected components (Function sent to the modal)
+  const handleRemoveId = useCallback((id) => {
+    setSelectedComponent((prevForms) => {
+      const updatedForm = { ...prevForms };
+      delete updatedForm[id];
+      return updatedForm;
+    });
+    setfocusedComponent({});
+    setTemporalData({});
+  }, []);
 
-
-  const validateTrialNetworkId = () => {
-    const newErrors = {};
-
-    if (!formData.trialNetworkId || !formData.trialNetworkId.trim()) {
-        newErrors.trialNetworkId = "This field is required";
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth"
-      });
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length !== 0;
-};
-
-
-
+  // Handle the save of the trial network
   const handleSave = () => {
-    if (validateTrialNetworkId()) return;
-    //SEND TO THE BACKEND WITH CREATE
-    const networkData = {
-      formData,
-      components: selectedComponent.map((component) => {
-        const componentData = componentForms[component.id] || {};
-  
-        return {
-          label: component.label, // Use label-name format for the download
-          data: componentData,
-        };
-      }),
-    };
-   
-     (async () => {
-       //Convert the json to yaml
-      const tnInit = selectedComponent.some((component) => component.label === "tn_init");
-      const yamlString = convertJsonToYaml(networkData,tnInit);
-      // Create the blob and download the file
-      let formData3= new FormData();
-      const blob3 = new Blob([yamlString], { type: "text/yaml" });
-      formData3.append("descriptor", blob3, "descriptor.yaml");
+    // Execute the petition to the server
+    (async () => {
       try {
-        await saveTrialNetwork(formData3,formData.trialNetworkId);
-        setSuccess("Trial network saved successfully");
-        setError("");
+        const tnInit = Object.values(selectedComponent).some(
+          (component) => component.type === "tn_init"
+        );
+        const yamlString = convertJsonToYaml(selectedComponent, tnInit);
+        let formDataS = new FormData();
+        const blobV = new Blob([yamlString], { type: "text/yaml" });
+        if (tnName.trim() !== "" && tnName !== null && tnName !== undefined) {
+          formDataS.append("tn_id", tnName);
+        }
+        formDataS.append("descriptor", blobV, "descriptor.yaml");
+        formDataS.append(
+          "library_reference_type",
+          process.env.REACT_APP_LIBRARY_REF
+        );
+        formDataS.append(
+          "library_reference_value",
+          process.env.REACT_APP_LIBRARY_REF_VALUE
+        );
+        if (savedValues !== null && Object.keys(savedValues).length > 0) {
+          await updateTrialNetwork(
+            formDataS,
+            savedValues.savedValues.trialNetworkId
+          );
+        } else {
+          await saveTrialNetwork(formDataS);
+        }
+        setSuccess("Trial Network saved successfully!");
         setTimeout(() => {
           window.location = "/dashboard";
           setSuccess("");
         }, 2502);
       } catch (error) {
+        const res = error.response?.data?.message || error.message;
         setSuccess("");
-        setError("Failed to save trial network \n" + error.message);
-        setTimeout(() => {
-          window.location = "/dashboard";
-          setError("");
-        }, 5002);
+        setModalErrorOpen(true);
+        setErrorMessage("Error: Can not save the TN due to: " + res);
       }
     })();
+  };
+
+  // Handle if the fields of the selected components are eno longer available
+  const handleDependencies = () => {
+    let bool = false;
+    for (const [key, component] of Object.entries(selectedComponent)) {
+      for (const dependency of component.dependencies) {
+        const splited = dependency.split("-");
+        if (splited.length > 1) {
+          bool = Object.values(selectedComponent).some(
+            (entry) =>
+              entry.type === splited[0] && entry.fields.name === splited[1]
+          );
+        } else if (splited.length === 1) {
+          bool = Object.values(selectedComponent).some(
+            (entry) => entry.type === splited[0]
+          );
+        }
+        if (!bool) {
+          selectedComponent[key].dependencies = selectedComponent[
+            key
+          ].dependencies.filter((dep) => dep !== dependency);
+        }
+      }
+    }
+  };
+
+  // Handle the validation of the trial network
+  const handleValidate = () => {
+    // Execute the petition to the server
+    (async () => {
+      try {
+        handleDependencies();
+        const tnInit = Object.values(selectedComponent).some(
+          (component) => component.type === "tn_init"
+        );
+        const yamlString = convertJsonToYaml(selectedComponent, tnInit);
+        let formDataV = new FormData();
+        const blobV = new Blob([yamlString], { type: "text/yaml" });
+        if (tnName.trim() !== "" && tnName !== null && tnName !== undefined) {
+          formDataV.append("tn_id", tnName);
+        }
+        formDataV.append("descriptor", blobV, "descriptor.yaml");
+        formDataV.append(
+          "library_reference_type",
+          String(process.env.REACT_APP_LIBRARY_REF)
+        );
+        formDataV.append(
+          "library_reference_value",
+          String(process.env.REACT_APP_LIBRARY_REF_VALUE)
+        );
+        formDataV.append(
+          "sites_branch",
+          String(process.env.REACT_APP_SITES_BRANCH)
+        );
+        formDataV.append(
+          "deployment_site",
+          String(process.env.REACT_APP_DEPLOYMENT_SITE)
+        );
+        formDataV.append(
+          "deployment_site_token",
+          String(process.env.REACT_APP_DEPLOYMENT_SITE_TOKEN)
+        );
+        await createTrialNetwork(formDataV);
+        setSuccess("Trial Network validated successfully!");
+        setTimeout(() => {
+          window.location = "/dashboard";
+          setSuccess("");
+        }, 2502);
+      } catch (error) {
+        const res = error.response?.data?.message || error.message;
+        setSuccess("");
+        setModalErrorOpen(true);
+        setErrorMessage("Error: Can not save the TN due to: " + res);
+      }
+    })();
+  };
+
+  // Filter and format the selected components to send the data to the modal
+  function filterAndFormatEntries(typesList) {
+    const res = Object.entries(selectedComponent)
+      .filter(([_, value]) => {
+        // If we are searching for tn_vxlan, allow tn_init becouse
+        if (typesList.includes("tn_vxlan") && value.type === "tn_init") {
+          return value;
+        }
+        // For all other cases, just return it
+        return typesList.includes(value.type);
+      })
+      .map(([_, value]) => {
+        // If the component has a name, return it with the type, otherwise just return the type
+        return value.fields?.name
+          ? `${value.type}-${value.fields.name}`
+          : value.type;
+      });
+    return res;
   }
 
-  const handleSubmit = () => {
-    if (validateFields()) {
-      return;
-    }
-      
-    const networkData = {
-      formData,
-      components: selectedComponent.map((component) => {
-        const componentData = componentForms[component.id] || {};
-  
-        return {
-          label: component.label, // Use label-name format for the download
-          data: componentData,
-        };
-      }),
-    };
-    (async () => {
-      // Get the descriptor in YAML format
-      const tnInit= selectedComponent.some((component) => component.label === "tn_init");
-      const yamlString = convertJsonToYaml(networkData,tnInit);
-      
-      // Create the FormData
-      let formData2 = new FormData();
-      const blob2 = new Blob([yamlString], { type: "text/yaml" });
-      formData2.append("descriptor", blob2, "descriptor.yaml");
-      // Build the URL
-      
-      try {
-          let url = `${process.env.REACT_APP_TNLCM_BACKEND_API}/tnlcm/trial-network/create-validate?tn_id=${formData.trialNetworkId}&library_reference_type=${formData.libraryReferenceType}&library_reference_value=${formData.libraryReferenceValue}&sites_branch=${formData.sitesReferenceValue}&deployment_site=${formData.deploymentSite}`
-          await createTrialNetwork(formData2,url);
-          setSuccess("Trial network deployed successfully");
-          setError("");
-          setTimeout(() => {
-            window.location = "/dashboard";
-            setSuccess("");
-          }, 2502);
-      } catch (error) {
-          setSuccess("");
-          setError("Failed to deploy trial network \n" + error);
-          setTimeout(() => {
-             window.location = "/dashboard";
-            setError("");
-          }, 5002);
-      }
-  })();
-  };
-  
-  const switchComponent = (component, removeComponent, handleComponentFormChange, handleChildError) => {
-    const request = [formData.libraryReferenceType,formData.libraryReferenceValue,component.label];
-    switch (component.label) {
-      case "berlin_ran":
-        const lbrOKE=filterOneKEComponents();
-        const lbrO5=filterO5All();
-        return <BerlinRan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lbrOKE} list2={lbrO5} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "elcm":
-        return <Elcm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "iswireless_radio":
-        const lIswrO5=filterO5gsVMorK8SComponents();
-        return <IswirelessRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lIswrO5} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>
-      case "ixc_endpoint":
-        const lIxeTNV=filterVnetOrTnVxlanComponents();
-        return <IxcEndpoint id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={lIxeTNV} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "ks8500_runner":
-        const listKS8 =filterVnetOrTnVxlanComponents();
-        return <Ks8500Runner id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listKS8} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "loadcore_agent":
-        const listLCA= filterVnetOrTnVxlanComponents();
-        return <LoadcoreAgent id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listLCA} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "nokia_radio":
-        const listNokia=filterO5gsVMorK8SComponents();
-        return <NokiaRadio id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listNokia} whenError={handleChildError} defaultValues={component.defaultValues }name={component.name} request={request}/>;
-      case "ocf":
-        const listOCF=filterOneKEComponents();
-        return <Ocf id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOCF} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "oneKE":
-        const listO1=filterVnetOrTnVxlanComponents();
-        const listO2=filterVnetComponents();
-        return <OneKe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO1} list2={listO2} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "open5gcore_vm":
-        const listO5C1=filterVnetOrTnVxlanComponents();
-        const listO5C2=filterVnetComponents();
-        return <Open5gcoreVM id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO5C1} list2={listO5C2} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "open5gs_k8s":
-        const listO5K1=filterOneKEComponents();
-        return <Open5gsK8S id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listO5K1} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>
-      case "open5gs_vm":
-        const listO5SVM=filterVnetOrTnVxlanComponents();
-        return <Open5gcoreVM id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listO5SVM} list2={listO5SVM} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "opensand_gw":
-        const listOGW=filterVnetOrTnVxlanComponents();
-        return <OpensandGw id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOGW} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "opensand_sat":
-        const listOSAT=filterVnetOrTnVxlanComponents();
-        return <OpensandSat id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOSAT} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "opensand_st":
-        const listOST=filterVnetOrTnVxlanComponents();
-        return <OpensandSt id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listOST} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "stf_ue":
-        return <StfUe id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "tn_bastion":
-        return <TnBastion id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "tn_init":
-        return <TnInit id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "tn_vxlan":
-        return <TnVxlan id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "tsn":
-        return <Tsn id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "ueransim":
-        const listUE1=filterVnetOrTnVxlanComponents();
-        const listUE2=filterOpen5GsAndUPFComponents();
-        const listUE3=filterUeransimComponents();
-        return <Ueransim id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list1={listUE1} list2={listUE2} list3={listUE3} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "upf_p4_sw":
-        const listUPF=filterVnetOrTnVxlanComponents();
-        return <UpfP4Sw id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listUPF} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "vm_kvm":
-        const listVK=filterVnetOrTnVxlanComponents();
-        return <VmKvm id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listVK} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "vnet":
-        return <Vnet id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} whenError={handleChildError} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      case "xrext":
-        const listXR=filterVnetOrTnVxlanComponents();
-        return <Xrext id={component.id} removeComponent={removeComponent} onChange={handleComponentFormChange} list={listXR} defaultValues={component.defaultValues} name={component.name} request={request}/>;
-      default:
-        return <NvoModal component={component} removeComponent={removeComponent} defaultValues={component.defaultValues} name={component.name}/>;
-    }
-  };
-
   return (
-    <div className="bg-white font-sans">
+    <div>
       <TopNavigator />
-      <div className="flex flex-col lg:flex-row p-4">
-        <div className="lg:w-1/2 space-y-4 justify-center p-4">
-          <div>
-            <label htmlFor="trial-network-id" className="block text-gray-700 font-medium">
-              TRIAL NETWORK ID
-            </label>
-            <input
-              id="trial-network-id"
-              name="trialNetworkId"
-              type="text"
-              placeholder="tn_id"
-              className={`w-full border p-2 mt-1 rounded-md ${errors.trialNetworkId ? "border-red-500" : "border-gray-300"}`}
-              value={formData.trialNetworkId}
-              readOnly={ID}
-              onChange={handleInputChange}
+      <div className="flex flex-col items-center p-4">
+        <h1 className="text-2xl font-bold mb-4">Create New Trial Network</h1>
+        <TextField
+          variant="outlined"
+          value={tnName || ""}
+          label="Trial Network Name"
+          placeholder="Optional"
+          onChange={handleName}
+          type="string"
+          className="mb-2"
+        />
+        <div className="flex w-full gap-4">
+          {/* Components List to the left */}
+          <Box
+            sx={{
+              width: "30%",
+              display: "flex",
+              flexDirection: "column",
+              marginRight: "auto",
+            }}
+          >
+            {/* TextField */}
+            <TextField
+              label="Search Components"
+              variant="outlined"
+              fullWidth
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            {errors.trialNetworkId && <p className="text-red-500 text-sm mt-1">{errors.trialNetworkId}</p>}
-          </div>
 
-          <div>
-            <label htmlFor="library-reference-type" className="block text-gray-700 font-medium">
-              LIBRARY REFERENCE TYPE
-            </label>
-            <select
-              id="library-reference-type"
-              name="libraryReferenceType"
-              className={`w-full border p-2 mt-1 rounded-md ${errors.libraryReferenceType ? "border-red-500" : "border-gray-300"}`}
-              value={formData.libraryReferenceType}
-              onChange={handleInputChange}
+            {/* Scroll List */}
+            <Box
+              sx={{
+                width: "100%",
+                maxHeight: "70vh",
+                overflowY: "auto",
+                padding: 2,
+                border: "1px solid #ddd",
+                borderRadius: 2,
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "space-between",
+                gap: 2,
+                boxSizing: "border-box",
+              }}
             >
-              <option value="" disabled>--Select a site--</option>
-              {libraryTypes && Object.entries(libraryTypes).map(([key, value], index) => (
-                <option key={index} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-            {errors.libraryReferenceType && <p className="text-red-500 text-sm mt-1">{errors.libraryReferenceType}</p>}
-          </div>
+              {filteredComponents.length > 0 ? (
+                filteredComponents.map((component, index) => (
+                  <ButtonBase
+                    key={index}
+                    onClick={() => handleClick(component)}
+                    className="focus:outline-none"
+                  >
+                    <Card className="w-24 hover:shadow-md transition-shadow gap-4">
+                      <CardMedia
+                        component="img"
+                        height="40"
+                        image={`/icons/${component}.png`}
+                        alt={component}
+                      />
+                      <CardContent className="p-1">
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          className="text-center"
+                        >
+                          {component}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </ButtonBase>
+                ))
+              ) : (
+                <img
+                  src="/loading.gif"
+                  alt="Loading..."
+                  style={{ width: "50px" }}
+                />
+              )}
+            </Box>
+          </Box>
 
-          <div>
-            <label htmlFor="library-reference-value" className="block text-gray-700 font-medium">
-              LIBRARY REFERENCE VALUE
-            </label>
-            <select
-              id="library-reference-value"
-              name="libraryReferenceValue"
-              className={`w-full border p-2 mt-1 rounded-md ${errors.libraryReferenceValue ? "border-red-500" : "border-gray-300"}`}
-              value={formData.libraryReferenceValue}
-              onChange={handleInputChange}
+          {/* Component Modal */}
+          <Component
+            open={modalOpen}
+            handleClose={handleClose}
+            component={focusedComponent}
+            onChange={handleSelect}
+            handleRemove={handleRemoveId}
+            defaultValues={temporalData}
+            filter={filterAndFormatEntries}
+          />
+
+          {/* Modal Error when opening existant components */}
+          <Modal
+            open={modalErrorOpen}
+            onClose={handleCloseErrorModal}
+            className="flex items-center justify-center"
+          >
+            <Box
+              sx={{
+                width: "400px",
+                maxWidth: "90%",
+                padding: "20px",
+                backgroundColor: "white",
+                borderRadius: 4,
+                boxShadow: 24,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                flexDirection: "column",
+              }}
             >
-              <option value=""   disabled>--Select a site--</option>
-              {libraryValues && Object.entries(libraryValues).map(([key, value], index) => (
-                <option key={index} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-            {errors.libraryReferenceValue && <p className="text-red-500 text-sm mt-1">{errors.libraryReferenceValue}</p>}
-          </div>
+              <Typography variant="h6" color="error">
+                {errorMessage}
+              </Typography>
+              <Button
+                onClick={handleCloseErrorModal}
+                variant="contained"
+                color="primary"
+                sx={{ marginTop: 2 }}
+              >
+                Close
+              </Button>
+            </Box>
+          </Modal>
 
-          <div>
-            <label htmlFor="sites-reference-type" className="block text-gray-700 font-medium">
-              SITES REFERENCE TYPE
-            </label>
-            <select
-              id="sites-reference-type"
-              name="sitesReferenceType"
-              className={`w-full border p-2 mt-1 rounded-md ${errors.sitesReferenceType ? "border-red-500" : "border-gray-300"}`}
-              value={formData.sitesReferenceType}
-              onChange={handleInputChange}
-            >
-              <option value=""   disabled>-- Select an option --</option>
-              <option value="branch">branch</option>
-            </select>
-            {errors.sitesReferenceType && <p className="text-red-500 text-sm mt-1">{errors.sitesReferenceType}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="sites-reference-value" className="block text-gray-700 font-medium">
-              SITES REFERENCE VALUE
-            </label>
-            <select
-              id="sites-reference-value"
-              name="sitesReferenceValue"
-              type="text"
-              className={`w-full border p-2 mt-1 rounded-md ${errors.sitesReferenceValue ? "border-red-500" : "border-gray-300"}`}
-              value={formData.sitesReferenceValue}
-              onChange={handleInputChange}
-            >
-              <option value=""  disabled>--Select a site--</option>
-              {sites && Object.entries(sites).map(([key, value], index) => (
-                <option key={index} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-            {errors.sitesReferenceValue && <p className="text-red-500 text-sm mt-1">{errors.sitesReferenceValue}</p>}
-          </div>
-
-
-          <div>
-            <label htmlFor="deployment-site" className="block text-gray-700 font-medium">
-              DEPLOYMENT SITE
-            </label>
-            <select
-              id="deployment-site"
-              name="deploymentSite"
-              className={`w-full border p-2 mt-1 rounded-md ${errors.deploymentSite ? "border-red-500" : "border-gray-300"}`}
-              value={formData.deploymentSite}
-              onChange={handleInputChange}
-            >
-              <option value=""  disabled>--Select a site--</option>
-              {deployement && Object.entries(deployement).map(([key, value], index) => (
-                <option key={index} value={value}>
-                  {value}
-                </option>
-              ))}
-            </select>
-            {errors.deploymentSite && <p className="text-red-500 text-sm mt-1">{errors.deploymentSite}</p>}
+          {/* Content in the right */}
+          <div className="w-1/2 flex flex-col items-center mr-auto">
+            {selectedComponent &&
+            Object.entries(selectedComponent).length > 0 ? (
+              <>
+                <h2 className="text-xl font-bold mb-4">Selected Components</h2>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: 4,
+                    justifyContent: "center",
+                    alignItems: "flex-start",
+                    border: "2px solid black",
+                    borderRadius: "8px",
+                    padding: 2,
+                    height: "fit-content",
+                    margin: "0 auto",
+                  }}
+                >
+                  {Object.entries(selectedComponent).map(
+                    ([key, component], index) => (
+                      <ButtonBase
+                        key={index}
+                        onClick={() =>
+                          handleClick(component.type, key, component)
+                        }
+                      >
+                        <Card className="w-24 hover:shadow-md transition-shadow">
+                          <CardMedia
+                            component="img"
+                            height="40"
+                            image={`/icons/${component.type}.png`}
+                            alt={component.type}
+                          />
+                          <CardContent className="p-1">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                              className="text-center"
+                            >
+                              {component.type}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </ButtonBase>
+                    )
+                  )}
+                </Box>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center">
+                <p className="text-gray-500">No selected components yet.</p>
+              </div>
+            )}
           </div>
         </div>
-        
-        <div className="lg:w-1/2 grid grid-cols-4 gap-4 mt-8 lg:mt-0">
-          {allComp.map((label, index) => (
-            <button
-              key={index}
-              type="button"
-              className="flex flex-col items-center"
-              title={label}
-              onClick={() => handleComponentClick(label)}
-            >
-              <img
-                src={`/icons/${label}.png`}
-                alt={`${label} logo`}
-              />
-              <span className="text-sm mt-2">{label}</span>
-            </button>
-          ))}
+
+        <div className="flex gap-4 mt-4">
+          {/* Validate Button */}
+          <Button
+            onClick={handleValidate}
+            variant="contained"
+            style={{ backgroundColor: "#6B21A8" }}
+          >
+            Validate
+          </Button>
+
+          {/* Save Button */}
+          <Button
+            onClick={handleSave}
+            variant="contained"
+            style={{ backgroundColor: "#6B21A8" }}
+          >
+            Save
+          </Button>
         </div>
 
-        </div>
-        
-        {Object.keys(Cerrors).length > 0 && (
-          <div  id="Cerror" className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg">
-            <h3 className="font-bold text-lg">Components errors:</h3>
-            <ul className="list-disc pl-5">
-              {Object.entries(Cerrors).map(([componentId, fields]) => (
-                <li key={componentId}>
-                  <strong>Component {componentId}:</strong>
-                  <ul className="list-disc pl-5">
-                    {Object.entries(fields).map(([field, message]) => (
-                      <li key={field} className="text-sm">{message}</li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Error if something is wrong */}
+        {error && (
+          <p className="flex flex-col items-center justify-center text-red-500 mt-4">
+            {error}
+          </p>
         )}
-
-        {Object.keys(childError).length > 0 && (
-          <div  id="ChError" className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg">
-            <h3 className="font-bold text-lg">Childs errors:</h3>
-            <ul className="list-disc pl-5">
-              {Object.entries(childError).map(([componentId, fields]) => (
-                <li key={componentId}>
-                  <strong>Component {componentId}:</strong>
-                  <ul className="list-disc pl-5">
-                    {Object.entries(fields).map(([field, message]) => (
-                      <li key={field} className="text-sm">{message}</li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
-            </ul>
-          </div>
+        {/* Success message if everything is fine */}
+        {success && (
+          <p className="flex flex-col items-center justify-center text-green-500 mt-4">
+            {success}
+          </p>
         )}
-
-
-
-      <div className="p-4">
-        {selectedComponent.map((component) => (
-          <div id={component.id}  key={component.id} className="border rounded p-4 mb-4">
-            {switchComponent(component, handleRemoveComponent, handleComponentFormChange, handleChildError)}
-          </div>
-        ))}
       </div>
-
-     <div className="p-4 flex justify-center items-center">
-      {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
-      {success && <div className="mb-4 text-green-500 text-sm">{success}</div>}
     </div>
-    
-    <div className="p-4 flex justify-center items-center space-x-4">
-      <button
-        type="button"
-        className="bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-purple-500"
-        onClick={handleSubmit}
-      >
-        Deploy Network
-      </button>
-      <button
-        type="button"
-        className="bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-500"
-        onClick={handleSave}
-      >
-        Save for later
-      </button>
-    </div>
-  </div>
   );
 };
 
 export default CreateTN;
-

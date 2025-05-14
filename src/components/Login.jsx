@@ -1,7 +1,7 @@
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import React, { useState } from "react";
+import { loginUser } from "../auxFunc/api";
 import CreateAccount from "./CreateAccount";
 import Footer from "./Footer";
 import TopNavigator from "./TopNavigator";
@@ -13,34 +13,46 @@ const Login = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-
   const handleLogin = async (e) => {
     e.preventDefault(); // Prevents the default form submission behavior
+
+    if (!user && !password) {
+      setError("Username and password are required.");
+      return;
+    } else if (!user) {
+      setError("Username is required.");
+      return;
+    } else if (!password) {
+      setError("Password is required.");
+      return;
+    }
+
     try {
-      const response = await loginUser(user, password, { timeout: 5000 }); // Five seconds timeout
-  
+      const response = await loginUser(user, password, { timeout: 3000 }); // Three seconds timeout
+
       // Supposing server sent us a JSON with access_token and refresh_token
       const accessToken = response.data.access_token;
       const refreshToken = response.data.refresh_token;
-  
+
       // Save access_token in sessionStorage (only for this session)
       sessionStorage.setItem("access_token", accessToken);
       // Save refresh_token in localStorage (multiple sessions)
       localStorage.setItem("refresh_token", refreshToken);
-  
+
       setSuccess("Login successful!");
       setError(""); // Clean error message
       setTimeout(() => {
         window.location = "/dashboard";
       }, 1002);
     } catch (err) {
+      setSuccess(""); // Clean success message
       // Different error handling
       if (err.response) {
         // Server responded with an error status code
         if (err.response.status === 404) {
           setError("The server is not responding.");
         } else {
-          setError(err.message || "Login failed. Please try again.");
+          setError("Login failed: " + err || "Login failed. Please try again.");
         }
       } else if (err.code === "ECONNABORTED") {
         // Timeout error
@@ -50,14 +62,10 @@ const Login = () => {
         setError("Network error. Please check your internet connection.");
       } else {
         // Other errors
-        setError( "Login failed. Please try again later.");
+        setError("Login failed: " + err);
       }
-      setSuccess(""); // Clean success message
     }
   };
-  
-
-
 
   return (
     <div className="bg-white font-sans min-h-screen flex flex-col relative">
@@ -69,7 +77,10 @@ const Login = () => {
             <form onSubmit={handleLogin} className="w-full space-y-4">
               {/* Mail input */}
               <div className="w-full mb-4">
-                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="username"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Username
                 </label>
                 <div className="relative">
@@ -82,14 +93,19 @@ const Login = () => {
                     onChange={(e) => setUser(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   />
-                  <FontAwesomeIcon icon={faEnvelope} className="absolute right-3 top-3 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faEnvelope}
+                    className="absolute right-3 top-3 text-gray-400"
+                  />
                 </div>
               </div>
 
-
               {/* Password input */}
               <div className="w-full mb-6">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -102,13 +118,20 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   />
-                  <FontAwesomeIcon icon={faLock} className="absolute right-3 top-3 text-gray-400" />
+                  <FontAwesomeIcon
+                    icon={faLock}
+                    className="absolute right-3 top-3 text-gray-400"
+                  />
                 </div>
               </div>
 
               {/* Error or succesful messages */}
-              {error && <div className="mb-4 text-red-500 text-sm">{error}</div>}
-              {success && <div className="mb-4 text-green-500 text-sm">{success}</div>}
+              {error && (
+                <div className="mb-4 text-red-500 text-sm">{error}</div>
+              )}
+              {success && (
+                <div className="mb-4 text-green-500 text-sm">{success}</div>
+              )}
 
               {/* Buttons */}
               <div className="flex space-x-4">
@@ -149,32 +172,3 @@ const Login = () => {
 };
 
 export default Login;
-
-export async function loginUser(username, password, config = {}) {
-  const authString = `${username}:${password}`;
-  const encodedAuth = window.btoa(unescape(encodeURIComponent(authString))); // Special encoding for base64
-  const basicAuthHeader = `Basic ${encodedAuth}`;
-
-  try {
-    const url = process.env.REACT_APP_TNLCM_BACKEND_API;
-    // Make the POST request to the login endpoint
-    const response = await axios.post(
-      `${url}/tnlcm/user/login`,
-      {},
-      {
-        headers: {
-          Authorization: basicAuthHeader, // Authorization header with basic auth
-          "Content-Type": "application/json",
-        },
-        ...config, // Add any other configuration
-      }
-    );
-
-    // Return the response
-    return response;
-  } catch (error) {
-    // Make sure to return the error
-    throw error;
-  }
-}
-
