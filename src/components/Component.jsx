@@ -66,41 +66,6 @@ const Component = ({
     }
   }, [component, open, onChange, defaultValues, handleSendClose]);
 
-  // UseEffect to delete the fields that are no longer available
-  useEffect(() => {
-    if (!data) return;
-    for (const [key, value] of Object.entries(data?.component?.input)) {
-      if (value.type.match(/^list\[(.+)\]$/)) {
-        // Check if the field value is filled
-        if (!fieldValues[key]) break;
-        for (const field of fieldValues[key]) {
-          if (filter(parseTypeString(value.type)).includes(field)) {
-            setFieldValues((prevState) => {
-              const updatedValues = { ...prevState };
-              updatedValues[key] = updatedValues[key]?.filter(
-                (val) => val !== field
-              );
-              return updatedValues;
-            });
-          }
-        }
-      } else if (value.type.includes(" or ")) {
-        const parsedOptions = parseOrSeparatedString(value.type);
-        // Check if the field value is filled
-        if (!fieldValues[key]) break;
-        if (parsedOptions.includes(fieldValues[key])) {
-          setFieldValues((prevState) => {
-            const updatedValues = { ...prevState };
-            updatedValues[key] = updatedValues[key]?.filter(
-              (val) => val !== fieldValues[key]
-            );
-            return updatedValues;
-          });
-        }
-      }
-    }
-  }, [data, fieldValues, filter]);
-
   // Remove the component from the list
   const handleSendRemove = () => {
     handleRemove(component.id);
