@@ -62,12 +62,12 @@ else
 fi
 
 echo "Copying .env.template to .env..."
-cp ${FRONTEND_PATH}/.env.template ${FRONTEND_PATH}/.env
+cp ${FRONTEND_PATH}/.env.template ${FRONTEND_DOTENV_FILE}
 
 HOST_IP=$(hostname -I | awk '{print $1}')
 echo "Updating the .env file..."
 REACT_APP_TNLCM_BACKEND_API="http://${HOST_IP}:5000/api/v1"
-sed -i "s/^REACT_APP_TNLCM_BACKEND_API=.*/REACT_APP_TNLCM_BACKEND_API=\"${REACT_APP_TNLCM_BACKEND_API}\"/" ${FRONTEND_DOTENV_FILE}
+sed -i "s|^REACT_APP_TNLCM_BACKEND_API=.*|REACT_APP_TNLCM_BACKEND_API=${REACT_APP_TNLCM_BACKEND_API}|" "${FRONTEND_DOTENV_FILE}"
 echo "Prompting user for configuration details..."
 read -rp "Name of the branch in 6G-Sandbox-Sites repository to deploy the trial networks: " REACT_APP_SITES_BRANCH
 read -rp "Enter the Name of directory in branch REACT_APP_SITES_BRANCH to deploy the trial networks: " REACT_APP_DEPLOYMENT_SITE
