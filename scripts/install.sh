@@ -58,7 +58,7 @@ if [[ -d ${FRONTEND_PATH} ]]; then
     echo "TNLCM repository already cloned"
 else
     echo "Cloning TNLCM repository..."
-    git clone https://github.com/6G-SANDBOX/TNLCM ${FRONTEND_PATH}
+    git clone https://github.com/6G-SANDBOX/TNLCM_FRONTEND ${FRONTEND_PATH}
 fi
 
 echo "Copying .env.template to .env..."
@@ -66,39 +66,33 @@ cp ${FRONTEND_PATH}/.env.template ${FRONTEND_PATH}/.env
 
 HOST_IP=$(hostname -I | awk '{print $1}')
 echo "Updating the .env file..."
-REACT_APP_TNLCM_BACKEND_API="http://${HOST_IP}:3000"
+REACT_APP_TNLCM_BACKEND_API="http://${HOST_IP}:5000/api/v1"
 sed -i "s/^REACT_APP_TNLCM_BACKEND_API=.*/REACT_APP_TNLCM_BACKEND_API=\"${REACT_APP_TNLCM_BACKEND_API}\"/" ${FRONTEND_DOTENV_FILE}
+echo "Prompting user for configuration details..."
+read -rp "Name of the branch IN 6G-Sandbox-Sites repository to deploy the trial networks: " REACT_APP_SITES_BRANCH
+read -rp "Enter the Name of directory in branch REACT_APP_SITES_BRANCH to deploy the trial networks: " REACT_APP_DEPLOYMENT_SITE
+read -rp "Token to encrypt and decrypt the 6G-Sandbox-Sites repository files for your site using Ansible Vault: " REACT_APP_DEPLOYMENT_SITE_TOKEN
+
+sed -i "s/^REACT_APP_SITES_BRANCH=.*/REACT_APP_SITES_BRANCH=\"${REACT_APP_SITES_BRANCH}\"/" ${FRONTEND_DOTENV_FILE}
+sed -i "s/^REACT_APP_DEPLOYMENT_SITE=.*/REACT_APP_DEPLOYMENT_SITE=\"${REACT_APP_DEPLOYMENT_SITE}\"/" ${FRONTEND_DOTENV_FILE}
+sed -i "s/^REACT_APP_DEPLOYMENT_SITE_TOKEN=.*/REACT_APP_DEPLOYMENT_SITE_TOKEN=\"${REACT_APP_DEPLOYMENT_SITE_TOKEN}\"/" ${FRONTEND_DOTENV_FILE}
 
 echo "Installing TNLCM dependencies..."
 npm --prefix ${FRONTEND_PATH}/ install
 
-echo "--------------- Installing nginx ---------------"
-apt-get install -y nginx
-sudo mkdir -p /etc/nginx/ssl
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/ssl/tnlcm.key -out /etc/nginx/ssl/tnlcm.crt -subj "/CN=${HOST_IP}"
-cat > /etc/nginx/sites-enabled/tnlcm << EOF
-server {
-    listen 80;
-    server_name ${HOST_IP};
-    return 301 https://\$host\$request_uri;
-}
-server {
-    listen 443 ssl;
-    server_name ${HOST_IP};
-    ssl_certificate /etc/nginx/ssl/tnlcm.crt;
-    ssl_certificate_key /etc/nginx/ssl/tnlcm.key;
-    location / {
-        proxy_pass http://127.0.0.1:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host \$host;
-        proxy_cache_bypass \$http_upgrade;
-    }
-}
+cat > /etc/systemd/system/tnlcm-frontend.service << EOF
+[Unit]
+Description=TNLCM Frontend
+
+[Service]
+Type=simple
+WorkingDirectory=${FRONTEND_PATH}/
+ExecStart=/bin/bash -c '/usr/bin/npm run dev'
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
 EOF
 
-systemctl restart nginx
-
-cd ${FRONTEND_PATH} || exit
-npm run start
+systemctl daemon-reload
+systemctl enable --now tnlcm-frontend.service
