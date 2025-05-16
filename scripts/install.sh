@@ -69,7 +69,7 @@ echo "Updating the .env file..."
 REACT_APP_TNLCM_BACKEND_API="http://${HOST_IP}:5000/api/v1"
 sed -i "s/^REACT_APP_TNLCM_BACKEND_API=.*/REACT_APP_TNLCM_BACKEND_API=\"${REACT_APP_TNLCM_BACKEND_API}\"/" ${FRONTEND_DOTENV_FILE}
 echo "Prompting user for configuration details..."
-read -rp "Name of the branch IN 6G-Sandbox-Sites repository to deploy the trial networks: " REACT_APP_SITES_BRANCH
+read -rp "Name of the branch in 6G-Sandbox-Sites repository to deploy the trial networks: " REACT_APP_SITES_BRANCH
 read -rp "Enter the Name of directory in branch REACT_APP_SITES_BRANCH to deploy the trial networks: " REACT_APP_DEPLOYMENT_SITE
 read -rp "Token to encrypt and decrypt the 6G-Sandbox-Sites repository files for your site using Ansible Vault: " REACT_APP_DEPLOYMENT_SITE_TOKEN
 
