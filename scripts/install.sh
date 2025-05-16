@@ -87,7 +87,7 @@ Description=TNLCM Frontend
 [Service]
 Type=simple
 WorkingDirectory=${FRONTEND_PATH}/
-ExecStart=/bin/bash -c '/usr/bin/npm run dev'
+ExecStart=/bin/bash -c '/usr/bin/npm start'
 Restart=always
 
 [Install]
