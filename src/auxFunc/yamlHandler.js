@@ -47,14 +47,13 @@ const convertJsonToYaml = (json, tnInit) => {
       ) {
         yamlString += `\n`;
       }
-      if (component.dependencies.includes("tn_vxlan")){
+      if (component.dependencies.includes("tn_vxlan")) {
         yamlString += `      - "tn_bastion"\n`;
       } else if (component.dependencies.includes("tn_init")) {
-        
       } else {
         tnInit
-        ? (yamlString += `      - "tn_init"\n`)
-        : (yamlString += `      - "tn_vxlan"\n      - "tn_bastion"\n`);
+          ? (yamlString += `      - "tn_init"\n`)
+          : (yamlString += `      - "tn_vxlan"\n      - "tn_bastion"\n`);
       }
     }
     // Input of the component from the form data
@@ -66,16 +65,22 @@ const convertJsonToYaml = (json, tnInit) => {
         // Only add the real input and not the name or required field that are used for other things internally
         if (key !== "name") {
           if (isBoolean(value)) {
-            yamlString += `      ${key}: ${capitalizeFirstLetter(value)}\n`;
+            yamlString += `      ${key}: ${value}\n`;
           } else {
             if (isNotEmpty(value))
               Number.isInteger(value)
                 ? (yamlString += `      ${key}: ${value}\n`)
+                : (tnInit && value === "tn_init")
+                ? (yamlString += `      ${key}: "tn_vxlan"\n`)
                 : (yamlString += `      ${key}: "${value}"\n`);
             if (Array.isArray(value)) {
               yamlString += `      ${key}: \n`;
               value.forEach((item) => {
-                yamlString += `        - "${item}"\n`;
+                if (tnInit && item === "tn_init") {
+                  yamlString += `        - "tn_vxlan"\n`;
+                } else {
+                  yamlString += `        - "${item}"\n`;
+                }
               });
             }
           }
@@ -90,7 +95,7 @@ const convertJsonToYaml = (json, tnInit) => {
 };
 
 function isBoolean(value) {
-  return value === true || value === false;
+  return (value === "true") || (value === "false");
 }
 
 function isNotEmpty(value) {
@@ -98,10 +103,6 @@ function isNotEmpty(value) {
     (typeof value === "string" && value.trim().length > 0) ||
     (typeof value === "number" && !isNaN(value))
   );
-}
-
-function capitalizeFirstLetter(str) {
-  return str === true ? "True" : str === false ? "False" : str;
 }
 
 function hasValues(diccionario) {

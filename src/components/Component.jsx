@@ -271,7 +271,7 @@ const Component = ({
                             value={fieldValues[key] || ""}
                             label={key}
                             placeholder={
-                              value.defaultValues
+                              value.default_value
                                 ? String(value.default_value)
                                 : ""
                             }
@@ -293,7 +293,7 @@ const Component = ({
                           value={fieldValues[key] || ""}
                           label={key}
                           placeholder={
-                            value.defaultValues
+                            value.default_value
                               ? String(value.default_value)
                               : ""
                           }
