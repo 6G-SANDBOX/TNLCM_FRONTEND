@@ -99,7 +99,7 @@ const CreateTN = (savedValues) => {
         ) {
           return;
         }
-
+        setTnName(savedValues.savedValues.tn_id);
         Object.keys(
           savedValues.savedValues.raw_descriptor.trial_network
         ).forEach((key) => {
