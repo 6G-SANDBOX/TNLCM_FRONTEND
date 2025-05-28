@@ -49,6 +49,8 @@ const convertJsonToYaml = (json, tnInit) => {
       }
       if (component.dependencies.includes("tn_vxlan")){
         yamlString += `      - "tn_bastion"\n`;
+      } else if (component.dependencies.includes("tn_init")) {
+        
       } else {
         tnInit
         ? (yamlString += `      - "tn_init"\n`)
