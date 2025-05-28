@@ -20,19 +20,39 @@ const convertJsonToYaml = (json, tnInit) => {
     ) {
       yamlString += `\n`;
       component.dependencies.forEach((dependency) => {
-        //If the dependency is tn_init, then it will be added tn_vxlan as a dependency
+        //If the dependency is tn_vxlan, but we are working with tn_init, then it will be added tn_init as a dependency
         tnInit && dependency === "tn_vxlan"
           ? (yamlString += `      - "tn_init"\n`)
           : (yamlString += `      - "${dependency}"\n`);
       });
-    } else {
-      if (component.type === "tn_init" || component.type === "tn_vxlan") {
-        yamlString += ` []\n`;
-      } else {
+    }
+    if (component.type === "tn_init" || component.type === "tn_vxlan") {
+      yamlString += ` []\n`;
+    } else if (component.type === "tn_bastion") {
+      if (
+        !(
+          component.dependencies &&
+          component.dependencies.some((dependency) => dependency.trim() !== "")
+        )
+      ) {
         yamlString += `\n`;
+      }
+      yamlString += `      - "tn_vxlan"\n`;
+    } else {
+      if (
+        !(
+          component.dependencies &&
+          component.dependencies.some((dependency) => dependency.trim() !== "")
+        )
+      ) {
+        yamlString += `\n`;
+      }
+      if (component.dependencies.includes("tn_vxlan")){
+        yamlString += `      - "tn_bastion"\n`;
+      } else {
         tnInit
-          ? (yamlString += `      - "tn_init"\n`)
-          : (yamlString += `      - "tn_vxlan"\n`);
+        ? (yamlString += `      - "tn_init"\n`)
+        : (yamlString += `      - "tn_vxlan"\n      - "tn_bastion"\n`);
       }
     }
     // Input of the component from the form data

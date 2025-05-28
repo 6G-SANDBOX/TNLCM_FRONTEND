@@ -12,7 +12,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getComponent } from "../auxFunc/api";
 
 const Component = ({
@@ -82,16 +82,21 @@ const Component = ({
 
   // Handle the select input fields
   const handleSelect = (key) => (event) => {
+    const previousValue = fieldValues[key]; // Guardamos el valor actual antes de actualizarlo
+    const newValue = event.target.value;
     setFieldValues({
       ...fieldValues,
-      [key]: event.target.value,
+      [key]: newValue,
     });
     setDependencies((prevState) => {
-      const updatedDependencies = [...prevState];
-      if (event.target.value) {
-        updatedDependencies.push(event.target.value);
-      } else {
-        updatedDependencies.pop(event.target.value);
+      let updatedDependencies = [...prevState];
+      if (previousValue) {
+        updatedDependencies = updatedDependencies.filter(
+          (item) => item !== previousValue
+        );
+      }
+      if (newValue) {
+        updatedDependencies.push(newValue);
       }
       return updatedDependencies;
     });
@@ -220,7 +225,7 @@ const Component = ({
                   onChange={handleChange("name")}
                   type="text"
                   className="mb-2"
-                  error={!fieldValues["name"]}
+                  error={!fieldValues["name"] ? true : undefined}
                 />
               )}
               {data.component?.input && typeof data.component.input === "object"
@@ -245,7 +250,11 @@ const Component = ({
                               value={fieldValues[key] || ""}
                               onChange={handleChange(key)}
                               label={key}
-                              error={!fieldValues[key] && value.required_when}
+                              error={
+                                !fieldValues[key] && value.required_when
+                                  ? true
+                                  : undefined
+                              }
                             >
                               {value.choices.map((choice, index) => (
                                 <MenuItem key={index} value={choice}>
@@ -261,11 +270,19 @@ const Component = ({
                             fullWidth
                             value={fieldValues[key] || ""}
                             label={key}
-                            placeholder={value.defaultValues ?  String(value.default_value) : ""}
+                            placeholder={
+                              value.defaultValues
+                                ? String(value.default_value)
+                                : ""
+                            }
                             onChange={handleChange(key)}
                             type="text"
                             className="mb-2"
-                            error={!fieldValues[key] && value.required_when}
+                            error={
+                              !fieldValues[key] && value.required_when
+                                ? true
+                                : undefined
+                            }
                           />
                         )
                       ) : value.type === "int" || value.type === "float" ? (
@@ -275,11 +292,19 @@ const Component = ({
                           fullWidth
                           value={fieldValues[key] || ""}
                           label={key}
-                          placeholder={value.defaultValues ?  String(value.default_value) : ""}
+                          placeholder={
+                            value.defaultValues
+                              ? String(value.default_value)
+                              : ""
+                          }
                           onChange={handleChange(key)}
                           type="number"
                           className="mb-2"
-                          error={!fieldValues[key] && value.required_when}
+                          error={
+                            !fieldValues[key] && value.required_when
+                              ? true
+                              : undefined
+                          }
                         />
                       ) : value.type === "bool" ? (
                         // Boolean Field
@@ -290,7 +315,11 @@ const Component = ({
                             label={key}
                             value={fieldValues[key] || ""}
                             onChange={handleChange(key)}
-                            error={!fieldValues[key] && value.required_when}
+                            error={
+                              !fieldValues[key] && value.required_when
+                                ? true
+                                : undefined
+                            }
                           >
                             <MenuItem value="true">True</MenuItem>
                             <MenuItem value="false">False</MenuItem>
@@ -326,6 +355,8 @@ const Component = ({
                                       name={option}
                                       error={
                                         !fieldValues[key] && value.required_when
+                                          ? true
+                                          : undefined
                                       }
                                     />
                                   }
@@ -352,7 +383,11 @@ const Component = ({
                             value={fieldValues[key] || ""}
                             onChange={handleSelect(key)}
                             label={key}
-                            error={!fieldValues[key] && value.required_when}
+                            error={
+                              !fieldValues[key] && value.required_when
+                                ? true
+                                : undefined
+                            }
                           >
                             {filter(parseOrSeparatedString(value.type)).length >
                             0 ? (

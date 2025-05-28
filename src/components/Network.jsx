@@ -213,9 +213,9 @@ function Network() {
                   Show Report
                 </button>
                 <button
-                  disabled={!elcm}
+                  disabled={elcm}
                   className={
-                    !elcm
+                    elcm
                       ? "bg-gray-500 text-white py-6 rounded-xl cursor-not-allowed"
                       : "bg-blue-500 text-white py-6 rounded-xl"
                   }

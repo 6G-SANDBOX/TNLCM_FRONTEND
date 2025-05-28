@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import yaml from "js-yaml";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
   createTrialNetwork,
@@ -363,6 +363,8 @@ const CreateTN = (savedValues) => {
           (component) => component.type === "tn_init"
         );
         const yamlString = convertJsonToYaml(selectedComponent, tnInit);
+        console.log("YAML String: ", yamlString);
+        // TODO ERROR WITH NOKIA AND OPEN5GS
         let formDataV = new FormData();
         const blobV = new Blob([yamlString], { type: "text/yaml" });
         if (tnName.trim() !== "" && tnName !== null && tnName !== undefined) {

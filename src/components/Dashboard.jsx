@@ -11,7 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Box, Button, Modal, Typography } from "@mui/material";
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { deleteTN, getTrialNetworks, purgeTN, putTN } from "../auxFunc/api";
 import { getAccessTokenFromSessionStorage } from "../auxFunc/jwt";
@@ -401,6 +401,8 @@ const Dashboard = () => {
             >
               <FontAwesomeIcon icon={faTrash} />
             </button>
+
+           {/*  TEMPLATES BUTTON */}
           </div>
           <table className="w-full text-left border-collapse ">
             <thead>
