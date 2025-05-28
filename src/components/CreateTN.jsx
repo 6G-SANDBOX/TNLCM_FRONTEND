@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import yaml from "js-yaml";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import {
   createTrialNetwork,
@@ -99,7 +99,7 @@ const CreateTN = (savedValues) => {
         ) {
           return;
         }
-
+        setTnName(savedValues.savedValues.tn_id);
         Object.keys(
           savedValues.savedValues.raw_descriptor.trial_network
         ).forEach((key) => {
