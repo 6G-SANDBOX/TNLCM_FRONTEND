@@ -31,13 +31,14 @@ const CreateTN = (savedValues) => {
   const [temporalData, setTemporalData] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [modalErrorOpen, setModalErrorOpen] = useState(false);
-  const [errorMessage, setErrorMessage]    = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [success, setSuccess] = useState(null);
   const processedSavedValues = useRef(null);
   const [tnName, setTnName] = useState("");
   const location = useLocation();
   const fileValues = location.state?.file; // If we are coming here with a file, get it
-
+  const [showButtons,setShowButtons]= useState(true);
+  const [showLoading, setShowLoading ]= useState(false);
   // UseEffect to fetch the components if we are coming with a file
   useEffect(() => {
     if (fileValues) {
@@ -285,6 +286,8 @@ const CreateTN = (savedValues) => {
 
   // Handle the save of the trial network
   const handleSave = () => {
+    setShowButtons(false);
+    setShowLoading(true);
     // Execute the petition to the server
     (async () => {
       try {
@@ -314,12 +317,15 @@ const CreateTN = (savedValues) => {
         } else {
           await saveTrialNetwork(formDataS);
         }
+        setShowLoading(false);
         setSuccess("Trial Network saved successfully!");
         setTimeout(() => {
           window.location = "/dashboard";
           setSuccess("");
         }, 2502);
       } catch (error) {
+        setShowLoading(false);
+        setShowButtons(true);
         const res = error.response?.data?.message || error.message;
         setSuccess("");
         setModalErrorOpen(true);
@@ -356,6 +362,8 @@ const CreateTN = (savedValues) => {
   // Handle the validation of the trial network
   const handleValidate = () => {
     // Execute the petition to the server
+    setShowButtons(false);
+    setShowLoading(true);
     (async () => {
       try {
         handleDependencies();
@@ -390,12 +398,15 @@ const CreateTN = (savedValues) => {
           String(process.env.REACT_APP_DEPLOYMENT_SITE_TOKEN)
         );
         await createTrialNetwork(formDataV);
+        setShowLoading(false);
         setSuccess("Trial Network validated successfully!");
         setTimeout(() => {
           window.location = "/dashboard";
           setSuccess("");
         }, 2502);
       } catch (error) {
+        setShowLoading(false);
+        setShowButtons(true);
         const res = error.response?.data?.message || error.message;
         setSuccess("");
         setModalErrorOpen(true);
@@ -486,6 +497,10 @@ const CreateTN = (savedValues) => {
                         height="40"
                         image={`/icons/${component}.png`}
                         alt={component}
+                        onError={(e) => {
+                          e.target.onerror = null; // Prevent infinite loop
+                          e.target.src = "/icons/ubuntu.png";
+                        }}
                       />
                       <CardContent className="p-1">
                         <Typography
@@ -586,7 +601,10 @@ const CreateTN = (savedValues) => {
                           <CardMedia
                             component="img"
                             height="40"
-                            image={`/icons/${component.type}.png`}
+                            image={
+                              `/icons/${component.type}.png` ||
+                              `/icons/ubuntu.png`
+                            }
                             alt={component.type}
                           />
                           <CardContent className="p-1">
@@ -612,25 +630,34 @@ const CreateTN = (savedValues) => {
           </div>
         </div>
 
-        <div className="flex gap-4 mt-4">
-          {/* Validate Button */}
-          <Button
-            onClick={handleValidate}
-            variant="contained"
-            style={{ backgroundColor: "#6B21A8" }}
-          >
-            Validate
-          </Button>
+        {showButtons && (
+          <div className="flex gap-4 mt-4">
+            {/* Validate Button */}
+            <Button
+              onClick={handleValidate}
+              variant="contained"
+              style={{ backgroundColor: "#6B21A8" }}
+            >
+              Validate
+            </Button>
 
-          {/* Save Button */}
-          <Button
-            onClick={handleSave}
-            variant="contained"
-            style={{ backgroundColor: "#6B21A8" }}
-          >
-            Save
-          </Button>
-        </div>
+            {/* Save Button */}
+            <Button
+              onClick={handleSave}
+              variant="contained"
+              style={{ backgroundColor: "#6B21A8" }}
+            >
+              Save
+            </Button>
+          </div>
+        )}
+
+        {showLoading && (
+          <div className="flex items-center justify-center mt-4">
+            <img src="/loading.gif" alt="Loading..." style={{ width: "50px" }} />
+          </div>
+        )}
+        
 
         {/* Error if something is wrong */}
         {error && (
