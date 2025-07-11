@@ -33,7 +33,7 @@ const Component = ({
   const [error, setError] = useState(false);
   const [textError, setTextError] = useState("");
   const exceptions = ["tn_init", "tsn", "tn_bastion", "tn_vxlan"];
-
+  const [componentDependencies, setComponentDependencies] = useState([]);
   // Close the modal and reset the data
   const handleSendClose = useCallback(() => {
     setData(null);
@@ -65,6 +65,24 @@ const Component = ({
       setFieldValues(defaultValues.fields);
     }
   }, [component, open, onChange, defaultValues, handleSendClose]);
+
+  // UseEffect for detecting dependencies
+  useEffect(() => {
+    const seeDependencies = () => {
+      const dependenciesList = [];
+      if (data.component?.input) {
+        Object.entries(data.component.input).forEach(([key, value]) => {
+          if (value?.type) {
+            if ((value.type.match(/^list\[(.+)\]$/)) || value.type.includes(" or ")) {
+            dependenciesList.push(value.type);
+            }
+          }
+        });
+      }
+      setComponentDependencies(dependenciesList);
+    };
+    seeDependencies();
+  }, [data]);
 
   // Remove the component from the list
   const handleSendRemove = () => {
