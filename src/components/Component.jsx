@@ -70,11 +70,16 @@ const Component = ({
   useEffect(() => {
     const seeDependencies = () => {
       const dependenciesList = [];
+      if (!data || !data.component) return;
       if (data.component?.input) {
         Object.entries(data.component.input).forEach(([key, value]) => {
           if (value?.type) {
-            if ((value.type.match(/^list\[(.+)\]$/)) || value.type.includes(" or ")) {
-            dependenciesList.push(value.type);
+            if (value.type.match(/^list\[(.+)\]$/)) {
+              let parsedTypes = parseTypeString(value.type);
+              dependenciesList.push(...parsedTypes);
+            } else if (value.type.includes(" or ")) {
+              let parsedTypes = parseOrSeparatedString(value.type);
+              dependenciesList.push(...parsedTypes);
             }
           }
         });
@@ -154,6 +159,10 @@ const Component = ({
     setDetails(!details);
   };
 
+  const handleContinue = () => {
+    setComponentDependencies([]);
+  };
+
   // Handle the checkbox input fields
   const handleCheckbox = (event, key) => {
     const { name, checked } = event.target;
@@ -212,8 +221,25 @@ const Component = ({
           <Typography gutterBottom variant="h4" className=" text-center mb-2">
             {name.toUpperCase()}
           </Typography>
-          {/* Description or Loader*/}
-          {!data.component?.metadata?.long_description ? (
+          {/* Description */}
+          {componentDependencies && componentDependencies.length > 0 ? (
+            <>
+              <Typography
+                gutterBottom
+                variant="body1"
+                className="text-center mb-2"
+              >
+                {"This component has the following dependencies:"}
+              </Typography>
+              <Box component="ul" sx={{ pl: 7, mb: 2 }}>
+                {componentDependencies.map((dep, idx) => (
+                  <li key={dep + idx}>
+                    <Typography variant="body2">- {dep}</Typography>
+                  </li>
+                ))}
+              </Box>
+            </>
+          ) : !data.component?.metadata?.long_description ? (
             <div className=" justify-center flex">
               <img
                 src="/loading.gif"
@@ -452,7 +478,8 @@ const Component = ({
             >
               Close
             </Button>
-            {version ? (
+
+            {version && (
               <Button
                 onClick={handleSendRemove}
                 variant="contained"
@@ -460,16 +487,41 @@ const Component = ({
               >
                 Remove
               </Button>
-            ) : (
-              ""
             )}
-            <Button onClick={handleDetails} variant="contained" color="primary">
-              {details ? "Hide" : "Show"} Details
-            </Button>
 
-            <Button onClick={handleAdd} variant="contained" color="primary">
-              {version ? "Save" : "Add"}
-            </Button>
+            {componentDependencies && !componentDependencies.length > 0 && (
+              <Button
+                onClick={handleDetails}
+                variant="contained"
+                color="primary"
+              >
+                {details ? "Hide" : "Show"} Details
+              </Button>
+            )}
+
+            {componentDependencies && componentDependencies.length > 0 ? (
+              version ? (
+                <Button onClick={handleAdd} variant="contained" color="primary">
+                  Save
+                </Button>
+              ) : (
+                <Button
+                  onClick={handleContinue}
+                  variant="contained"
+                  color="primary"
+                >
+                  Continue
+                </Button>
+              )
+            ) : (
+              <Button
+                onClick={handleAdd}
+                variant="contained"
+                color="primary"
+              >
+                {version ? "Save" : "Add"}
+              </Button>
+            )}
           </Box>
         </Box>
       </Modal>
