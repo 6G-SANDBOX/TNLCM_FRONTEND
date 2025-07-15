@@ -23,6 +23,7 @@ const Component = ({
   handleRemove,
   defaultValues,
   filter,
+  handleOpen,
 }) => {
   const [data, setData] = useState(null);
   const [fieldValues, setFieldValues] = useState({});
@@ -34,6 +35,8 @@ const Component = ({
   const [textError, setTextError] = useState("");
   const exceptions = ["tn_init", "tsn", "tn_bastion", "tn_vxlan"];
   const [componentDependencies, setComponentDependencies] = useState([]);
+  const [selectDependencies, setSelectDependencies] = useState(false);
+
   // Close the modal and reset the data
   const handleSendClose = useCallback(() => {
     setData(null);
@@ -45,6 +48,9 @@ const Component = ({
     setDetails(false);
     setVersion(false);
     setDependencies([]);
+    setComponentDependencies([]);
+    setSelectDependencies(false);
+    setSelectDependencies(false);
   }, [handleClose]);
 
   // UseEffect to fetch the data when the modal is open
@@ -159,8 +165,19 @@ const Component = ({
     setDetails(!details);
   };
 
+  // Handle the continue button when dependencies are present
   const handleContinue = () => {
     setComponentDependencies([]);
+  };
+
+  // Handle the dependencies when the component has dependencies
+  const handleDependencies = () => {
+    setSelectDependencies(true);
+  };
+
+  const handleSelectDependency = (dep) => {
+    handleSendClose();
+    handleOpen(dep);
   };
 
   // Handle the checkbox input fields
@@ -222,14 +239,17 @@ const Component = ({
             {name.toUpperCase()}
           </Typography>
           {/* Description */}
-          {componentDependencies && componentDependencies.length > 0 ? (
+          {componentDependencies &&
+          !selectDependencies &&
+          !version &&
+          componentDependencies.length > 0 ? (
             <>
               <Typography
                 gutterBottom
                 variant="body1"
                 className="text-center mb-2"
               >
-                {"This component has the following dependencies:"}
+                {"This component has the following dependencie:"}
               </Typography>
               <Box component="ul" sx={{ pl: 7, mb: 2 }}>
                 {componentDependencies.map((dep, idx) => (
@@ -239,6 +259,14 @@ const Component = ({
                 ))}
               </Box>
             </>
+          ) : selectDependencies ? (
+            <Typography
+              gutterBottom
+              variant="body1"
+              className="text-center mb-2"
+            >
+              {"Select the dependencies you want to add:"}
+            </Typography>
           ) : !data.component?.metadata?.long_description ? (
             <div className=" justify-center flex">
               <img
@@ -266,7 +294,7 @@ const Component = ({
                   fullWidth
                   value={fieldValues["name"] || ""}
                   label={"Name"}
-                  onChange={handleChange("name")}
+                  onChange={(e) => handleChange("name")(e)}
                   type="text"
                   className="mb-2"
                   error={!fieldValues["name"] ? true : undefined}
@@ -292,7 +320,7 @@ const Component = ({
                               labelId={`${key}-label`}
                               id="select"
                               value={fieldValues[key] || ""}
-                              onChange={handleChange(key)}
+                              onChange={(e) => handleChange(key)(e)}
                               label={key}
                               error={
                                 !fieldValues[key] && value.required_when
@@ -319,7 +347,7 @@ const Component = ({
                                 ? String(value.default_value)
                                 : ""
                             }
-                            onChange={handleChange(key)}
+                            onChange={(e) => handleChange(key)(e)}
                             type="text"
                             className="mb-2"
                             error={
@@ -341,7 +369,7 @@ const Component = ({
                               ? String(value.default_value)
                               : ""
                           }
-                          onChange={handleChange(key)}
+                          onChange={(e) => handleChange(key)(e)}
                           type="number"
                           className="mb-2"
                           error={
@@ -358,7 +386,7 @@ const Component = ({
                             labelId={`${key}-label`}
                             label={key}
                             value={fieldValues[key] || ""}
-                            onChange={handleChange(key)}
+                            onChange={(e) => handleChange(key)(e)}
                             error={
                               !fieldValues[key] && value.required_when
                                 ? true
@@ -425,7 +453,7 @@ const Component = ({
                           </InputLabel>
                           <Select
                             value={fieldValues[key] || ""}
-                            onChange={handleSelect(key)}
+                            onChange={(e) => handleSelect(key)(e)}
                             label={key}
                             error={
                               !fieldValues[key] && value.required_when
@@ -471,13 +499,16 @@ const Component = ({
           <Box
             sx={{ display: "flex", justifyContent: "center", gap: 2, mt: 2 }}
           >
-            <Button
-              onClick={handleSendClose}
-              variant="contained"
-              color="primary"
-            >
-              Close
-            </Button>
+            {/* General Buttons */}
+            {!selectDependencies && (
+              <Button
+                onClick={handleSendClose}
+                variant="contained"
+                color="primary"
+              >
+                Close
+              </Button>
+            )}
 
             {version && (
               <Button
@@ -489,6 +520,7 @@ const Component = ({
               </Button>
             )}
 
+            {/* First step select to handle the dependencies or just continue without them*/}
             {componentDependencies && !componentDependencies.length > 0 && (
               <Button
                 onClick={handleDetails}
@@ -499,29 +531,56 @@ const Component = ({
               </Button>
             )}
 
-            {componentDependencies && componentDependencies.length > 0 ? (
-              version ? (
+            {!selectDependencies &&
+            componentDependencies &&
+            componentDependencies.length > 0 ? (
+              details && version ? (
                 <Button onClick={handleAdd} variant="contained" color="primary">
                   Save
                 </Button>
               ) : (
-                <Button
-                  onClick={handleContinue}
-                  variant="contained"
-                  color="primary"
-                >
-                  Continue
-                </Button>
+                <>
+                  <Button
+                    onClick={handleContinue}
+                    variant="contained"
+                    color="primary"
+                  >
+                    Continue
+                  </Button>
+                  <Button
+                    onClick={handleDependencies}
+                    variant="contained"
+                    color="primary"
+                  >
+                    Add Dependencies
+                  </Button>
+                </>
               )
             ) : (
-              <Button
-                onClick={handleAdd}
-                variant="contained"
-                color="primary"
-              >
-                {version ? "Save" : "Add"}
-              </Button>
+              !selectDependencies && (
+                <Button onClick={handleAdd} variant="contained" color="primary">
+                  {version ? "Save" : "Add"}
+                </Button>
+              )
             )}
+
+            {/* Second step, if it is wanted to handle the dependencies, select which one */}
+            {selectDependencies &&
+              componentDependencies &&
+              componentDependencies.length > 0 &&
+              componentDependencies.map((dep, idx) => (
+                <Button
+                  key={dep + idx}
+                  onClick={() => handleSelectDependency(dep)}
+                  variant="contained"
+                  color="primary"
+                  style={{
+                    fontSize: "0.65rem",
+                  }}
+                >
+                  {dep}
+                </Button>
+              ))}
           </Box>
         </Box>
       </Modal>
