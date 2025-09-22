@@ -90,7 +90,7 @@ const Component = ({
           }
         });
       }
-      setComponentDependencies(dependenciesList);
+      setComponentDependencies([...new Set(dependenciesList)]);
     };
     seeDependencies();
   }, [data]);
@@ -249,7 +249,7 @@ const Component = ({
                 variant="body1"
                 className="text-center mb-2"
               >
-                {"This component has the following dependencie:"}
+                {"This component has the following dependencies:"}
               </Typography>
               <Box component="ul" sx={{ pl: 7, mb: 2 }}>
                 {componentDependencies.map((dep, idx) => (

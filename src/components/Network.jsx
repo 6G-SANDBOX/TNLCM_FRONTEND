@@ -54,7 +54,7 @@ function Network() {
           setMarkdown(response.data.report);
           setDescriptor(yaml.dump(response.data.sorted_descriptor, null, 2));
           // Search for ELCM and VPN nodes in the descriptor
-          searchELCM(yaml.dump(response.data.sorted_descriptor, null, 2));
+          searchELCM(response.data.sorted_descriptor);
           searchVPN(response.data.sorted_descriptor);
           // Delete non wanted fields from the descriptor
           let tempDictionary = response.data;
@@ -213,9 +213,9 @@ function Network() {
                   Show Report
                 </button>
                 <button
-                  disabled={elcm}
+                  disabled={!elcm}
                   className={
-                    elcm
+                    !elcm
                       ? "bg-gray-500 text-white py-6 rounded-xl cursor-not-allowed"
                       : "bg-blue-500 text-white py-6 rounded-xl"
                   }
