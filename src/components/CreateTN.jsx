@@ -329,7 +329,7 @@ const CreateTN = (savedValues) => {
         const res = error.response?.data?.message || error.message;
         setSuccess("");
         setModalErrorOpen(true);
-        setErrorMessage("Error: Can not save the TN due to: " + res);
+        setErrorMessage("Error: Cannot save the TN due to: " + res);
       }
     })();
   };
@@ -410,7 +410,7 @@ const CreateTN = (savedValues) => {
         const res = error.response?.data?.message || error.message;
         setSuccess("");
         setModalErrorOpen(true);
-        setErrorMessage("Error: Can not save the TN due to: " + res);
+        setErrorMessage("Error: Cannot save the TN due to: " + res);
       }
     })();
   };

@@ -56,7 +56,7 @@ const Login = () => {
         }
       } else if (err.code === "ECONNABORTED") {
         // Timeout error
-        setError("Can not connect with the server. The request timed out.");
+        setError("Unable to connect to the server. The request timed out.");
       } else if (err.message === "Network Error") {
         // Network error
         setError("Network error. Please check your internet connection.");

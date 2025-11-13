@@ -33,7 +33,7 @@ const ProfileModal = ({ isOpen, onClose, userInfo }) => {
       return;
     }
     if (newPassword === oldPassword) {
-      setError("Passwords can not be the same.");
+      setError("Passwords cannot be the same.");
       return;
     }
     const result = await changePwd(oldPassword, newPassword, username);
