@@ -70,7 +70,7 @@ const Dashboard = () => {
       if (invalidIds.length > 0) {
         setModalErrorOpen(true);
         setErrorMessage(
-          `Can not purge the nexts TNs becouse their state is not "validated", "destroyed" or "created": ${invalidIds.join(
+          `Unable to purge the following TNs because their state is not "validated", "destroyed", or "created": ${invalidIds.join(
             ", "
           )}`
         );
@@ -118,7 +118,7 @@ const Dashboard = () => {
       if (invalidIds.length > 0) {
         setModalErrorOpen(true);
         setErrorMessage(
-          `Can not destroy the nexts TNs becouse their state is not "activated" or "failed": ${invalidIds.join(
+          `Unable to destroy the following TNs because their state is not "activated" or "failed": ${invalidIds.join(
             ", "
           )}`
         );
