@@ -533,6 +533,7 @@ const CreateTN = (savedValues) => {
             handleRemove={handleRemoveId}
             defaultValues={temporalData}
             filter={filterAndFormatEntries}
+            handleOpen={handleClick}
           />
 
           {/* Modal Error when opening existant components */}

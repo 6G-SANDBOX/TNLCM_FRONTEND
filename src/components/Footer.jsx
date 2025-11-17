@@ -1,7 +1,6 @@
 import { faGithub } from "@fortawesome/free-brands-svg-icons";
 import { faEnvelope, faGlobe } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
 
 const Footer = () => {
   return (
@@ -18,7 +17,7 @@ const Footer = () => {
           <p className="text-sm text-gray-500">
             Our friendly team is here to help.
           </p>
-          <p className="text-sm text-purple-600">hi@untitledui.com</p>
+          <p className="text-sm text-purple-600">6gsandbox@gmail.com</p>
         </div>
 
         {/* Office */}
